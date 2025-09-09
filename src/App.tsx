@@ -8,6 +8,8 @@ import Plan from "./pages/Plan";
 import Register from "./pages/Register";
 import Analysis from "./pages/Analysis";
 import Profile from "./pages/Profile";
+import Onboarding from "./pages/Onboarding";
+import GoalCatalog from "./pages/GoalCatalog";
 import NotFound from "./pages/NotFound";
 import TabNavigation from "./components/layout/TabNavigation";
 
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/analysis" element={<Analysis />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/goal-catalog" element={<GoalCatalog />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <TabNavigation />
