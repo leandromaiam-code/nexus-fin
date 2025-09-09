@@ -305,7 +305,7 @@ const Onboarding = () => {
                     {questions[currentStep - 1].question_text}
                   </p>
 
-                  {questions[currentStep - 1].target_column.includes('income') ? (
+                  {questions[currentStep - 1].target_column.includes('income') || questions[currentStep - 1].target_column.includes('cost_of_living') ? (
                     <Input
                       type="number"
                       value={answers[questions[currentStep - 1].target_column] || ''}

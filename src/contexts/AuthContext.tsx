@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         .from('users')
         .select('*')
         .eq('phone_number', phoneNumber)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         return { success: false, error: 'Usuário não encontrado' };

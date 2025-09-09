@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import Diagnostic from "./pages/Diagnostic";
 import NotFound from "./pages/NotFound";
 import TabNavigation from "./components/layout/TabNavigation";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -27,15 +28,15 @@ const App = () => (
         <BrowserRouter>
           <div className="min-h-screen bg-background">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/plan" element={<Plan />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/analysis" element={<Analysis />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/goal-catalog" element={<GoalCatalog />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/diagnostic" element={<Diagnostic />} />
+              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/plan" element={<ProtectedRoute><Plan /></ProtectedRoute>} />
+              <Route path="/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
+              <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/goal-catalog" element={<ProtectedRoute><GoalCatalog /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <TabNavigation />
