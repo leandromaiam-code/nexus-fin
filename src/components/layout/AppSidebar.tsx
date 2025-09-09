@@ -92,7 +92,10 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <div className="w-4 h-4 bg-white rounded-full"></div>
+              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
             </div>
             <h2 className="text-lg font-semibold text-foreground">
               Nexus

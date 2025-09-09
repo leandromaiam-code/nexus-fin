@@ -54,7 +54,10 @@ const Login = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 p-2 flex items-center justify-center">
-            <div className="w-8 h-8 bg-primary rounded-full"></div>
+            <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-2">
             Bem-vindo de volta
@@ -127,7 +130,7 @@ const Login = () => {
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Primeira vez aqui? Fazer cadastro
+                Primeira vez aqui? Criar nova conta
               </Button>
             </div>
           </CardContent>

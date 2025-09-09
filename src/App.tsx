@@ -29,8 +29,8 @@ const App = () => (
           <div className="min-h-screen bg-background">
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/diagnostic" element={<Diagnostic />} />
+              <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+              <Route path="/diagnostic" element={<ProtectedRoute><Diagnostic /></ProtectedRoute>} />
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/plan" element={<ProtectedRoute><Plan /></ProtectedRoute>} />
               <Route path="/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
