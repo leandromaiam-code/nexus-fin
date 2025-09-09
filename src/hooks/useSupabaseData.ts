@@ -7,13 +7,16 @@ export const useUserData = () => {
   return useQuery({
     queryKey: ['user-data'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const savedUser = localStorage.getItem('nexus-user');
+      if (!savedUser) throw new Error('Not authenticated');
+      
+      const userData = JSON.parse(savedUser);
+      const userId = parseInt(userData.id);
 
       const { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('auth_id', user.id)
+        .eq('id', userId)
         .single();
 
       if (error) throw error;
@@ -28,22 +31,16 @@ export const useMonthlyData = (month?: string) => {
   return useQuery({
     queryKey: ['monthly-data', month],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      // Get user ID first
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('auth_id', user.id)
-        .single();
-
-      if (!userData) throw new Error('User not found');
+      const savedUser = localStorage.getItem('nexus-user');
+      if (!savedUser) throw new Error('Not authenticated');
+      
+      const userData = JSON.parse(savedUser);
+      const userId = parseInt(userData.id);
 
       const { data, error } = await supabase
         .from('monthly_summaries')
         .select('*')
-        .eq('user_id', userData.id)
+        .eq('user_id', userId)
         .order('month', { ascending: false })
         .limit(1);
 
@@ -62,16 +59,11 @@ export const useUserGoals = () => {
   return useQuery({
     queryKey: ['user-goals'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('auth_id', user.id)
-        .single();
-
-      if (!userData) throw new Error('User not found');
+      const savedUser = localStorage.getItem('nexus-user');
+      if (!savedUser) throw new Error('Not authenticated');
+      
+      const userData = JSON.parse(savedUser);
+      const userId = parseInt(userData.id);
 
       const { data, error } = await supabase
         .from('user_goals')
@@ -82,7 +74,7 @@ export const useUserGoals = () => {
             description
           )
         `)
-        .eq('user_id', userData.id)
+        .eq('user_id', userId)
         .eq('status', 'active')
         .order('is_primary', { ascending: false });
 
@@ -97,16 +89,11 @@ export const usePrimaryGoal = () => {
   return useQuery({
     queryKey: ['primary-goal'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('auth_id', user.id)
-        .single();
-
-      if (!userData) throw new Error('User not found');
+      const savedUser = localStorage.getItem('nexus-user');
+      if (!savedUser) throw new Error('Not authenticated');
+      
+      const userData = JSON.parse(savedUser);
+      const userId = parseInt(userData.id);
 
       const { data, error } = await supabase
         .from('user_goals')
@@ -117,12 +104,12 @@ export const usePrimaryGoal = () => {
             description
           )
         `)
-        .eq('user_id', userData.id)
+        .eq('user_id', userId)
         .eq('is_primary', true)
         .eq('status', 'active')
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       return data;
     }
   });
@@ -133,16 +120,11 @@ export const useRecentTransactions = (limit = 5) => {
   return useQuery({
     queryKey: ['recent-transactions', limit],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('auth_id', user.id)
-        .single();
-
-      if (!userData) throw new Error('User not found');
+      const savedUser = localStorage.getItem('nexus-user');
+      if (!savedUser) throw new Error('Not authenticated');
+      
+      const userData = JSON.parse(savedUser);
+      const userId = parseInt(userData.id);
 
       const { data, error } = await supabase
         .from('transactions')
@@ -153,7 +135,7 @@ export const useRecentTransactions = (limit = 5) => {
             icon_name
           )
         `)
-        .eq('user_id', userData.id)
+        .eq('user_id', userId)
         .order('transaction_date', { ascending: false })
         .limit(limit);
 
@@ -168,23 +150,18 @@ export const useCategorySpending = (month?: string) => {
   return useQuery({
     queryKey: ['category-spending', month],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('auth_id', user.id)
-        .single();
-
-      if (!userData) throw new Error('User not found');
+      const savedUser = localStorage.getItem('nexus-user');
+      if (!savedUser) throw new Error('Not authenticated');
+      
+      const userData = JSON.parse(savedUser);
+      const userId = parseInt(userData.id);
 
       const currentMonth = month || new Date().toISOString().slice(0, 7) + '-01';
 
       const { data, error } = await supabase
         .from('category_spending_by_month')
         .select('*')
-        .eq('user_id', userData.id)
+        .eq('user_id', userId)
         .eq('month', currentMonth)
         .order('total_spent_in_category', { ascending: false });
 
@@ -215,22 +192,18 @@ export const useCategories = () => {
   return useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const savedUser = localStorage.getItem('nexus-user');
       let userId = null;
 
-      if (user) {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('id')
-          .eq('auth_id', user.id)
-          .single();
-        userId = userData?.id;
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        userId = parseInt(userData.id);
       }
 
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .or(`user_id.is.null,user_id.eq.${userId}`)
+        .or(`user_id.is.null${userId ? `,user_id.eq.${userId}` : ''}`)
         .order('name');
 
       if (error) throw error;
@@ -251,21 +224,16 @@ export const useCreateGoal = () => {
       target_date?: string;
       is_primary?: boolean;
     }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('auth_id', user.id)
-        .single();
-
-      if (!userData) throw new Error('User not found');
+      const savedUser = localStorage.getItem('nexus-user');
+      if (!savedUser) throw new Error('Not authenticated');
+      
+      const userData = JSON.parse(savedUser);
+      const userId = parseInt(userData.id);
 
       const { data, error } = await supabase
         .from('user_goals')
         .insert({
-          user_id: userData.id,
+          user_id: userId,
           ...goalData
         })
         .select()
