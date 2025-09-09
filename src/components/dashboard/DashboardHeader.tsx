@@ -1,6 +1,5 @@
 import React from 'react';
-import { Bell } from 'lucide-react';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Bell, Menu } from 'lucide-react';
 
 interface DashboardHeaderProps {
   userName: string;
@@ -12,9 +11,11 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   financialArchetype 
 }) => {
   return (
-    <header className="flex items-center justify-between p-6 bg-background border-b border-border">
+    <header className="flex items-center justify-between p-6 bg-background">
       <div className="flex items-center space-x-3">
-        <SidebarTrigger className="p-2 rounded-lg hover:bg-muted transition-colors" />
+        <button className="p-2 rounded-lg hover:bg-muted transition-colors">
+          <Menu size={24} className="text-foreground" />
+        </button>
         <div>
           <h1 className="text-display text-xl">
             Olá, {userName}

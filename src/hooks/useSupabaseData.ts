@@ -1,66 +1,78 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
 // User Data Hook
 export const useUserData = () => {
-  const { user } = useAuth();
-  
   return useQuery({
-    queryKey: ['user-data', user?.id],
+    queryKey: ['user-data'],
     queryFn: async () => {
-      if (!user?.id) throw new Error('No user logged in');
-      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
       const { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('id', user.id)
+        .eq('auth_id', user.id)
         .single();
-      
+
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    retry: false
   });
 };
 
 // Monthly Summary Hook
 export const useMonthlyData = (month?: string) => {
-  const { user } = useAuth();
-  
   return useQuery({
-    queryKey: ['monthly-data', user?.id, month],
+    queryKey: ['monthly-data', month],
     queryFn: async () => {
-      if (!user?.id) throw new Error('No user logged in');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
 
-      const targetMonth = month || new Date().toISOString().slice(0, 7) + '-01';
-      
+      // Get user ID first
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_id', user.id)
+        .single();
+
+      if (!userData) throw new Error('User not found');
+
       const { data, error } = await supabase
         .from('monthly_summaries')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('month', targetMonth)
+        .eq('user_id', userData.id)
         .order('month', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      
+        .limit(1);
+
       if (error) throw error;
-      return data;
-    },
-    enabled: !!user?.id,
+      return data?.[0] || {
+        balance: 0,
+        total_spent: 0,
+        renda_base_amount: 0
+      };
+    }
   });
 };
 
 // User Goals Hook
 export const useUserGoals = () => {
-  const { user } = useAuth();
-  
   return useQuery({
-    queryKey: ['user-goals', user?.id],
+    queryKey: ['user-goals'],
     queryFn: async () => {
-      if (!user?.id) throw new Error('No user logged in');
-      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_id', user.id)
+        .single();
+
+      if (!userData) throw new Error('User not found');
+
       const { data, error } = await supabase
         .from('user_goals')
         .select(`
@@ -70,24 +82,31 @@ export const useUserGoals = () => {
             description
           )
         `)
-        .eq('user_id', user.id)
-        .eq('status', 'active');
-      
+        .eq('user_id', userData.id)
+        .eq('status', 'active')
+        .order('is_primary', { ascending: false });
+
       if (error) throw error;
       return data || [];
-    },
-    enabled: !!user?.id,
+    }
   });
 };
 
 // Primary Goal Hook
 export const usePrimaryGoal = () => {
-  const { user } = useAuth();
-  
   return useQuery({
-    queryKey: ['primary-goal', user?.id],
+    queryKey: ['primary-goal'],
     queryFn: async () => {
-      if (!user?.id) throw new Error('No user logged in');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_id', user.id)
+        .single();
+
+      if (!userData) throw new Error('User not found');
 
       const { data, error } = await supabase
         .from('user_goals')
@@ -98,26 +117,32 @@ export const usePrimaryGoal = () => {
             description
           )
         `)
-        .eq('user_id', user.id)
+        .eq('user_id', userData.id)
         .eq('is_primary', true)
         .eq('status', 'active')
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
       return data;
-    },
-    enabled: !!user?.id,
+    }
   });
 };
 
 // Recent Transactions Hook
 export const useRecentTransactions = (limit = 5) => {
-  const { user } = useAuth();
-  
   return useQuery({
-    queryKey: ['recent-transactions', user?.id, limit],
+    queryKey: ['recent-transactions', limit],
     queryFn: async () => {
-      if (!user?.id) throw new Error('No user logged in');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_id', user.id)
+        .single();
+
+      if (!userData) throw new Error('User not found');
 
       const { data, error } = await supabase
         .from('transactions')
@@ -128,39 +153,44 @@ export const useRecentTransactions = (limit = 5) => {
             icon_name
           )
         `)
-        .eq('user_id', user.id)
+        .eq('user_id', userData.id)
         .order('transaction_date', { ascending: false })
         .limit(limit);
 
       if (error) throw error;
       return data || [];
-    },
-    enabled: !!user?.id,
+    }
   });
 };
 
 // Category Spending Hook
 export const useCategorySpending = (month?: string) => {
-  const { user } = useAuth();
-  
   return useQuery({
-    queryKey: ['category-spending', user?.id, month],
+    queryKey: ['category-spending', month],
     queryFn: async () => {
-      if (!user?.id) throw new Error('No user logged in');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_id', user.id)
+        .single();
+
+      if (!userData) throw new Error('User not found');
 
       const currentMonth = month || new Date().toISOString().slice(0, 7) + '-01';
 
       const { data, error } = await supabase
         .from('category_spending_by_month')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userData.id)
         .eq('month', currentMonth)
         .order('total_spent_in_category', { ascending: false });
 
       if (error) throw error;
       return data || [];
-    },
-    enabled: !!user?.id,
+    }
   });
 };
 
@@ -182,15 +212,25 @@ export const useGoalTemplates = () => {
 
 // Categories Hook
 export const useCategories = () => {
-  const { user } = useAuth();
-  
   return useQuery({
-    queryKey: ['categories', user?.id],
+    queryKey: ['categories'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      let userId = null;
+
+      if (user) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('id')
+          .eq('auth_id', user.id)
+          .single();
+        userId = userData?.id;
+      }
+
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .or(`user_id.is.null,user_id.eq.${user?.id || 0}`)
+        .or(`user_id.is.null,user_id.eq.${userId}`)
         .order('name');
 
       if (error) throw error;
@@ -202,7 +242,6 @@ export const useCategories = () => {
 // Create Goal Mutation
 export const useCreateGoal = () => {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (goalData: {
@@ -212,12 +251,21 @@ export const useCreateGoal = () => {
       target_date?: string;
       is_primary?: boolean;
     }) => {
-      if (!user?.id) throw new Error('No user logged in');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_id', user.id)
+        .single();
+
+      if (!userData) throw new Error('User not found');
 
       const { data, error } = await supabase
         .from('user_goals')
         .insert({
-          user_id: user.id,
+          user_id: userData.id,
           ...goalData
         })
         .select()
