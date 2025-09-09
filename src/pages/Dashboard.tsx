@@ -21,11 +21,7 @@ const Dashboard = () => {
 
   const isLoading = userLoading || monthlyLoading || goalLoading || transactionsLoading;
 
-  // If user is not authenticated or doesn't exist, redirect to onboarding
-  if (userError && !userLoading) {
-    navigate('/onboarding');
-    return null;
-  }
+  // Remove automatic redirect - let user choose
 
   const handleGoalDetails = (goalId?: number) => {
     if (goalId) {

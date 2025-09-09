@@ -40,6 +40,11 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
 
+  // Don't show sidebar on login and onboarding pages
+  if (location.pathname === '/login' || location.pathname === '/onboarding') {
+    return null;
+  }
+
   const handleLogout = () => {
     logout();
     navigate('/login');

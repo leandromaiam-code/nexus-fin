@@ -16,8 +16,6 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import TabNavigation from "./components/layout/TabNavigation";
 import { AppSidebar } from "./components/layout/AppSidebar";
-import ProtectedRoute from "./components/layout/ProtectedRoute";
-
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -33,7 +31,7 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/*" element={
-                  <ProtectedRoute>
+                  <>
                     <AppSidebar />
                     <main className="flex-1 flex flex-col">
                       <Routes>
@@ -47,7 +45,7 @@ const App = () => (
                       </Routes>
                       <TabNavigation />
                     </main>
-                  </ProtectedRoute>
+                  </>
                 } />
               </Routes>
             </div>
