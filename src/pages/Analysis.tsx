@@ -129,21 +129,36 @@ const Analysis = () => {
           {/* Category Legend */}
           <div className="grid grid-cols-2 gap-3">
             {categoryData.map((category, index) => (
-              <div key={index} className="flex items-center space-x-2">
+              <button
+                key={index}
+                onClick={() => window.location.href = `/analysis/category/${index + 1}`}
+                className="flex items-center space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
+              >
                 <div 
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: category.color }}
                 />
-                <span className="text-sm text-foreground flex-1 truncate">
+                <span className="text-sm text-foreground flex-1 truncate text-left">
                   {category.icon} {category.name}
                 </span>
-                <span className="text-sm font-medium text-financial">
+                <span className="text-sm font-medium text-financial group-hover:text-primary transition-colors">
                   {formatCurrency(category.value)}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
+
+        {/* Wealth Evolution Link */}
+        <button
+          onClick={() => window.location.href = '/wealth-evolution'}
+          className="w-full p-4 border-2 border-dashed border-primary/30 rounded-xl hover:border-primary hover:bg-primary/5 transition-colors group"
+        >
+          <div className="flex items-center justify-center text-primary">
+            <TrendingDown size={20} className="mr-2" />
+            <span className="font-medium">Ver Evolução Patrimonial</span>
+          </div>
+        </button>
 
         {/* Monthly Trend */}
         <div className="card-nexus">

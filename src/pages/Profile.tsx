@@ -34,7 +34,7 @@ const Profile = () => {
           icon: FileText,
           label: "Meu Diagnóstico",
           description: "Arquétipo e perfil financeiro",
-          action: () => console.log("View diagnosis")
+          action: () => window.location.href = "/my-diagnostic"
         }
       ]
     },
@@ -45,7 +45,7 @@ const Profile = () => {
           icon: Target,
           label: "Gerenciar Categorias",
           description: "Personalizar plano de contas",
-          action: () => console.log("Manage categories")
+          action: () => window.location.href = "/manage-categories"
         },
         {
           icon: BarChart3,

@@ -11,6 +11,11 @@ import Analysis from "./pages/Analysis";
 import Profile from "./pages/Profile";
 import Onboarding from "./pages/Onboarding";
 import GoalCatalog from "./pages/GoalCatalog";
+import GoalDetails from "./pages/GoalDetails";
+import CategoryAnalysis from "./pages/CategoryAnalysis";
+import WealthEvolution from "./pages/WealthEvolution";
+import MyDiagnostic from "./pages/MyDiagnostic";
+import ManageCategories from "./pages/ManageCategories";
 import Login from "./pages/Login";
 import Diagnostic from "./pages/Diagnostic";
 import NotFound from "./pages/NotFound";
@@ -37,6 +42,11 @@ const App = () => (
               <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/goal-catalog" element={<ProtectedRoute><GoalCatalog /></ProtectedRoute>} />
+              <Route path="/goal/:id" element={<ProtectedRoute><GoalDetails /></ProtectedRoute>} />
+              <Route path="/analysis/category/:categoryId" element={<ProtectedRoute><CategoryAnalysis /></ProtectedRoute>} />
+              <Route path="/wealth-evolution" element={<ProtectedRoute><WealthEvolution /></ProtectedRoute>} />
+              <Route path="/my-diagnostic" element={<ProtectedRoute><MyDiagnostic /></ProtectedRoute>} />
+              <Route path="/manage-categories" element={<ProtectedRoute><ManageCategories /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <TabNavigation />
