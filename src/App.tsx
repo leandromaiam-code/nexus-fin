@@ -53,7 +53,7 @@ const AppRoutes = () => {
         
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {user && <TabNavigation />}
+      <TabNavigation />
     </>
   )
 }

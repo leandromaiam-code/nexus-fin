@@ -72,38 +72,38 @@ const Profile = () => {
   const MenuItem = ({ item }: { item: any }) => (
     <button
       onClick={item.action}
-      className="w-full flex items-center justify-between p-4 bg-card rounded-xl border border-border hover:bg-muted transition-colors group"
+      className="w-full flex items-center justify-between p-3 sm:p-4 bg-card rounded-xl border border-border hover:bg-muted transition-colors group"
     >
-      <div className="flex items-center space-x-3">
-        <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-          <item.icon className="text-primary" size={20} />
+      <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0 flex-1">
+        <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors flex-shrink-0">
+          <item.icon className="text-primary" size={18} />
         </div>
-        <div className="text-left">
-          <p className="font-medium text-foreground">{item.label}</p>
-          <p className="text-sm text-muted-foreground">{item.description}</p>
+        <div className="text-left min-w-0 flex-1">
+          <p className="font-medium text-foreground text-sm sm:text-base">{item.label}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground truncate">{item.description}</p>
         </div>
       </div>
-      <ChevronRight className="text-muted-foreground group-hover:text-foreground transition-colors" size={20} />
+      <ChevronRight className="text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" size={18} />
     </button>
   );
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <header className="p-6">
-        <h1 className="text-2xl font-bold text-display mb-2">Perfil</h1>
-        <p className="text-muted-foreground">Gerencie sua conta e configurações</p>
+    <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0">
+      <header className="p-4 sm:p-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-display mb-2">Perfil</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Gerencie sua conta e configurações</p>
       </header>
 
-      <div className="px-6 space-y-6">
+      <div className="px-4 sm:px-6 space-y-4 sm:space-y-6">
         {/* User Info Card */}
         <div className="card-nexus">
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="w-16 h-16 bg-gradient-nexus rounded-full flex items-center justify-center">
-              <User className="text-white" size={24} />
+          <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
+            <div className="w-12 sm:w-16 h-12 sm:h-16 bg-gradient-nexus rounded-full flex items-center justify-center flex-shrink-0">
+              <User className="text-white" size={20} />
             </div>
-            <div className="flex-1">
-              <h2 className="text-xl font-bold text-display">{user?.full_name}</h2>
-              <p className="text-sm text-primary font-medium">{user?.financial_archetype}</p>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg sm:text-xl font-bold text-display truncate">{user?.full_name}</h2>
+              <p className="text-xs sm:text-sm text-primary font-medium">{user?.financial_archetype}</p>
             </div>
           </div>
         </div>
@@ -111,11 +111,11 @@ const Profile = () => {
         {/* Menu Sections */}
         {menuSections.map((section, sectionIndex) => (
           <div key={sectionIndex}>
-            <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center">
-              <Settings className="mr-2 text-primary" size={20} />
+            <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2 sm:mb-3 flex items-center">
+              <Settings className="mr-2 text-primary" size={18} />
               {section.title}
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {section.items.map((item, itemIndex) => (
                 <MenuItem key={itemIndex} item={item} />
               ))}
@@ -124,10 +124,10 @@ const Profile = () => {
         ))}
 
         {/* Action Buttons */}
-        <div className="pt-4 space-y-3">
+        <div className="pt-3 sm:pt-4 space-y-2.5 sm:space-y-3">
           <NexusButton 
             variant="ghost"
-            className="w-full"
+            className="w-full text-sm sm:text-base"
             onClick={logout}
           >
             <LogOut size={16} className="mr-2" />
@@ -135,7 +135,7 @@ const Profile = () => {
           </NexusButton>
           <NexusButton 
             variant="destructive" 
-            className="w-full"
+            className="w-full text-sm sm:text-base"
             onClick={handleDeleteAccount}
           >
             Excluir Minha Conta Permanentemente

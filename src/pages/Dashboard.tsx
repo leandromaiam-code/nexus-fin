@@ -81,7 +81,7 @@ const Dashboard = () => {
   })) || [];
 
   return (
-    <div className="min-h-screen bg-background pb-20 animate-fade-in">
+    <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0 animate-fade-in">
       <DashboardHeader 
         userName={userData.full_name || 'Usuário'}
         financialArchetype={userData.financial_archetype || 'Sem arquétipo definido'}
@@ -104,7 +104,7 @@ const Dashboard = () => {
           onViewDetails={() => handleGoalDetails(goalData.id)}
         />
       ) : (
-        <div className="px-6 mb-6">
+        <div className="px-4 sm:px-6 mb-4 sm:mb-6">
           <div className="card-nexus">
             <EmptyState
               icon={({ size, className }) => (

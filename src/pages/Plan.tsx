@@ -108,26 +108,26 @@ const Plan = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 animate-fade-in">
-      <header className="p-6">
-        <h1 className="text-2xl font-bold text-display mb-2">Meu Plano Financeiro</h1>
-        <p className="text-muted-foreground">Acompanhe seus objetivos e metas</p>
+    <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0 animate-fade-in">
+      <header className="p-4 sm:p-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-display mb-2">Meu Plano Financeiro</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Acompanhe seus objetivos e metas</p>
       </header>
 
-      <div className="px-6 space-y-6">
+      <div className="px-4 sm:px-6 space-y-4 sm:space-y-6">
         {/* Primary Goal */}
         {primaryGoal ? (
           <div>
-            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center">
-              <TrendingUp className="mr-2 text-primary" size={20} />
+            <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4 flex items-center">
+              <TrendingUp className="mr-2 text-primary" size={18} />
               Meta Primária
             </h2>
             <GoalCard goal={primaryGoal} isPrimary={true} />
           </div>
         ) : (
           <div>
-            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center">
-              <TrendingUp className="mr-2 text-primary" size={20} />
+            <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4 flex items-center">
+              <TrendingUp className="mr-2 text-primary" size={18} />
               Meta Primária
             </h2>
             <div className="card-nexus">
@@ -139,13 +139,14 @@ const Plan = () => {
         {/* Secondary Goals */}
         {secondaryGoals.length > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-foreground">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-base sm:text-lg font-semibold text-foreground">
                 Outras Metas
               </h2>
-              <NexusButton variant="ghost" size="sm" onClick={handleCreateGoal}>
-                <Plus size={16} className="mr-1" />
-                Nova Meta
+              <NexusButton variant="ghost" size="sm" onClick={handleCreateGoal} className="text-xs sm:text-sm">
+                <Plus size={14} className="mr-1" />
+                <span className="sm:hidden">Nova</span>
+                <span className="hidden sm:inline">Nova Meta</span>
               </NexusButton>
             </div>
             

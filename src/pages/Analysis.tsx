@@ -60,54 +60,70 @@ const Analysis = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <header className="p-6">
-        <div className="flex items-center justify-center mb-4">
+    <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0">
+      <header className="p-4 sm:p-6">
+        <div className="flex items-center justify-center mb-3 sm:mb-4">
           <button 
             onClick={() => navigateMonth('prev')}
-            className="p-2 rounded-lg hover:bg-muted transition-colors"
+            className="p-1.5 sm:p-2 rounded-lg hover:bg-muted transition-colors"
           >
-            <ChevronLeft size={24} className="text-foreground" />
+            <ChevronLeft size={20} className="text-foreground sm:hidden" />
+            <ChevronLeft size={24} className="text-foreground hidden sm:block" />
           </button>
           
-          <div className="mx-6 text-center">
-            <h1 className="text-2xl font-bold text-display">
+          <div className="mx-4 sm:mx-6 text-center min-w-0 flex-1">
+            <h1 className="text-lg sm:text-2xl font-bold text-display">
               {months[selectedMonth]} {selectedYear}
             </h1>
-            <p className="text-muted-foreground">Análise de Gastos</p>
+            <p className="text-sm sm:text-base text-muted-foreground">Análise de Gastos</p>
           </div>
           
           <button 
             onClick={() => navigateMonth('next')}
-            className="p-2 rounded-lg hover:bg-muted transition-colors"
+            className="p-1.5 sm:p-2 rounded-lg hover:bg-muted transition-colors"
           >
-            <ChevronRight size={24} className="text-foreground" />
+            <ChevronRight size={20} className="text-foreground sm:hidden" />
+            <ChevronRight size={24} className="text-foreground hidden sm:block" />
           </button>
         </div>
       </header>
 
-      <div className="px-6 space-y-6">
+      <div className="px-4 sm:px-6 space-y-4 sm:space-y-6">
         {/* Total Spent Card */}
         <div className="card-nexus text-center">
           <div className="flex items-center justify-center mb-2">
-            <TrendingDown className="text-destructive mr-2" size={24} />
-            <h3 className="text-lg font-semibold text-foreground">Total Gasto</h3>
+            <TrendingDown className="text-destructive mr-2" size={20} />
+            <h3 className="text-base sm:text-lg font-semibold text-foreground">Total Gasto</h3>
           </div>
-          <p className="text-3xl font-bold text-destructive text-financial">
+          <p className="text-2xl sm:text-3xl font-bold text-destructive text-financial">
             {formatCurrency(totalSpent)}
           </p>
         </div>
 
         {/* Spending by Category - Pie Chart */}
         <div className="card-nexus">
-          <div className="flex items-center mb-4">
-            <BarChart3 className="text-primary mr-2" size={20} />
-            <h3 className="font-semibold text-foreground">Gastos por Categoria</h3>
+          <div className="flex items-center mb-3 sm:mb-4">
+            <BarChart3 className="text-primary mr-2" size={18} />
+            <h3 className="font-semibold text-foreground text-sm sm:text-base">Gastos por Categoria</h3>
           </div>
           
-          <div className="h-64 mb-4">
+          <div className="h-48 sm:h-64 mb-3 sm:mb-4">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={60}
+                  dataKey="value"
+                  startAngle={90}
+                  endAngle={450}
+                  className="sm:hidden"
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
                 <Pie
                   data={categoryData}
                   cx="50%"
@@ -116,6 +132,7 @@ const Analysis = () => {
                   dataKey="value"
                   startAngle={90}
                   endAngle={450}
+                  className="hidden sm:block"
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -127,7 +144,7 @@ const Analysis = () => {
           </div>
 
           {/* Category Legend */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             {categoryData.map((category, index) => (
               <button
                 key={index}
@@ -135,13 +152,13 @@ const Analysis = () => {
                 className="flex items-center space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
               >
                 <div 
-                  className="w-3 h-3 rounded-full"
+                  className="w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full flex-shrink-0"
                   style={{ backgroundColor: category.color }}
                 />
-                <span className="text-sm text-foreground flex-1 truncate text-left">
+                <span className="text-xs sm:text-sm text-foreground flex-1 truncate text-left">
                   {category.icon} {category.name}
                 </span>
-                <span className="text-sm font-medium text-financial group-hover:text-primary transition-colors">
+                <span className="text-xs sm:text-sm font-medium text-financial group-hover:text-primary transition-colors">
                   {formatCurrency(category.value)}
                 </span>
               </button>
@@ -152,33 +169,47 @@ const Analysis = () => {
         {/* Wealth Evolution Link */}
         <button
           onClick={() => window.location.href = '/wealth-evolution'}
-          className="w-full p-4 border-2 border-dashed border-primary/30 rounded-xl hover:border-primary hover:bg-primary/5 transition-colors group"
+          className="w-full p-3 sm:p-4 border-2 border-dashed border-primary/30 rounded-xl hover:border-primary hover:bg-primary/5 transition-colors group"
         >
           <div className="flex items-center justify-center text-primary">
-            <TrendingDown size={20} className="mr-2" />
-            <span className="font-medium">Ver Evolução Patrimonial</span>
+            <TrendingDown size={18} className="mr-2" />
+            <span className="font-medium text-sm sm:text-base">Ver Evolução Patrimonial</span>
           </div>
         </button>
 
         {/* Monthly Trend */}
         <div className="card-nexus">
-          <h3 className="font-semibold text-foreground mb-4">
+          <h3 className="font-semibold text-foreground mb-3 sm:mb-4 text-sm sm:text-base">
             Tendência dos Últimos Meses
           </h3>
           
-          <div className="h-48">
+          <div className="h-40 sm:h-48">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyTrend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis 
                   dataKey="month" 
                   stroke="#9CA3AF"
+                  fontSize={10}
+                  className="sm:hidden"
+                />
+                <XAxis 
+                  dataKey="month" 
+                  stroke="#9CA3AF"
                   fontSize={12}
+                  className="hidden sm:block"
+                />
+                <YAxis 
+                  stroke="#9CA3AF"
+                  fontSize={10}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                  className="sm:hidden"
                 />
                 <YAxis 
                   stroke="#9CA3AF"
                   fontSize={12}
                   tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
+                  className="hidden sm:block"
                 />
                 <Tooltip 
                   formatter={(value) => [formatCurrency(Number(value)), 'Gasto']}

@@ -59,20 +59,20 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
   };
 
   return (
-    <div className="px-6 pb-24">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-foreground">
+    <div className="px-4 sm:px-6 pb-20 sm:pb-24 md:pb-6">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h3 className="text-base sm:text-lg font-semibold text-foreground">
           Transações Recentes
         </h3>
         <button 
           onClick={onViewAll}
-          className="text-primary text-sm font-medium hover:underline"
+          className="text-primary text-xs sm:text-sm font-medium hover:underline"
         >
           Ver todas
         </button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5 sm:space-y-3">
         {transactions.map((transaction, index) => {
           const CategoryIcon = getCategoryIcon(transaction.categoryIcon);
           
@@ -80,47 +80,57 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
             <div
               key={transaction.id}
               className={cn(
-                "card-nexus !p-4 transition-all duration-300",
-                "hover:scale-[1.02] hover:shadow-lg"
+                "card-nexus !p-3 sm:!p-4 transition-all duration-300",
+                "hover:scale-[1.01] sm:hover:scale-[1.02] hover:shadow-lg"
               )}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2.5 sm:space-x-3">
                 <div className={cn(
-                  "p-2 rounded-lg",
+                  "p-1.5 sm:p-2 rounded-lg flex-shrink-0",
                   transaction.isIncome 
                     ? "bg-success/10" 
                     : "bg-muted"
                 )}>
                   <CategoryIcon 
+                    size={18} 
+                    className={cn(
+                      transaction.isIncome 
+                        ? "text-success" 
+                        : "text-muted-foreground",
+                      "sm:hidden"
+                    )}
+                  />
+                  <CategoryIcon 
                     size={20} 
                     className={cn(
                       transaction.isIncome 
                         ? "text-success" 
-                        : "text-muted-foreground"
+                        : "text-muted-foreground",
+                      "hidden sm:block"
                     )}
                   />
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground truncate">
+                  <p className="font-medium text-foreground truncate text-sm sm:text-base">
                     {transaction.description}
                   </p>
-                  <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                    <span>{transaction.categoryName}</span>
+                  <div className="flex items-center space-x-1.5 sm:space-x-2 text-xs sm:text-sm text-muted-foreground">
+                    <span className="truncate">{transaction.categoryName}</span>
                     <span>•</span>
-                    <span>{formatDate(transaction.date)}</span>
+                    <span className="whitespace-nowrap">{formatDate(transaction.date)}</span>
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-1 flex-shrink-0">
                   {transaction.isIncome ? (
-                    <ArrowDownRight className="text-success" size={16} />
+                    <ArrowDownRight className="text-success" size={14} />
                   ) : (
-                    <ArrowUpRight className="text-destructive" size={16} />
+                    <ArrowUpRight className="text-destructive" size={14} />
                   )}
                   <span className={cn(
-                    "font-bold text-financial",
+                    "font-bold text-financial text-sm sm:text-base",
                     transaction.isIncome ? "text-success" : "text-destructive"
                   )}>
                     {transaction.isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}

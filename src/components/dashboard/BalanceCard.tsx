@@ -27,36 +27,41 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
   };
 
   return (
-    <div className="card-nexus mx-6 mb-6 animate-fade-in">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-foreground">
+    <div className="card-nexus mx-4 sm:mx-6 mb-4 sm:mb-6 animate-fade-in">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h2 className="text-base sm:text-lg font-semibold text-foreground">
           Balanço Mensal
         </h2>
         <button
           onClick={onToggleVisibility}
-          className="p-2 rounded-lg hover:bg-muted transition-colors"
+          className="p-1.5 sm:p-2 rounded-lg hover:bg-muted transition-colors"
         >
           {isBalanceVisible ? (
-            <EyeOff size={20} className="text-muted-foreground" />
+            <EyeOff size={18} className="text-muted-foreground sm:hidden" />
           ) : (
-            <Eye size={20} className="text-muted-foreground" />
+            <Eye size={18} className="text-muted-foreground sm:hidden" />
+          )}
+          {isBalanceVisible ? (
+            <EyeOff size={20} className="text-muted-foreground hidden sm:block" />
+          ) : (
+            <Eye size={20} className="text-muted-foreground hidden sm:block" />
           )}
         </button>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {/* Main Balance */}
         <div className="text-center">
-          <p className="text-sm text-muted-foreground mb-1">Saldo Atual</p>
-          <div className="flex items-center justify-center space-x-2">
+          <p className="text-xs sm:text-sm text-muted-foreground mb-1">Saldo Atual</p>
+          <div className="flex items-center justify-center space-x-1.5 sm:space-x-2">
             {isPositive ? (
-              <TrendingUp className="text-success" size={24} />
+              <TrendingUp className="text-success" size={20} />
             ) : (
-              <TrendingDown className="text-destructive" size={24} />
+              <TrendingDown className="text-destructive" size={20} />
             )}
             <span 
               className={cn(
-                "text-3xl font-bold text-financial",
+                "text-2xl sm:text-3xl font-bold text-financial",
                 isPositive ? "text-success" : "text-destructive"
               )}
             >
@@ -66,16 +71,16 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
         </div>
 
         {/* Income vs Expenses */}
-        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-border">
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-1">Entradas</p>
-            <span className="text-xl font-semibold text-success text-financial">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-1">Entradas</p>
+            <span className="text-lg sm:text-xl font-semibold text-success text-financial">
               {isBalanceVisible ? formatCurrency(income) : "••••"}
             </span>
           </div>
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-1">Saídas</p>
-            <span className="text-xl font-semibold text-destructive text-financial">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-1">Saídas</p>
+            <span className="text-lg sm:text-xl font-semibold text-destructive text-financial">
               {isBalanceVisible ? formatCurrency(expenses) : "••••"}
             </span>
           </div>
