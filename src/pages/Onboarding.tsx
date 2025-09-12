@@ -8,7 +8,9 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { User, Brain, TrendingUp, Target } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { sendOnboardingToN8n } from '@/lib/n8nClient';
+import { User, Brain, TrendingUp, Target, SkipForward } from 'lucide-react';
 
 interface DiagnosticQuestion {
   id: number;
@@ -19,6 +21,7 @@ interface DiagnosticQuestion {
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const { user, session } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [questions, setQuestions] = useState<DiagnosticQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, any>>({});
@@ -27,6 +30,8 @@ const Onboarding = () => {
   const [showResult, setShowResult] = useState(false);
   const [calculatedIncome, setCalculatedIncome] = useState(0);
   const [archetype, setArchetype] = useState('');
+  const [canSkipDiagnostic, setCanSkipDiagnostic] = useState(false);
+  const [existingUserData, setExistingUserData] = useState<any>(null);
 
   // Personal data step
   const [personalData, setPersonalData] = useState({
@@ -36,8 +41,65 @@ const Onboarding = () => {
   });
 
   useEffect(() => {
-    loadQuestions();
-  }, []);
+    checkExistingData();
+  }, [user, session]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      loadQuestions();
+    }
+  }, [isLoading]);
+
+  // Check if user already has diagnostic data
+  const checkExistingData = async () => {
+    try {
+      if (user) {
+        // If user is logged in, check their existing data
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        const hasCompleteData = userData && 
+          userData.income_input_typical && 
+          userData.income_input_best && 
+          userData.income_input_worst && 
+          userData.cost_of_living_reported && 
+          userData.financial_archetype;
+
+        if (hasCompleteData) {
+          // User already has complete diagnostic, redirect to dashboard
+          navigate('/dashboard');
+          return;
+        }
+
+        // Fill existing data
+        setExistingUserData(userData);
+        setPersonalData({
+          full_name: userData.full_name || '',
+          phone_number: userData.phone_number || '',
+          email: '' // We don't store email in users table
+        });
+
+        // Set existing answers
+        setAnswers({
+          income_input_typical: userData.income_input_typical || '',
+          income_input_best: userData.income_input_best || '',
+          income_input_worst: userData.income_input_worst || '',
+          cost_of_living_reported: userData.cost_of_living_reported || ''
+        });
+
+        setCanSkipDiagnostic(!!(userData.income_input_typical && userData.financial_archetype));
+      }
+    } catch (error) {
+      console.error('Error checking existing data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const loadQuestions = async () => {
     try {
@@ -56,8 +118,6 @@ const Onboarding = () => {
         description: "Não foi possível carregar as perguntas do diagnóstico.",
         variant: "destructive"
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -86,48 +146,82 @@ const Onboarding = () => {
       determinedArchetype = 'Organizadora Prática';
     }
 
-    setArchetype(determinedArchetype);
+    return determinedArchetype;
   };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     
     try {
-      // Create user account
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: personalData.email,
-        password: Math.random().toString(36).slice(-8) + 'A1!', // Temporary password
-        options: {
-          data: {
-            full_name: personalData.full_name
+      // Calculate profile first
+      const determinedArchetype = calculateFinancialProfile();
+      setArchetype(determinedArchetype);
+
+      let authUserId = session?.user?.id;
+
+      // If no session exists, create new account
+      if (!session) {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: personalData.email,
+          password: Math.random().toString(36).slice(-8) + 'A1!', // Temporary password
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              full_name: personalData.full_name,
+              phone_number: personalData.phone_number
+            }
           }
-        }
-      });
-
-      if (authError) throw authError;
-
-      // Calculate profile
-      calculateFinancialProfile();
-
-      // Insert user data
-      const { error: userError } = await supabase
-        .from('users')
-        .insert({
-          auth_id: authData.user?.id,
-          full_name: personalData.full_name,
-          phone_number: personalData.phone_number,
-          financial_archetype: archetype,
-          renda_base_amount: calculatedIncome,
-          ...answers
         });
 
-      if (userError) throw userError;
+        if (authError) throw authError;
+        authUserId = authData.user?.id;
+      }
+
+      const userDataToSave = {
+        full_name: personalData.full_name,
+        phone_number: personalData.phone_number,
+        financial_archetype: determinedArchetype,
+        renda_base_amount: calculatedIncome,
+        ...answers
+      };
+
+      if (user && user.id) {
+        // Update existing user
+        const { error: userError } = await supabase
+          .from('users')
+          .update(userDataToSave)
+          .eq('id', user.id);
+
+        if (userError) throw userError;
+      } else {
+        // Insert new user data
+        const { error: userError } = await supabase
+          .from('users')
+          .insert({
+            auth_id: authUserId,
+            ...userDataToSave
+          });
+
+        if (userError) throw userError;
+      }
+
+      // Send data to N8N webhook
+      try {
+        await sendOnboardingToN8n(
+          personalData, 
+          answers, 
+          session?.access_token
+        );
+      } catch (webhookError) {
+        console.error('Webhook error:', webhookError);
+        // Don't fail the whole process if webhook fails
+      }
 
       setShowResult(true);
 
       // Auto-redirect after showing result
       setTimeout(() => {
-        navigate('/');
+        navigate('/dashboard');
       }, 5000);
 
     } catch (error) {
@@ -140,6 +234,10 @@ const Onboarding = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const skipDiagnostic = () => {
+    navigate('/dashboard');
   };
 
   const nextStep = () => {
@@ -222,6 +320,23 @@ const Onboarding = () => {
           <p className="text-muted-foreground">
             Vamos descobrir seu perfil e calcular sua Renda Base
           </p>
+          
+          {canSkipDiagnostic && (
+            <div className="mt-4 p-3 bg-primary/10 rounded-lg">
+              <p className="text-sm text-muted-foreground mb-2">
+                Você já possui dados diagnósticos. Deseja pular esta etapa?
+              </p>
+              <NexusButton
+                variant="outline"
+                size="sm"
+                onClick={skipDiagnostic}
+                className="gap-2"
+              >
+                <SkipForward size={16} />
+                Pular Diagnóstico
+              </NexusButton>
+            </div>
+          )}
         </div>
 
         {/* Progress */}

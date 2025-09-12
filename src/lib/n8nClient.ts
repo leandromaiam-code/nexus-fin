@@ -65,4 +65,39 @@ export const sendExpenseToN8n = async (text: string, phoneNumber: string, authTo
     }
 
     return response.json();
-}
+};
+
+/**
+ * Função para enviar dados do onboarding para processamento no n8n.
+ * @param personalData Dados pessoais do usuário
+ * @param diagnosticAnswers Respostas do diagnóstico financeiro
+ * @param authToken Token de acesso da sessão do usuário
+ */
+export const sendOnboardingToN8n = async (
+    personalData: any, 
+    diagnosticAnswers: any, 
+    authToken?: string
+) => {
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+    };
+    
+    if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
+    const response = await fetch(N8N_WEBHOOK_PREFIX + 'start-onboarding', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+            personal_data: personalData,
+            diagnostic_answers: diagnosticAnswers
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error('Erro ao processar onboarding.');
+    }
+
+    return response.json();
+};
