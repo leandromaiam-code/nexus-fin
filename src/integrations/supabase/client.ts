@@ -1,13 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// Lê as variáveis de ambiente seguras do arquivo .env
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Em Lovable, não use VITE_* vars. Use os valores públicos diretamente.
+const supabaseUrl = 'https://vixjenbmutjvlcmmrwdj.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpeGplbmJtdXRqdmxjbW1yd2RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxODEwMTMsImV4cCI6MjA3Mjc1NzAxM30.9ZEMIuVIev0_7dbeB0D97k0rq_5t9wgFLgd2q0gv7Jk';
 
-// Verifica se as variáveis foram definidas
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Supabase URL and Anon Key must be defined in the .env file.");
+  throw new Error('Missing Supabase configuration.');
 }
 
 // Cria o cliente Supabase usando a chave pública e segura (anon key)
