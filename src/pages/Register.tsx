@@ -2,24 +2,40 @@ import React, { useState } from 'react';
 import { Send, MessageSquare, DollarSign } from 'lucide-react';
 import { NexusButton } from '@/components/ui/nexus-button';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/hooks/use-toast';
+import { sendExpenseToN8n } from '@/lib/n8nClient';
 
 const Register = () => {
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { user, session } = useAuth(); // Pega o usuário e a sessão do contexto
 
   const handleSubmit = async () => {
-    if (!description.trim()) return;
+    if (!description.trim() || !user || !session) {
+      toast({ title: "Erro", description: "Você precisa estar logado e preencher uma descrição.", variant: "destructive" });
+      return;
+    }
     
     setIsLoading(true);
     
-    // Mock API call - In real app, this would call the n8n webhook
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      console.log('Despesa enviada:', description);
+      // Chama o nosso novo serviço, passando o texto, o número de telefone e o token
+      await sendExpenseToN8n(description, user.phone_number, session.access_token);
+      
+      toast({
+        title: "Despesa Enviada!",
+        description: "O Nexus já está a processar o seu registo."
+      });
       setDescription('');
-      // Show success toast
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Erro ao enviar despesa:', error);
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível enviar a sua despesa. Tente novamente.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
