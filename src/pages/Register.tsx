@@ -2,40 +2,14 @@ import React, { useState } from 'react';
 import { Send, MessageSquare, DollarSign } from 'lucide-react';
 import { NexusButton } from '@/components/ui/nexus-button';
 import { Textarea } from '@/components/ui/textarea';
-import { useAuth } from '@/contexts/AuthContext'; // Importar o useAuth
-import { toast } from '@/hooks/use-toast'; // Importar o toast para feedback
-
-// Função para chamar o webhook do n8n (pode ser movida para um arquivo de API)
-const sendExpenseToN8n = async (text: string, phoneNumber: string, authToken: string) => {
-    const N8N_WEBHOOK_URL = 'https://n8n-n8n.ajpgd7.easypanel.host/webhook/whatsapp-inbound';
-
-    const response = await fetch(N8N_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}` // Envia o token de autenticação
-        },
-        // Monta o payload imitando a Evolution API, como especificado
-        body: JSON.stringify({
-            sender: `${phoneNumber}@s.whatsapp.net`,
-            message: {
-                conversation: text
-            }
-        })
-    });
-
-    if (!response.ok) {
-        throw new Error('Erro ao enviar despesa para processamento.');
-    }
-
-    return response.json();
-}
-
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/hooks/use-toast';
+import { sendExpenseToN8n } from '@/lib/n8nClient';
 
 const Register = () => {
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { user, session } = useAuth(); // Obter o usuário e a sessão do contexto de autenticação
+  const { user, session } = useAuth(); // Pega o usuário e a sessão do contexto
 
   const handleSubmit = async () => {
     if (!description.trim() || !user || !session) {
@@ -46,7 +20,7 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      // Chama a função que envia os dados para o webhook do n8n
+      // Chama o nosso novo serviço, passando o texto, o número de telefone e o token
       await sendExpenseToN8n(description, user.phone_number, session.access_token);
       
       toast({
@@ -75,8 +49,6 @@ const Register = () => {
   ];
 
   return (
-    // ... O restante do seu JSX permanece o mesmo ...
-    // Apenas certifique-se de que o botão chama a nova função handleSubmit
     <div className="min-h-screen bg-background pb-20">
       <header className="p-6 text-center">
         <div className="flex justify-center mb-4">
