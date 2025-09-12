@@ -7,33 +7,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-const Login = () => {
+const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    const { error } = await login({ email, password });
-    
+
+    const { error } = await signUp({ email, password, fullName, phoneNumber });
+
     if (error) {
       toast({
-        title: "Erro no login",
+        title: "Erro no cadastro",
         description: error.message,
         variant: "destructive"
       });
     } else {
       toast({
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo(a) de volta!"
+        title: "Cadastro realizado com sucesso!",
+        description: "Você será redirecionado para o onboarding."
       });
-      navigate('/');
+      navigate('/onboarding');
     }
-    
     setIsLoading(false);
   };
 
@@ -41,27 +42,35 @@ const Login = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
-          <CardTitle className="text-center">Acessar o Nexus</CardTitle>
-          <CardDescription className="text-center">Bem-vindo(a) de volta.</CardDescription>
+          <CardTitle className="text-center">Crie sua Conta Nexus</CardTitle>
+          <CardDescription className="text-center">Comece a sua jornada para a clareza financeira.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="fullName">Nome Completo</label>
+              <Input id="fullName" placeholder="Seu nome" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="phoneNumber">WhatsApp</label>
+              <Input id="phoneNumber" placeholder="+55319..." value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
+            </div>
             <div className="space-y-2">
               <label htmlFor="email">Email</label>
               <Input id="email" type="email" placeholder="seu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <label htmlFor="password">Senha</label>
-              <Input id="password" type="password" placeholder="Sua senha" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input id="password" type="password" placeholder="Crie uma senha forte" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? <Loader2 className="animate-spin" /> : 'Entrar'}
+              {isLoading ? <Loader2 className="animate-spin" /> : 'Criar Conta e Iniciar Diagnóstico'}
             </Button>
           </form>
            <div className="mt-4 text-center text-sm">
-              Não tem uma conta?{' '}
-              <a href="/signup" className="underline text-primary">
-                  Cadastre-se
+              Já tem uma conta?{' '}
+              <a href="/login" className="underline text-primary">
+                  Faça o login
               </a>
            </div>
         </CardContent>
@@ -70,4 +79,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;
