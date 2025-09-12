@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isLoading, session } = useAuth();
+  const { user, isLoading, session, hasCompleteDiagnostic } = useAuth();
 
   if (isLoading) {
     return (
@@ -28,6 +28,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!user && session) {
     return <Navigate to="/onboarding" replace />;
+  }
+
+  // If user is authenticated and has complete diagnostic, redirect to dashboard
+  if (user && hasCompleteDiagnostic()) {
+    const currentPath = window.location.pathname;
+    if (currentPath === '/onboarding') {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return <>{children}</>;

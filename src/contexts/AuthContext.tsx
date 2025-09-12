@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthChangeEvent, Session, User as AuthUser } from '@supabase/supabase-js';
+import { isDiagnosticComplete } from '@/lib/diagnosticUtils';
 
 // Este é o nosso tipo de perfil de usuário da tabela public.users
 interface UserProfile {
@@ -17,6 +18,7 @@ interface AuthContextType {
   login: (credentials: {email: string, password: string}) => Promise<any>;
   signUp: (credentials: {email: string, password: string, fullName: string, phoneNumber: string}) => Promise<any>;
   logout: () => void;
+  hasCompleteDiagnostic: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -101,8 +103,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
   };
 
+  const hasCompleteDiagnostic = (): boolean => {
+    return user ? isDiagnosticComplete(user) : false;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, login, signUp, logout }}>
+    <AuthContext.Provider value={{ user, session, isLoading, login, signUp, logout, hasCompleteDiagnostic }}>
       {children}
     </AuthContext.Provider>
   );

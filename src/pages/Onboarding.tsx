@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { sendOnboardingToN8n } from '@/lib/n8nClient';
+import { isDiagnosticComplete } from '@/lib/diagnosticUtils';
 import { User, Brain, TrendingUp, Target, SkipForward } from 'lucide-react';
 
 interface DiagnosticQuestion {
@@ -21,7 +22,7 @@ interface DiagnosticQuestion {
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const { user, session } = useAuth();
+  const { user, session, hasCompleteDiagnostic } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [questions, setQuestions] = useState<DiagnosticQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, any>>({});
@@ -41,8 +42,12 @@ const Onboarding = () => {
   });
 
   useEffect(() => {
+    if (user && hasCompleteDiagnostic()) {
+      navigate('/');
+      return;
+    }
     checkExistingData();
-  }, [user, session]);
+  }, [user, session, hasCompleteDiagnostic, navigate]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -63,12 +68,7 @@ const Onboarding = () => {
 
         if (error) throw error;
 
-        const hasCompleteData = userData && 
-          userData.income_input_typical && 
-          userData.income_input_best && 
-          userData.income_input_worst && 
-          userData.cost_of_living_reported && 
-          userData.financial_archetype;
+        const hasCompleteData = isDiagnosticComplete(userData);
 
         if (hasCompleteData) {
           // User already has complete diagnostic, redirect to dashboard
