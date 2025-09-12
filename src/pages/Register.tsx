@@ -2,24 +2,66 @@ import React, { useState } from 'react';
 import { Send, MessageSquare, DollarSign } from 'lucide-react';
 import { NexusButton } from '@/components/ui/nexus-button';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/contexts/AuthContext'; // Importar o useAuth
+import { toast } from '@/hooks/use-toast'; // Importar o toast para feedback
+
+// Função para chamar o webhook do n8n (pode ser movida para um arquivo de API)
+const sendExpenseToN8n = async (text: string, phoneNumber: string, authToken: string) => {
+    const N8N_WEBHOOK_URL = 'https://n8n-n8n.ajpgd7.easypanel.host/webhook/whatsapp-inbound';
+
+    const response = await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}` // Envia o token de autenticação
+        },
+        // Monta o payload imitando a Evolution API, como especificado
+        body: JSON.stringify({
+            sender: `${phoneNumber}@s.whatsapp.net`,
+            message: {
+                conversation: text
+            }
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error('Erro ao enviar despesa para processamento.');
+    }
+
+    return response.json();
+}
+
 
 const Register = () => {
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { user, session } = useAuth(); // Obter o usuário e a sessão do contexto de autenticação
 
   const handleSubmit = async () => {
-    if (!description.trim()) return;
+    if (!description.trim() || !user || !session) {
+      toast({ title: "Erro", description: "Você precisa estar logado e preencher uma descrição.", variant: "destructive" });
+      return;
+    }
     
     setIsLoading(true);
     
-    // Mock API call - In real app, this would call the n8n webhook
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      console.log('Despesa enviada:', description);
+      // Chama a função que envia os dados para o webhook do n8n
+      await sendExpenseToN8n(description, user.phone_number, session.access_token);
+      
+      toast({
+        title: "Despesa Enviada!",
+        description: "O Nexus já está a processar o seu registo."
+      });
       setDescription('');
-      // Show success toast
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Erro ao enviar despesa:', error);
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível enviar a sua despesa. Tente novamente.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -33,6 +75,8 @@ const Register = () => {
   ];
 
   return (
+    // ... O restante do seu JSX permanece o mesmo ...
+    // Apenas certifique-se de que o botão chama a nova função handleSubmit
     <div className="min-h-screen bg-background pb-20">
       <header className="p-6 text-center">
         <div className="flex justify-center mb-4">
