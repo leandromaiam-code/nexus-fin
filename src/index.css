@@ -1,24 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap');
+/* =====================================================================
+//         NEXUS STRATEGIC ARCHITECT - DESIGN SYSTEM V1.0
+// ===================================================================== */
+
+/* Importação das Fontes (Inter e Roboto Mono) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Nexus Co-Piloto Design System V2.0 - Dark Mode First */
-
 @layer base {
   :root {
-    /* Nexus Dark Palette */
-    --azul-nocturno: 220 26% 10%;        /* #0D1117 */
-    --grafite-profundo: 220 25% 13%;     /* #161B22 */
-    --indigo-nexus: 238 75% 59%;         /* #4F46E5 */
-    --verde-crescimento: 145 76% 48%;    /* #22C55E */
-    --ambar-atencao: 37 91% 55%;         /* #F59E0B */
-    --vermelho-critico: 0 84% 60%;       /* #EF4444 */
-    --branco-nevoa: 215 25% 91%;         /* #E6EDF3 */
-    --branco-puro: 0 0% 100%;            /* #FFFFFF */
+    /* Paleta de Cores Nexus (Dark Mode First) */
+    --azul-nocturno: 220 26% 10%;      /* #0D1117 */
+    --grafite-profundo: 220 25% 13%;   /* #161B22 */
+    --indigo-nexus: 243 75% 59%;       /* #4F46E5 */
+    --verde-crescimento: 145 63% 49%;  /* #22C55E */
+    --ambar-atencao: 38 92% 50%;       /* #F59E0B */
+    --vermelho-critico: 355 84% 60%;    /* #EF4444 */
+    --branco-nevoa: 215 25% 91%;       /* #E6EDF3 */
+    --branco-puro: 0 0% 100%;          /* #FFFFFF */
     
-    /* Semantic Design Tokens */
+    /* Design Tokens Semânticos */
     --background: var(--azul-nocturno);
     --foreground: var(--branco-nevoa);
     
@@ -31,13 +34,13 @@
     --primary: var(--indigo-nexus);
     --primary-foreground: var(--branco-puro);
     
-    --secondary: var(--grafite-profundo);
+    --secondary: 220 25% 16%;
     --secondary-foreground: var(--branco-nevoa);
     
     --muted: 220 25% 16%;
-    --muted-foreground: 215 25% 70%;
+    --muted-foreground: 215 15% 55%;
     
-    --accent: var(--indigo-nexus);
+    --accent: 220 25% 20%;
     --accent-foreground: var(--branco-puro);
     
     --success: var(--verde-crescimento);
@@ -54,121 +57,51 @@
     --ring: var(--indigo-nexus);
     
     --radius: 0.75rem;
-    
-    /* Nexus Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--indigo-nexus)), hsl(238 75% 45%));
-    --gradient-success: linear-gradient(135deg, hsl(var(--verde-crescimento)), hsl(145 76% 35%));
-    --gradient-card: linear-gradient(145deg, hsl(var(--grafite-profundo)), hsl(220 25% 15%));
-    
-    /* Shadows */
-    --shadow-nexus: 0 10px 30px -10px hsl(var(--indigo-nexus) / 0.3);
-    --shadow-card: 0 4px 20px -5px hsl(0 0% 0% / 0.4);
-    
-    /* Animations */
-    --transition-nexus: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
-
-}
-
-@layer components {
-  /* Nexus Button Variants */
-  .btn-nexus {
-    @apply bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-semibold px-6 py-3 rounded-xl;
-    @apply transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95;
-    box-shadow: var(--shadow-nexus);
-  }
-  
-  .btn-success {
-    @apply bg-gradient-to-r from-green-500 to-green-400 text-white font-semibold px-6 py-3 rounded-xl;
-    @apply transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95;
-  }
-  
-  .btn-ghost {
-    @apply bg-transparent border border-muted text-foreground font-semibold px-6 py-3 rounded-xl;
-    @apply transition-all duration-300 hover:bg-muted hover:scale-105 active:scale-95;
-  }
-  
-  /* Nexus Card */
-  .card-nexus {
-    @apply bg-card border border-border rounded-xl p-6;
-    background: var(--gradient-card);
-    box-shadow: var(--shadow-card);
-  }
-  
-  /* Nexus Animations */
-  .fade-up {
-    @apply animate-fade-in;
-    animation-delay: 0.1s;
-    animation-fill-mode: both;
-  }
-  
-  .skeleton {
-    @apply bg-muted rounded animate-pulse;
-  }
-  
-  /* Typography */
-  .text-financial {
-    font-family: 'Roboto Mono', monospace;
-    @apply font-medium;
-  }
-  
-  .text-display {
-    font-family: 'Inter', sans-serif;
-    @apply font-semibold text-white;
+ 
+  .dark {
+    /* Mantém as mesmas variáveis para a estratégia Dark Mode First */
+    --background: var(--azul-nocturno);
+    --foreground: var(--branco-nevoa);
+    /* ...e assim por diante para todos os tokens */
   }
 }
-
-@layer utilities {
-  /* Custom Gradients */
-  .bg-gradient-nexus {
-    background: var(--gradient-primary);
-  }
-  
-  .bg-gradient-success {
-    background: var(--gradient-success);
-  }
-  
-  .bg-gradient-card {
-    background: var(--gradient-card);
-  }
-  
-  /* Custom Shadows */
-  .shadow-nexus {
-    box-shadow: var(--shadow-nexus);
-  }
-  
-  .shadow-card {
-    box-shadow: var(--shadow-card);
-  }
-  
-  /* Animations */
-  .transition-nexus {
-    transition: var(--transition-nexus);
-  }
-}
-
+ 
 @layer base {
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+}
+
+@layer components {
+  /* Componentes customizados como .card-nexus e .btn-nexus podem ser definidos aqui se necessário */
+  .card-nexus {
+    @apply bg-card border border-border rounded-xl p-6 shadow-lg shadow-black/20;
+  }
+}
+
+@layer utilities {
+    .text-financial {
+        font-family: 'Roboto Mono', monospace;
+    }
+    .text-display {
+        font-family: 'Inter', sans-serif;
+        @apply font-bold text-white;
+    }
+    .bg-gradient-nexus {
+        background-image: linear-gradient(to right, hsl(var(--primary)), hsl(243 75% 65%)));
+    }
+    .shadow-nexus {
+        box-shadow: 0 10px 30px -10px hsl(var(--primary) / 0.4);
+    }
+    .transition-nexus {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 300ms;
+    }
 }
