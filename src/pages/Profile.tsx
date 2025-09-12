@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   User, 
   Settings, 
@@ -11,14 +12,13 @@ import {
   BarChart3
 } from 'lucide-react';
 import { NexusButton } from '@/components/ui/nexus-button';
+import { useAuth } from '@/contexts/AuthContext';
+import { executeWebAction } from '@/lib/n8nClient';
+import { toast } from '@/hooks/use-toast';
 
 const Profile = () => {
-  const userData = {
-    fullName: "Maria Silva",
-    email: "maria.silva@email.com",
-    financialArchetype: "Planejadora Estratégica",
-    memberSince: "Janeiro 2025"
-  };
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const menuSections = [
     {
@@ -28,13 +28,13 @@ const Profile = () => {
           icon: User,
           label: "Informações Pessoais",
           description: "Nome, email e dados básicos",
-          action: () => console.log("Edit profile")
+          action: () => toast({ title: "Em breve", description: "Edição de perfil em desenvolvimento." })
         },
         {
           icon: FileText,
           label: "Meu Diagnóstico",
           description: "Arquétipo e perfil financeiro",
-          action: () => window.location.href = "/my-diagnostic"
+          action: () => navigate("/my-diagnostic")
         }
       ]
     },
@@ -45,34 +45,29 @@ const Profile = () => {
           icon: Target,
           label: "Gerenciar Categorias",
           description: "Personalizar plano de contas",
-          action: () => window.location.href = "/manage-categories"
+          action: () => navigate("/manage-categories")
         },
         {
           icon: BarChart3,
           label: "Configurar Metas",
           description: "Definir objetivos financeiros",
-          action: () => console.log("Configure goals")
-        }
-      ]
-    },
-    {
-      title: "Configurações",
-      items: [
-        {
-          icon: Palette,
-          label: "Aparência",
-          description: "Tema e personalização",
-          action: () => console.log("Theme settings")
-        },
-        {
-          icon: Shield,
-          label: "Privacidade e Segurança",
-          description: "Controle de dados e senha",
-          action: () => console.log("Privacy settings")
+          action: () => navigate('/plan')
         }
       ]
     }
   ];
+
+  const handleDeleteAccount = async () => {
+    if (confirm("Você tem certeza ABSOLUTA que deseja excluir sua conta? Todos os seus dados serão perdidos permanentemente.")) {
+        try {
+            await executeWebAction('DELETE_ACCOUNT');
+            toast({ title: "Conta Excluída", description: "Sua conta e todos os dados foram removidos." });
+            logout(); // Faz o logout do front-end
+        } catch (error: any) {
+            toast({ title: "Erro", description: error.message, variant: "destructive" });
+        }
+    }
+  };
 
   const MenuItem = ({ item }: { item: any }) => (
     <button
@@ -107,15 +102,9 @@ const Profile = () => {
               <User className="text-white" size={24} />
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold text-display">{userData.fullName}</h2>
-              <p className="text-muted-foreground">{userData.email}</p>
-              <p className="text-sm text-primary font-medium">{userData.financialArchetype}</p>
+              <h2 className="text-xl font-bold text-display">{user?.full_name}</h2>
+              <p className="text-sm text-primary font-medium">{user?.financial_archetype}</p>
             </div>
-          </div>
-          <div className="bg-muted/30 rounded-lg p-3">
-            <p className="text-sm text-muted-foreground">
-              Membro desde {userData.memberSince}
-            </p>
           </div>
         </div>
 
@@ -134,15 +123,22 @@ const Profile = () => {
           </div>
         ))}
 
-        {/* Logout Button */}
-        <div className="pt-4">
+        {/* Action Buttons */}
+        <div className="pt-4 space-y-3">
           <NexusButton 
-            variant="destructive" 
+            variant="ghost"
             className="w-full"
-            onClick={() => console.log("Logout")}
+            onClick={logout}
           >
             <LogOut size={16} className="mr-2" />
             Sair da Conta
+          </NexusButton>
+          <NexusButton 
+            variant="destructive" 
+            className="w-full"
+            onClick={handleDeleteAccount}
+          >
+            Excluir Minha Conta Permanentemente
           </NexusButton>
         </div>
       </div>
