@@ -1,46 +1,46 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+
+// Helper hook to get current user from auth context
+const useCurrentUser = () => {
+  const { user, session } = useAuth();
+  return { user, session, isAuthenticated: !!session?.user };
+};
 
 // User Data Hook
 export const useUserData = () => {
+  const { user, isAuthenticated } = useCurrentUser();
+  
   return useQuery({
-    queryKey: ['user-data'],
+    queryKey: ['user-data', user?.id],
     queryFn: async () => {
-      const savedUser = localStorage.getItem('nexus-user');
-      if (!savedUser) throw new Error('Not authenticated');
-      
-      const userData = JSON.parse(savedUser);
-      const userId = parseInt(userData.id);
-
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) throw error;
-      return data;
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
+      return user;
     },
+    enabled: isAuthenticated && !!user,
     retry: false
   });
 };
 
 // Monthly Summary Hook
 export const useMonthlyData = (month?: string) => {
+  const { user, isAuthenticated } = useCurrentUser();
+  
   return useQuery({
-    queryKey: ['monthly-data', month],
+    queryKey: ['monthly-data', month, user?.id],
     queryFn: async () => {
-      const savedUser = localStorage.getItem('nexus-user');
-      if (!savedUser) throw new Error('Not authenticated');
-      
-      const userData = JSON.parse(savedUser);
-      const userId = parseInt(userData.id);
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
 
       const { data, error } = await supabase
         .from('monthly_summaries')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .order('month', { ascending: false })
         .limit(1);
 
@@ -50,20 +50,21 @@ export const useMonthlyData = (month?: string) => {
         total_spent: 0,
         renda_base_amount: 0
       };
-    }
+    },
+    enabled: isAuthenticated && !!user
   });
 };
 
 // User Goals Hook
 export const useUserGoals = () => {
+  const { user, isAuthenticated } = useCurrentUser();
+  
   return useQuery({
-    queryKey: ['user-goals'],
+    queryKey: ['user-goals', user?.id],
     queryFn: async () => {
-      const savedUser = localStorage.getItem('nexus-user');
-      if (!savedUser) throw new Error('Not authenticated');
-      
-      const userData = JSON.parse(savedUser);
-      const userId = parseInt(userData.id);
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
 
       const { data, error } = await supabase
         .from('user_goals')
@@ -74,26 +75,27 @@ export const useUserGoals = () => {
             description
           )
         `)
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .eq('status', 'active')
         .order('is_primary', { ascending: false });
 
       if (error) throw error;
       return data || [];
-    }
+    },
+    enabled: isAuthenticated && !!user
   });
 };
 
 // Primary Goal Hook
 export const usePrimaryGoal = () => {
+  const { user, isAuthenticated } = useCurrentUser();
+  
   return useQuery({
-    queryKey: ['primary-goal'],
+    queryKey: ['primary-goal', user?.id],
     queryFn: async () => {
-      const savedUser = localStorage.getItem('nexus-user');
-      if (!savedUser) throw new Error('Not authenticated');
-      
-      const userData = JSON.parse(savedUser);
-      const userId = parseInt(userData.id);
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
 
       const { data, error } = await supabase
         .from('user_goals')
@@ -104,27 +106,28 @@ export const usePrimaryGoal = () => {
             description
           )
         `)
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .eq('is_primary', true)
         .eq('status', 'active')
         .maybeSingle();
 
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: isAuthenticated && !!user
   });
 };
 
 // Recent Transactions Hook
 export const useRecentTransactions = (limit = 5) => {
+  const { user, isAuthenticated } = useCurrentUser();
+  
   return useQuery({
-    queryKey: ['recent-transactions', limit],
+    queryKey: ['recent-transactions', limit, user?.id],
     queryFn: async () => {
-      const savedUser = localStorage.getItem('nexus-user');
-      if (!savedUser) throw new Error('Not authenticated');
-      
-      const userData = JSON.parse(savedUser);
-      const userId = parseInt(userData.id);
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
 
       const { data, error } = await supabase
         .from('transactions')
@@ -135,39 +138,41 @@ export const useRecentTransactions = (limit = 5) => {
             icon_name
           )
         `)
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .order('transaction_date', { ascending: false })
         .limit(limit);
 
       if (error) throw error;
       return data || [];
-    }
+    },
+    enabled: isAuthenticated && !!user
   });
 };
 
 // Category Spending Hook
 export const useCategorySpending = (month?: string) => {
+  const { user, isAuthenticated } = useCurrentUser();
+  
   return useQuery({
-    queryKey: ['category-spending', month],
+    queryKey: ['category-spending', month, user?.id],
     queryFn: async () => {
-      const savedUser = localStorage.getItem('nexus-user');
-      if (!savedUser) throw new Error('Not authenticated');
-      
-      const userData = JSON.parse(savedUser);
-      const userId = parseInt(userData.id);
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
 
       const currentMonth = month || new Date().toISOString().slice(0, 7) + '-01';
 
       const { data, error } = await supabase
         .from('category_spending_by_month')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .eq('month', currentMonth)
         .order('total_spent_in_category', { ascending: false });
 
       if (error) throw error;
       return data || [];
-    }
+    },
+    enabled: isAuthenticated && !!user
   });
 };
 
@@ -189,21 +194,15 @@ export const useGoalTemplates = () => {
 
 // Categories Hook
 export const useCategories = () => {
+  const { user } = useCurrentUser();
+  
   return useQuery({
-    queryKey: ['categories'],
+    queryKey: ['categories', user?.id],
     queryFn: async () => {
-      const savedUser = localStorage.getItem('nexus-user');
-      let userId = null;
-
-      if (savedUser) {
-        const userData = JSON.parse(savedUser);
-        userId = parseInt(userData.id);
-      }
-
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .or(`user_id.is.null${userId ? `,user_id.eq.${userId}` : ''}`)
+        .or(`user_id.is.null${user ? `,user_id.eq.${user.id}` : ''}`)
         .order('name');
 
       if (error) throw error;
@@ -215,6 +214,7 @@ export const useCategories = () => {
 // Create Goal Mutation
 export const useCreateGoal = () => {
   const queryClient = useQueryClient();
+  const { user, isAuthenticated } = useCurrentUser();
 
   return useMutation({
     mutationFn: async (goalData: {
@@ -224,16 +224,14 @@ export const useCreateGoal = () => {
       target_date?: string;
       is_primary?: boolean;
     }) => {
-      const savedUser = localStorage.getItem('nexus-user');
-      if (!savedUser) throw new Error('Not authenticated');
-      
-      const userData = JSON.parse(savedUser);
-      const userId = parseInt(userData.id);
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
 
       const { data, error } = await supabase
         .from('user_goals')
         .insert({
-          user_id: userId,
+          user_id: user.id,
           ...goalData
         })
         .select()
