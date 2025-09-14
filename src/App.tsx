@@ -38,7 +38,7 @@ const AppRoutes = () => {
     <>
       <Routes>
         <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-        <Route path="/signup" element={!user ? <SignUp /> : <Navigate to="/onboarding" />} />
+        <Route path="/signup" element={!user ? <SignUp /> : <Navigate to="/" />} />
         
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
