@@ -72,7 +72,7 @@ const Onboarding = () => {
 
         if (hasCompleteData) {
           // User already has complete diagnostic, redirect to dashboard
-          navigate('/dashboard');
+          navigate('/');
           return;
         }
 
@@ -221,7 +221,7 @@ const Onboarding = () => {
 
       // Auto-redirect after showing result
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/');
       }, 5000);
 
     } catch (error) {
@@ -237,7 +237,7 @@ const Onboarding = () => {
   };
 
   const skipDiagnostic = () => {
-    navigate('/dashboard');
+    navigate('/');
   };
 
   const nextStep = () => {
