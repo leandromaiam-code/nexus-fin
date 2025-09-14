@@ -223,6 +223,7 @@ export const useCreateGoal = () => {
       target_amount: number;
       target_date?: string;
       is_primary?: boolean;
+      current_amount?: number;
     }) => {
       if (!isAuthenticated || !user) {
         throw new Error('Not authenticated');
@@ -232,6 +233,7 @@ export const useCreateGoal = () => {
         .from('user_goals')
         .insert({
           user_id: user.id,
+          current_amount: goalData.current_amount || 0,
           ...goalData
         })
         .select()
@@ -281,6 +283,94 @@ export const useUpdateGoalProgress = () => {
       toast({
         title: "Progresso Atualizado",
         description: "Meta atualizada com sucesso!",
+      });
+    }
+  });
+};
+
+// Update Transaction Mutation
+export const useUpdateTransaction = () => {
+  const queryClient = useQueryClient();
+  const { user, isAuthenticated } = useCurrentUser();
+
+  return useMutation({
+    mutationFn: async ({ transactionId, transactionData }: { 
+      transactionId: number; 
+      transactionData: {
+        description?: string;
+        amount?: number;
+        category_id?: number;
+        transaction_date?: string;
+      }
+    }) => {
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
+
+      const { data, error } = await supabase
+        .from('transactions')
+        .update(transactionData)
+        .eq('id', transactionId)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['monthly-data'] });
+      queryClient.invalidateQueries({ queryKey: ['category-spending'] });
+      toast({
+        title: "Sucesso",
+        description: "Transação atualizada com sucesso!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar transação. Tente novamente.",
+        variant: "destructive"
+      });
+    }
+  });
+};
+
+// Delete Transaction Mutation
+export const useDeleteTransaction = () => {
+  const queryClient = useQueryClient();
+  const { user, isAuthenticated } = useCurrentUser();
+
+  return useMutation({
+    mutationFn: async (transactionId: number) => {
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
+
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('id', transactionId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      return transactionId;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['monthly-data'] });
+      queryClient.invalidateQueries({ queryKey: ['category-spending'] });
+      toast({
+        title: "Sucesso",
+        description: "Transação excluída com sucesso!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir transação. Tente novamente.",
+        variant: "destructive"
       });
     }
   });

@@ -25,7 +25,8 @@ const GoalCatalog = () => {
     custom_name: '',
     target_amount: '',
     target_date: '',
-    is_primary: false
+    is_primary: false,
+    current_amount: ''
   });
 
   const [customGoalForm, setCustomGoalForm] = useState({
@@ -33,7 +34,8 @@ const GoalCatalog = () => {
     description: '',
     target_amount: '',
     target_date: '',
-    is_primary: false
+    is_primary: false,
+    current_amount: ''
   });
 
   const handleTemplateSelect = (template: any) => {
@@ -42,7 +44,8 @@ const GoalCatalog = () => {
       custom_name: template.name,
       target_amount: '',
       target_date: '',
-      is_primary: false
+      is_primary: false,
+      current_amount: '0'
     });
     setShowGoalModal(true);
   };
@@ -57,12 +60,14 @@ const GoalCatalog = () => {
         goal_template_id: selectedTemplate.id,
         target_amount: parseFloat(goalForm.target_amount),
         target_date: goalForm.target_date || undefined,
-        is_primary: goalForm.is_primary
+        is_primary: goalForm.is_primary,
+        current_amount: parseFloat(goalForm.current_amount) || 0
       } : {
         custom_name: customGoalForm.name,
         target_amount: parseFloat(customGoalForm.target_amount),
         target_date: customGoalForm.target_date || undefined,
-        is_primary: customGoalForm.is_primary
+        is_primary: customGoalForm.is_primary,
+        current_amount: parseFloat(customGoalForm.current_amount) || 0
       };
 
       await createGoalMutation.mutateAsync(goalData);
@@ -207,6 +212,24 @@ const GoalCatalog = () => {
             </div>
 
             <div>
+              <Label htmlFor="current_amount">Valor Atual (Opcional)</Label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-3 text-muted-foreground" size={16} />
+                <Input
+                  id="current_amount"
+                  type="number"
+                  value={goalForm.current_amount}
+                  onChange={(e) => setGoalForm({ ...goalForm, current_amount: e.target.value })}
+                  placeholder="0,00"
+                  className="pl-10"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Informe quanto você já possui para esta meta
+              </p>
+            </div>
+
+            <div>
               <Label htmlFor="target_date">Data Objetivo (Opcional)</Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-3 text-muted-foreground" size={16} />
@@ -293,6 +316,24 @@ const GoalCatalog = () => {
                   className="pl-10"
                 />
               </div>
+            </div>
+
+            <div>
+              <Label htmlFor="custom_current_amount">Valor Atual (Opcional)</Label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-3 text-muted-foreground" size={16} />
+                <Input
+                  id="custom_current_amount"
+                  type="number"
+                  value={customGoalForm.current_amount}
+                  onChange={(e) => setCustomGoalForm({ ...customGoalForm, current_amount: e.target.value })}
+                  placeholder="0,00"
+                  className="pl-10"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Informe quanto você já possui para esta meta
+              </p>
             </div>
 
             <div>
