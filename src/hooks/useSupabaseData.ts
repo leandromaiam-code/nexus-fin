@@ -509,40 +509,173 @@ export const useToggleStepProgress = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userActionPlanId, planStepId, completed }: { 
+    mutationFn: async ({ 
+      userActionPlanId, 
+      planStepId 
+    }: { 
       userActionPlanId: number; 
       planStepId: number; 
-      completed: boolean;
     }) => {
-      if (completed) {
-        // Add progress record
-        const { data, error } = await supabase
+      // Check if progress record exists
+      const { data: existing } = await supabase
+        .from('user_plan_step_progress')
+        .select('id')
+        .eq('user_action_plan_id', userActionPlanId)
+        .eq('plan_step_id', planStepId)
+        .maybeSingle();
+
+      if (existing) {
+        // Delete existing progress (uncheck)
+        const { error } = await supabase
+          .from('user_plan_step_progress')
+          .delete()
+          .eq('id', existing.id);
+        
+        if (error) throw error;
+        return { action: 'unchecked' };
+      } else {
+        // Create new progress record (check)
+        const { error } = await supabase
           .from('user_plan_step_progress')
           .insert({
             user_action_plan_id: userActionPlanId,
             plan_step_id: planStepId,
             completed_at: new Date().toISOString()
-          })
-          .select()
-          .single();
-
+          });
+        
         if (error) throw error;
-        return data;
-      } else {
-        // Remove progress record
-        const { error } = await supabase
-          .from('user_plan_step_progress')
-          .delete()
-          .eq('user_action_plan_id', userActionPlanId)
-          .eq('plan_step_id', planStepId);
-
-        if (error) throw error;
-        return null;
+        return { action: 'checked' };
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['step-progress'] });
-    }
+    },
+  });
+};
+
+// Custom Actions Hooks
+export const useCustomActions = (userActionPlanId?: number) => {
+  return useQuery({
+    queryKey: ['custom-actions', userActionPlanId],
+    queryFn: async () => {
+      if (!userActionPlanId) return [];
+      
+      const { data, error } = await supabase
+        .from('user_custom_actions')
+        .select('*')
+        .eq('user_action_plan_id', userActionPlanId)
+        .order('step_order', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userActionPlanId,
+  });
+};
+
+export const useCreateCustomAction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      userActionPlanId, 
+      title, 
+      content,
+      stepOrder 
+    }: { 
+      userActionPlanId: number; 
+      title: string; 
+      content?: string;
+      stepOrder: number;
+    }) => {
+      const { data, error } = await supabase
+        .from('user_custom_actions')
+        .insert({
+          user_action_plan_id: userActionPlanId,
+          title,
+          content: content || '',
+          step_order: stepOrder,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['custom-actions'] });
+    },
+  });
+};
+
+export const useUpdateCustomAction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      id, 
+      title, 
+      content 
+    }: { 
+      id: number; 
+      title: string; 
+      content?: string; 
+    }) => {
+      const { data, error } = await supabase
+        .from('user_custom_actions')
+        .update({ title, content })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['custom-actions'] });
+    },
+  });
+};
+
+export const useDeleteCustomAction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { error } = await supabase
+        .from('user_custom_actions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['custom-actions'] });
+    },
+  });
+};
+
+export const useToggleCustomActionProgress = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, isCompleted }: { id: number; isCompleted: boolean }) => {
+      const { data, error } = await supabase
+        .from('user_custom_actions')
+        .update({ 
+          is_completed: !isCompleted,
+          completed_at: !isCompleted ? new Date().toISOString() : null
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['custom-actions'] });
+    },
   });
 };
 

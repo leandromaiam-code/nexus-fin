@@ -68,7 +68,28 @@ const Transactions = () => {
       const selectedYear = selectedDate.getFullYear();
       
       const matchesSearch = transaction.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? true;
-      const matchesCategory = selectedCategory === 'all' || transaction.category_id?.toString() === selectedCategory;
+      
+      // Improved category matching - include subcategories when parent is selected
+      let matchesCategory = true;
+      if (selectedCategory !== 'all') {
+        const selectedCategoryObj = categories?.find(cat => cat.id.toString() === selectedCategory);
+        if (selectedCategoryObj) {
+          if (selectedCategoryObj.parent_category_id === null) {
+            // Parent category selected - include all subcategories
+            const subcategoryIds = categories?.filter(cat => 
+              cat.parent_category_id === selectedCategoryObj.id
+            ).map(cat => cat.id) || [];
+            
+            matchesCategory = transaction.category_id === selectedCategoryObj.id || 
+                            subcategoryIds.includes(transaction.category_id);
+          } else {
+            // Subcategory selected - exact match
+            matchesCategory = transaction.category_id === selectedCategoryObj.id;
+          }
+        } else {
+          matchesCategory = false;
+        }
+      }
       
       // Fix income/expense filter to use category type
       let matchesType = true;
