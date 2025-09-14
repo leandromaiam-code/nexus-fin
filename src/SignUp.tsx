@@ -31,9 +31,9 @@ const SignUp = () => {
     } else {
       toast({
         title: "Cadastro realizado com sucesso!",
-        description: "Você será redirecionado para o onboarding."
+        description: "Verifique seu email e faça o login para continuar."
       });
-      navigate('/onboarding');
+      navigate('/login');
     }
     setIsLoading(false);
   };
