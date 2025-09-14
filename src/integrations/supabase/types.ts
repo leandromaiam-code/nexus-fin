@@ -81,6 +81,7 @@ export type Database = {
           id: number
           name: string
           parent_category_id: number | null
+          tipo: string | null
           user_id: number | null
         }
         Insert: {
@@ -90,6 +91,7 @@ export type Database = {
           id?: never
           name: string
           parent_category_id?: number | null
+          tipo?: string | null
           user_id?: number | null
         }
         Update: {
@@ -99,6 +101,7 @@ export type Database = {
           id?: never
           name?: string
           parent_category_id?: number | null
+          tipo?: string | null
           user_id?: number | null
         }
         Relationships: [
@@ -164,6 +167,24 @@ export type Database = {
           description?: string | null
           id?: never
           name?: string
+        }
+        Relationships: []
+      }
+      memoria_conversas: {
+        Row: {
+          id: number
+          message: Json
+          session_id: string
+        }
+        Insert: {
+          id?: number
+          message: Json
+          session_id: string
+        }
+        Update: {
+          id?: number
+          message?: Json
+          session_id?: string
         }
         Relationships: []
       }
