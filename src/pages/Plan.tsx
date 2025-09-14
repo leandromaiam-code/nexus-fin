@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Target, Plus, TrendingUp } from 'lucide-react';
+import { Target, Plus, TrendingUp, Edit, Trash2 } from 'lucide-react';
 import { NexusButton } from '@/components/ui/nexus-button';
-import { useUserGoals } from '@/hooks/useSupabaseData';
+import { useUserGoals, useDeleteGoal } from '@/hooks/useSupabaseData';
 import { CardSkeleton } from '@/components/ui/skeleton-loader';
 import { NoGoalsEmpty } from '@/components/ui/empty-state';
+import { EditGoalModal } from '@/components/modals/EditGoalModal';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const Plan = () => {
   const navigate = useNavigate();
   const { data: goals, isLoading } = useUserGoals();
+  const deleteGoalMutation = useDeleteGoal();
+  
+  const [editingGoal, setEditingGoal] = useState<any>(null);
+  const [deleteGoalId, setDeleteGoalId] = useState<number | null>(null);
 
   const primaryGoal = goals?.find(goal => goal.is_primary);
   const secondaryGoals = goals?.filter(goal => !goal.is_primary) || [];
@@ -19,6 +25,23 @@ const Plan = () => {
 
   const handleGoalDetails = (goalId: number) => {
     navigate(`/goal/${goalId}`);
+  };
+
+  const handleEditGoal = (goal: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingGoal(goal);
+  };
+
+  const handleDeleteGoal = (goalId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDeleteGoalId(goalId);
+  };
+
+  const confirmDeleteGoal = async () => {
+    if (!deleteGoalId) return;
+    
+    await deleteGoalMutation.mutateAsync(deleteGoalId);
+    setDeleteGoalId(null);
   };
 
   const formatCurrency = (value: number) => {
@@ -35,9 +58,25 @@ const Plan = () => {
 
     return (
       <div 
-        className={`card-nexus animate-fade-in cursor-pointer transition-all hover:scale-102 ${isPrimary ? 'ring-2 ring-primary/30' : ''}`}
+        className={`card-nexus animate-fade-in cursor-pointer transition-all hover:scale-102 ${isPrimary ? 'ring-2 ring-primary/30' : ''} relative group`}
         onClick={() => handleGoalDetails(goal.id)}
       >
+        {/* Action buttons */}
+        <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <button
+            onClick={(e) => handleEditGoal(goal, e)}
+            className="p-1 rounded-md bg-background/80 hover:bg-muted transition-colors"
+          >
+            <Edit size={14} className="text-muted-foreground hover:text-foreground" />
+          </button>
+          <button
+            onClick={(e) => handleDeleteGoal(goal.id, e)}
+            className="p-1 rounded-md bg-background/80 hover:bg-destructive/10 transition-colors"
+          >
+            <Trash2 size={14} className="text-muted-foreground hover:text-destructive" />
+          </button>
+        </div>
+
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className={`p-2 rounded-lg ${isPrimary ? 'bg-primary/20' : 'bg-muted'}`}>
@@ -176,6 +215,34 @@ const Plan = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Goal Modal */}
+      <EditGoalModal
+        goal={editingGoal}
+        isOpen={!!editingGoal}
+        onClose={() => setEditingGoal(null)}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteGoalId} onOpenChange={() => setDeleteGoalId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Meta</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta meta? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteGoal}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

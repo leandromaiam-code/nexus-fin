@@ -337,6 +337,215 @@ export const useUpdateTransaction = () => {
   });
 };
 
+// Update Goal Mutation
+export const useUpdateGoal = () => {
+  const queryClient = useQueryClient();
+  const { user, isAuthenticated } = useCurrentUser();
+
+  return useMutation({
+    mutationFn: async ({ goalId, goalData }: { 
+      goalId: number; 
+      goalData: {
+        custom_name?: string;
+        target_amount?: number;
+        target_date?: string;
+        current_amount?: number;
+      }
+    }) => {
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
+
+      const { data, error } = await supabase
+        .from('user_goals')
+        .update(goalData)
+        .eq('id', goalId)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-goals'] });
+      queryClient.invalidateQueries({ queryKey: ['primary-goal'] });
+      toast({
+        title: "Sucesso",
+        description: "Meta atualizada com sucesso!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar meta. Tente novamente.",
+        variant: "destructive"
+      });
+    }
+  });
+};
+
+// Delete Goal Mutation
+export const useDeleteGoal = () => {
+  const queryClient = useQueryClient();
+  const { user, isAuthenticated } = useCurrentUser();
+
+  return useMutation({
+    mutationFn: async (goalId: number) => {
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
+
+      const { error } = await supabase
+        .from('user_goals')
+        .delete()
+        .eq('id', goalId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      return goalId;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-goals'] });
+      queryClient.invalidateQueries({ queryKey: ['primary-goal'] });
+      toast({
+        title: "Sucesso",
+        description: "Meta excluída com sucesso!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir meta. Tente novamente.",
+        variant: "destructive"
+      });
+    }
+  });
+};
+
+// Action Plans Hooks
+export const useActionPlans = (goalTemplateId?: number) => {
+  return useQuery({
+    queryKey: ['action-plans', goalTemplateId],
+    queryFn: async () => {
+      if (!goalTemplateId) return [];
+
+      const { data, error } = await supabase
+        .from('action_plans')
+        .select('*')
+        .eq('goal_template_id', goalTemplateId);
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!goalTemplateId
+  });
+};
+
+export const useUserActionPlan = (userGoalId: number) => {
+  const { user, isAuthenticated } = useCurrentUser();
+
+  return useQuery({
+    queryKey: ['user-action-plan', userGoalId, user?.id],
+    queryFn: async () => {
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
+
+      const { data, error } = await supabase
+        .from('user_action_plans')
+        .select('*')
+        .eq('user_goal_id', userGoalId)
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAuthenticated && !!user && !!userGoalId
+  });
+};
+
+export const usePlanSteps = (planId?: number) => {
+  return useQuery({
+    queryKey: ['plan-steps', planId],
+    queryFn: async () => {
+      if (!planId) return [];
+
+      const { data, error } = await supabase
+        .from('plan_steps')
+        .select('*')
+        .eq('plan_id', planId)
+        .order('step_order');
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!planId
+  });
+};
+
+export const useStepProgress = (userActionPlanId?: number) => {
+  return useQuery({
+    queryKey: ['step-progress', userActionPlanId],
+    queryFn: async () => {
+      if (!userActionPlanId) return [];
+
+      const { data, error } = await supabase
+        .from('user_plan_step_progress')
+        .select('*')
+        .eq('user_action_plan_id', userActionPlanId);
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userActionPlanId
+  });
+};
+
+// Toggle Step Progress Mutation
+export const useToggleStepProgress = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userActionPlanId, planStepId, completed }: { 
+      userActionPlanId: number; 
+      planStepId: number; 
+      completed: boolean;
+    }) => {
+      if (completed) {
+        // Add progress record
+        const { data, error } = await supabase
+          .from('user_plan_step_progress')
+          .insert({
+            user_action_plan_id: userActionPlanId,
+            plan_step_id: planStepId,
+            completed_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      } else {
+        // Remove progress record
+        const { error } = await supabase
+          .from('user_plan_step_progress')
+          .delete()
+          .eq('user_action_plan_id', userActionPlanId)
+          .eq('plan_step_id', planStepId);
+
+        if (error) throw error;
+        return null;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['step-progress'] });
+    }
+  });
+};
+
 // Delete Transaction Mutation
 export const useDeleteTransaction = () => {
   const queryClient = useQueryClient();

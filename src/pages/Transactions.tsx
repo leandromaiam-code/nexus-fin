@@ -240,9 +240,11 @@ const Transactions = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
-                  {categories.map((category) => (
+                  {categories
+                    .filter(category => !category.parent_category_id) // Only parent categories
+                    .map((category) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.icon_name} {category.name}
+                      {category.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -7,21 +7,50 @@ import {
   Circle, 
   TrendingUp,
   Calendar,
-  DollarSign
+  DollarSign,
+  Plus,
+  Edit,
+  Trash2
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useUserGoals } from '@/hooks/useSupabaseData';
+import { 
+  useUserGoals, 
+  useActionPlans, 
+  useUserActionPlan, 
+  usePlanSteps, 
+  useStepProgress, 
+  useToggleStepProgress 
+} from '@/hooks/useSupabaseData';
 import { NexusButton } from '@/components/ui/nexus-button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 const GoalDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: goals, isLoading } = useUserGoals();
   
-  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set([1, 2]));
+  const [newActionTitle, setNewActionTitle] = useState('');
+  const [newActionDescription, setNewActionDescription] = useState('');
+  const [showAddAction, setShowAddAction] = useState(false);
 
   const goal = goals?.find(g => g.id === Number(id));
+  const goalId = Number(id);
+
+  // Fetch action plan data
+  const { data: actionPlans } = useActionPlans(goal?.goal_template_id);
+  const { data: userActionPlan } = useUserActionPlan(goalId);
+  const { data: planSteps } = usePlanSteps(actionPlans?.[0]?.id);
+  const { data: stepProgress } = useStepProgress(userActionPlan?.id);
+  const toggleStepMutation = useToggleStepProgress();
+
+  // Determine completed steps
+  const completedStepIds = useMemo(() => {
+    return new Set(stepProgress?.map(p => p.plan_step_id) || []);
+  }, [stepProgress]);
 
   // Mock data for progress history
   const progressHistory = [
@@ -36,14 +65,8 @@ const GoalDetails = () => {
     { month: 'Set', amount: goal?.current_amount || 12000 }
   ];
 
-  // Mock action plan steps
-  const actionPlan = [
-    { id: 1, title: "Analisar gastos atuais", description: "Revisar últimos 3 meses de despesas", completed: true },
-    { id: 2, title: "Definir meta de economia mensal", description: "Estabelecer valor fixo para reserva", completed: true },
-    { id: 3, title: "Abrir conta poupança específica", description: "Separar reserva de emergência", completed: false },
-    { id: 4, title: "Automatizar transferências", description: "Configurar débito automático mensal", completed: false },
-    { id: 5, title: "Revisar progresso mensalmente", description: "Ajustar estratégia conforme necessário", completed: false }
-  ];
+  // Real action plan steps
+  const actionPlan = planSteps || [];
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -62,17 +85,23 @@ const GoalDetails = () => {
 
   const progressPercentage = goal ? (goal.current_amount / goal.target_amount) * 100 : 0;
 
-  const toggleStep = (stepId: number) => {
-    const newCompleted = new Set(completedSteps);
-    if (newCompleted.has(stepId)) {
-      newCompleted.delete(stepId);
-    } else {
-      newCompleted.add(stepId);
-    }
-    setCompletedSteps(newCompleted);
+  const toggleStep = async (stepId: number) => {
+    if (!userActionPlan) return;
     
-    // TODO: Integrate with n8n webhook
-    console.log("Toggle step:", stepId, !completedSteps.has(stepId));
+    const isCompleted = completedStepIds.has(stepId);
+    await toggleStepMutation.mutateAsync({
+      userActionPlanId: userActionPlan.id,
+      planStepId: stepId,
+      completed: !isCompleted
+    });
+  };
+
+  const handleAddAction = () => {
+    // In a real implementation, this would add a custom action to the user's plan
+    console.log('Adding custom action:', { title: newActionTitle, description: newActionDescription });
+    setNewActionTitle('');
+    setNewActionDescription('');
+    setShowAddAction(false);
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -222,57 +251,136 @@ const GoalDetails = () => {
 
         {/* Action Plan */}
         <div className="card-nexus">
-          <div className="flex items-center mb-4">
-            <CheckCircle2 className="text-primary mr-2" size={20} />
-            <h3 className="font-semibold text-foreground">Plano de Ação</h3>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <CheckCircle2 className="text-primary mr-2" size={20} />
+              <h3 className="font-semibold text-foreground">Plano de Ação</h3>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAddAction(true)}
+              className="text-xs"
+            >
+              <Plus size={14} className="mr-1" />
+              Adicionar Ação
+            </Button>
           </div>
 
-          <div className="space-y-3">
-            {actionPlan.map((step) => (
-              <div
-                key={step.id}
-                className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors ${
-                  completedSteps.has(step.id)
-                    ? 'bg-success/10 border-success/20'
-                    : 'bg-muted/30 border-border hover:bg-muted/50'
-                }`}
+          {actionPlan.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Nenhum plano de ação disponível para esta meta.</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAddAction(true)}
+                className="mt-2"
               >
-                <button
-                  onClick={() => toggleStep(step.id)}
-                  className="mt-1 transition-colors"
+                <Plus size={14} className="mr-1" />
+                Criar Primeira Ação
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {actionPlan.map((step) => (
+                <div
+                  key={step.id}
+                  className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors ${
+                    completedStepIds.has(step.id)
+                      ? 'bg-success/10 border-success/20'
+                      : 'bg-muted/30 border-border hover:bg-muted/50'
+                  }`}
                 >
-                  {completedSteps.has(step.id) ? (
-                    <CheckCircle2 className="text-success" size={20} />
-                  ) : (
-                    <Circle className="text-muted-foreground hover:text-primary" size={20} />
-                  )}
-                </button>
+                  <button
+                    onClick={() => toggleStep(step.id)}
+                    className="mt-1 transition-colors"
+                    disabled={toggleStepMutation.isPending}
+                  >
+                    {completedStepIds.has(step.id) ? (
+                      <CheckCircle2 className="text-success" size={20} />
+                    ) : (
+                      <Circle className="text-muted-foreground hover:text-primary" size={20} />
+                    )}
+                  </button>
 
-                <div className="flex-1">
-                  <h4 className={`font-medium ${
-                    completedSteps.has(step.id) 
-                      ? 'text-success line-through' 
-                      : 'text-foreground'
-                  }`}>
-                    {step.title}
-                  </h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {step.description}
-                  </p>
+                  <div className="flex-1">
+                    <h4 className={`font-medium ${
+                      completedStepIds.has(step.id) 
+                        ? 'text-success line-through' 
+                        : 'text-foreground'
+                    }`}>
+                      {step.title}
+                    </h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {step.content}
+                    </p>
+                  </div>
+
+                  <div className="flex gap-1">
+                    <button className="p-1 rounded-md hover:bg-muted transition-colors opacity-0 group-hover:opacity-100">
+                      <Edit size={12} className="text-muted-foreground" />
+                    </button>
+                    <button className="p-1 rounded-md hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100">
+                      <Trash2 size={12} className="text-muted-foreground hover:text-destructive" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-6 p-4 bg-primary/10 rounded-lg">
             <div className="flex items-center">
               <DollarSign className="text-primary mr-2" size={16} />
               <span className="text-sm font-medium text-primary">
-                {completedSteps.size} de {actionPlan.length} passos concluídos
+                {completedStepIds.size} de {actionPlan.length} passos concluídos
               </span>
             </div>
           </div>
         </div>
+
+        {/* Add Action Modal */}
+        <Dialog open={showAddAction} onOpenChange={setShowAddAction}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Adicionar Nova Ação</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Título da Ação</Label>
+                <Input
+                  value={newActionTitle}
+                  onChange={(e) => setNewActionTitle(e.target.value)}
+                  placeholder="Ex: Revisar gastos mensais"
+                />
+              </div>
+              <div>
+                <Label>Descrição</Label>
+                <Input
+                  value={newActionDescription}
+                  onChange={(e) => setNewActionDescription(e.target.value)}
+                  placeholder="Descreva os detalhes da ação"
+                />
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAddAction(false)}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleAddAction}
+                  className="flex-1"
+                  disabled={!newActionTitle.trim()}
+                >
+                  Adicionar
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
