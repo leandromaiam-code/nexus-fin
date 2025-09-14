@@ -328,6 +328,47 @@ export type Database = {
           },
         ]
       }
+      user_custom_actions: {
+        Row: {
+          completed_at: string | null
+          content: string | null
+          created_at: string
+          id: number
+          is_completed: boolean
+          step_order: number
+          title: string
+          user_action_plan_id: number
+        }
+        Insert: {
+          completed_at?: string | null
+          content?: string | null
+          created_at?: string
+          id?: number
+          is_completed?: boolean
+          step_order: number
+          title: string
+          user_action_plan_id: number
+        }
+        Update: {
+          completed_at?: string | null
+          content?: string | null
+          created_at?: string
+          id?: number
+          is_completed?: boolean
+          step_order?: number
+          title?: string
+          user_action_plan_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_user_custom_actions_user_action_plan"
+            columns: ["user_action_plan_id"]
+            isOneToOne: false
+            referencedRelation: "user_action_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_goals: {
         Row: {
           current_amount: number | null
