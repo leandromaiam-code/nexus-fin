@@ -42,10 +42,10 @@ const Register = () => {
   };
 
   const exampleTexts = [
-    "Almoço no restaurante R$ 35",
-    "Gasolina posto shell R$ 180",
-    "Supermercado extra R$ 250",
-    "Uber para casa R$ 25"
+    "Almoço no restaurante R$ 35 hoje",
+    "Gasolina posto shell R$ 180 hoje",
+    "Supermercado extra R$ 250 ontem ",
+    "Uber para casa R$ 25 dia 13 desse mês"
   ];
 
   return (
