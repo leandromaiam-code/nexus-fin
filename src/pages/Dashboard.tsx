@@ -6,8 +6,11 @@ import GoalCard from '@/components/dashboard/GoalCard';
 import TransactionFeed from '@/components/dashboard/TransactionFeed';
 import { DashboardSkeleton } from '@/components/ui/skeleton-loader';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { useUserData, useMonthlyData, usePrimaryGoal, useRecentTransactions } from '@/hooks/useSupabaseData';
-import { AlertCircle } from 'lucide-react';
+import { isDiagnosticComplete } from '@/lib/diagnosticUtils';
+import { AlertCircle, AlertTriangle } from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -80,12 +83,36 @@ const Dashboard = () => {
     date: transaction.transaction_date
   })) || [];
 
+  const showDiagnosticAlert = userData && !isDiagnosticComplete(userData);
+
   return (
     <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0 animate-fade-in">
       <DashboardHeader 
         userName={userData.full_name || 'Usuário'}
         financialArchetype={userData.financial_archetype || 'Sem arquétipo definido'}
       />
+      
+      {/* Diagnostic Alert */}
+      {showDiagnosticAlert && (
+        <div className="px-4 sm:px-6 mb-4 sm:mb-6">
+          <Alert className="border-destructive bg-destructive/5">
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <AlertDescription className="flex items-center justify-between">
+              <span className="text-sm">
+                Preencha seu diagnóstico para um controle financeiro mais preciso
+              </span>
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="ml-3 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                onClick={() => navigate('/diagnostic')}
+              >
+                Fazer Diagnóstico
+              </Button>
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
       
       <BalanceCard
         balance={balanceData.balance}

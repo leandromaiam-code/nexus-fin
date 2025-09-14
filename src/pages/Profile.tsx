@@ -15,10 +15,21 @@ import { NexusButton } from '@/components/ui/nexus-button';
 import { useAuth } from '@/contexts/AuthContext';
 import { executeWebAction } from '@/lib/n8nClient';
 import { toast } from '@/hooks/use-toast';
+import { isDiagnosticComplete } from '@/lib/diagnosticUtils';
+import { useUserData } from '@/hooks/useSupabaseData';
 
 const Profile = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { data: userData } = useUserData();
+
+  const handleDiagnosticClick = () => {
+    if (!userData || !isDiagnosticComplete(userData)) {
+      navigate('/diagnostic');
+    } else {
+      navigate('/my-diagnostic');
+    }
+  };
 
   const menuSections = [
     {
@@ -33,8 +44,8 @@ const Profile = () => {
         {
           icon: FileText,
           label: "Meu Diagnóstico",
-          description: "Arquétipo e perfil financeiro",
-          action: () => navigate("/my-diagnostic")
+          description: userData && isDiagnosticComplete(userData) ? "Arquétipo e perfil financeiro" : "Complete seu diagnóstico financeiro",
+          action: handleDiagnosticClick
         }
       ]
     },
