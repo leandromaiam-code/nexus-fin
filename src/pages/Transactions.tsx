@@ -73,17 +73,20 @@ const Transactions = () => {
       let matchesCategory = true;
       if (selectedCategory !== 'all') {
         const selectedCategoryObj = categories?.find(cat => cat.id.toString() === selectedCategory);
+        
         if (selectedCategoryObj) {
+          // Check if this is a parent category (no parent_category_id)
           if (selectedCategoryObj.parent_category_id === null) {
-            // Parent category selected - include all subcategories
+            // Parent category selected - include this category AND all its subcategories
             const subcategoryIds = categories?.filter(cat => 
               cat.parent_category_id === selectedCategoryObj.id
             ).map(cat => cat.id) || [];
             
+            // Include the parent category itself OR any of its subcategories
             matchesCategory = transaction.category_id === selectedCategoryObj.id || 
                             subcategoryIds.includes(transaction.category_id || 0);
           } else {
-            // Subcategory selected - exact match
+            // Subcategory selected - exact match only
             matchesCategory = transaction.category_id === selectedCategoryObj.id;
           }
         } else {
