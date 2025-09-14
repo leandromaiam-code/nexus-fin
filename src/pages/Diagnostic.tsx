@@ -128,7 +128,7 @@ const Diagnostic = () => {
                 Renda Mínima
               </h2>
               <p className="text-muted-foreground">
-                Qual é sua renda no pior cenário? (desemprego, crise, etc.)
+                Qual foi sua menor renda mensal nos últimos meses?
               </p>
             </div>
 
@@ -160,7 +160,7 @@ const Diagnostic = () => {
                 Renda Máxima
               </h2>
               <p className="text-muted-foreground">
-                Qual é sua renda no melhor cenário? (bônus, comissões, extras)
+                Qual foi sua maior renda mensal nos últimos meses? (bônus, retiradas, extras)
               </p>
             </div>
 
