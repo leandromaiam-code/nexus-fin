@@ -30,7 +30,7 @@ const Dashboard = () => {
   };
 
   const handleViewAllTransactions = () => {
-    navigate('/analysis');
+    navigate('/transactions');
   };
 
   const handleCreateGoal = () => {

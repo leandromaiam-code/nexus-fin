@@ -19,6 +19,7 @@ import WealthEvolution from "./pages/WealthEvolution";
 import MyDiagnostic from "./pages/MyDiagnostic";
 import ManageCategories from "./pages/ManageCategories";
 import Login from "./pages/Login";
+import Transactions from "./pages/Transactions";
 import NotFound from "./pages/NotFound";
 import TabNavigation from "./components/layout/TabNavigation";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -43,6 +44,7 @@ const AppRoutes = () => {
         <Route path="/plan" element={<ProtectedRoute><Plan /></ProtectedRoute>} />
         <Route path="/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
         <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
+        <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/goal-catalog" element={<ProtectedRoute><GoalCatalog /></ProtectedRoute>} />
         <Route path="/goal/:id" element={<ProtectedRoute><GoalDetails /></ProtectedRoute>} />

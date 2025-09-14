@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { BarChart3, ChevronLeft, ChevronRight, TrendingDown } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { useCategorySpending, useRecentTransactions, useCategories } from '@/hooks/useSupabaseData';
 
 const Analysis = () => {
   const [selectedMonth, setSelectedMonth] = useState(8); // September (0-indexed)
@@ -11,24 +12,51 @@ const Analysis = () => {
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
 
-  // Mock spending data by category
-  const categoryData = [
-    { name: 'Alimentação', value: 1850, color: '#4F46E5', icon: '🍽️' },
-    { name: 'Transporte', value: 980, color: '#22C55E', icon: '🚗' },
-    { name: 'Moradia', value: 2200, color: '#F59E0B', icon: '🏠' },
-    { name: 'Saúde', value: 450, color: '#EF4444', icon: '❤️' },
-    { name: 'Lazer', value: 680, color: '#8B5CF6', icon: '🎉' },
-    { name: 'Outros', value: 489.50, color: '#6B7280', icon: '📦' }
-  ];
+  // Get real data from Supabase
+  const currentMonthStr = `${selectedYear}-${(selectedMonth + 1).toString().padStart(2, '0')}-01`;
+  const { data: categorySpending = [], isLoading: categoryLoading } = useCategorySpending(currentMonthStr);
+  const { data: transactions = [], isLoading: transactionsLoading } = useRecentTransactions(100);
+  const { data: categories = [] } = useCategories();
 
-  const monthlyTrend = [
-    { month: 'Jun', amount: 5200 },
-    { month: 'Jul', amount: 5850 },
-    { month: 'Ago', amount: 6100 },
-    { month: 'Set', amount: 5649.50 }
-  ];
+  // Process real category data
+  const categoryData = useMemo(() => {
+    const colors = ['#4F46E5', '#22C55E', '#F59E0B', '#EF4444', '#8B5CF6', '#6B7280', '#EC4899', '#10B981'];
+    
+    return categorySpending.map((item, index) => {
+      const category = categories.find(c => c.id === item.category_id);
+      return {
+        name: item.category_name || 'Sem categoria',
+        value: Math.abs(Number(item.total_spent_in_category || 0)),
+        color: colors[index % colors.length],
+        icon: category?.icon_name || '📦'
+      };
+    }).filter(item => item.value > 0);
+  }, [categorySpending, categories]);
+
+  // Calculate monthly trend from transactions
+  const monthlyTrend = useMemo(() => {
+    const monthlyData: { [key: string]: number } = {};
+    
+    transactions.forEach(transaction => {
+      const date = new Date(transaction.transaction_date);
+      const monthKey = date.toLocaleDateString('pt-BR', { month: 'short' });
+      
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = 0;
+      }
+      
+      if (transaction.amount < 0) {
+        monthlyData[monthKey] += Math.abs(transaction.amount);
+      }
+    });
+
+    return Object.entries(monthlyData)
+      .map(([month, amount]) => ({ month, amount }))
+      .slice(-4);
+  }, [transactions]);
 
   const totalSpent = categoryData.reduce((sum, item) => sum + item.value, 0);
+  const isLoading = categoryLoading || transactionsLoading;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -58,6 +86,21 @@ const Analysis = () => {
     }
     return null;
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0">
+        <div className="animate-pulse p-4 sm:p-6 space-y-4">
+          <div className="h-6 bg-muted rounded w-48"></div>
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-32 bg-muted rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0">
@@ -145,7 +188,7 @@ const Analysis = () => {
 
           {/* Category Legend */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-            {categoryData.map((category, index) => (
+            {categoryData.length > 0 ? categoryData.map((category, index) => (
               <button
                 key={index}
                 onClick={() => window.location.href = `/analysis/category/${index + 1}`}
@@ -162,7 +205,12 @@ const Analysis = () => {
                   {formatCurrency(category.value)}
                 </span>
               </button>
-            ))}
+            )) : (
+              <div className="col-span-2 text-center py-6 text-muted-foreground">
+                <p>Nenhum gasto registrado neste mês</p>
+                <p className="text-sm">Adicione algumas transações para ver a análise</p>
+              </div>
+            )}
           </div>
         </div>
 
