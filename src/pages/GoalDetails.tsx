@@ -24,7 +24,8 @@ import {
   useCreateCustomAction,
   useUpdateCustomAction,
   useDeleteCustomAction,
-  useToggleCustomActionProgress
+  useToggleCustomActionProgress,
+  useCreateUserActionPlan
 } from '@/hooks/useSupabaseData';
 import { NexusButton } from '@/components/ui/nexus-button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -55,9 +56,11 @@ const GoalDetails = () => {
   // Fetch action plan data
   const { data: actionPlans } = useActionPlans(goal?.goal_template_id);
   const { data: userActionPlan } = useUserActionPlan(goalId);
-  const { data: planSteps } = usePlanSteps(actionPlans?.[0]?.id);
+  const { data: planSteps } = usePlanSteps(userActionPlan?.plan_id);
   const { data: stepProgress } = useStepProgress(userActionPlan?.id);
   const { data: customActions } = useCustomActions(userActionPlan?.id);
+  
+  const createUserActionPlanMutation = useCreateUserActionPlan();
   
   const toggleStepMutation = useToggleStepProgress();
   const createCustomAction = useCreateCustomAction();
@@ -100,6 +103,17 @@ const GoalDetails = () => {
 
   const progressPercentage = goal?.target_amount ? 
     Math.min((goal.current_amount / goal.target_amount) * 100, 100) : 0;
+
+  // Auto-create user action plan if missing but action plans exist
+  React.useEffect(() => {
+    if (goal?.goal_template_id && actionPlans?.length && !userActionPlan && !createUserActionPlanMutation.isPending) {
+      const firstActionPlan = actionPlans[0];
+      createUserActionPlanMutation.mutate({
+        userGoalId: goalId,
+        planId: firstActionPlan.id
+      });
+    }
+  }, [goal, actionPlans, userActionPlan, goalId, createUserActionPlanMutation]);
 
   const toggleStep = (stepId: number, isCustom: boolean = false) => {
     if (!userActionPlan?.id) return;

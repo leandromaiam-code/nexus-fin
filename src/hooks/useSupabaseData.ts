@@ -504,6 +504,47 @@ export const useStepProgress = (userActionPlanId?: number) => {
   });
 };
 
+// Create User Action Plan Mutation
+export const useCreateUserActionPlan = () => {
+  const queryClient = useQueryClient();
+  const { user, isAuthenticated } = useCurrentUser();
+  
+  return useMutation({
+    mutationFn: async ({ userGoalId, planId }: { userGoalId: number; planId: number }) => {
+      if (!isAuthenticated || !user) {
+        throw new Error('Not authenticated');
+      }
+
+      const { data, error } = await supabase
+        .from('user_action_plans')
+        .insert({
+          user_goal_id: userGoalId,
+          plan_id: planId,
+          user_id: user.id
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-action-plan'] });
+      toast({
+        title: "Plano de ação criado",
+        description: "Agora você pode adicionar ações personalizadas!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao criar plano",
+        description: "Tente novamente mais tarde.",
+        variant: "destructive"
+      });
+    }
+  });
+};
+
 // Toggle Step Progress Mutation
 export const useToggleStepProgress = () => {
   const queryClient = useQueryClient();

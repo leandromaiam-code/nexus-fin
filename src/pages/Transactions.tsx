@@ -81,7 +81,7 @@ const Transactions = () => {
             ).map(cat => cat.id) || [];
             
             matchesCategory = transaction.category_id === selectedCategoryObj.id || 
-                            subcategoryIds.includes(transaction.category_id);
+                            subcategoryIds.includes(transaction.category_id || 0);
           } else {
             // Subcategory selected - exact match
             matchesCategory = transaction.category_id === selectedCategoryObj.id;
