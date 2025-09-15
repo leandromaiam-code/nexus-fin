@@ -32,7 +32,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -106,14 +106,25 @@ const GoalDetails = () => {
 
   // Auto-create user action plan if missing but action plans exist
   React.useEffect(() => {
-    if (goal?.goal_template_id && actionPlans?.length && !userActionPlan && !createUserActionPlanMutation.isPending) {
+    if (goal?.goal_template_id && 
+        actionPlans?.length && 
+        !userActionPlan && 
+        !createUserActionPlanMutation.isPending &&
+        !createUserActionPlanMutation.isSuccess) {
       const firstActionPlan = actionPlans[0];
       createUserActionPlanMutation.mutate({
         userGoalId: goalId,
         planId: firstActionPlan.id
       });
     }
-  }, [goal, actionPlans, userActionPlan, goalId, createUserActionPlanMutation]);
+  }, [goal, actionPlans, userActionPlan, goalId, createUserActionPlanMutation.isPending, createUserActionPlanMutation.isSuccess]);
+
+  // Show success message only once when action plan is created
+  React.useEffect(() => {
+    if (createUserActionPlanMutation.isSuccess) {
+      toast({ title: "Plano de ação criado com sucesso!" });
+    }
+  }, [createUserActionPlanMutation.isSuccess]);
 
   const toggleStep = (stepId: number, isCustom: boolean = false) => {
     if (!userActionPlan?.id) return;
@@ -356,10 +367,12 @@ const GoalDetails = () => {
           </div>
           
           <Dialog open={showAddAction} onOpenChange={setShowAddAction}>
-            <Button onClick={() => setShowAddAction(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Adicionar Ação
-            </Button>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Adicionar Ação
+              </Button>
+            </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Nova Ação Personalizada</DialogTitle>
