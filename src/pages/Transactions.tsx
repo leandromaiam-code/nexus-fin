@@ -82,9 +82,8 @@ const Transactions = () => {
               cat.parent_category_id === selectedCategoryObj.id
             ).map(cat => cat.id) || [];
             
-            // Include the parent category itself OR any of its subcategories
-            matchesCategory = transaction.category_id === selectedCategoryObj.id || 
-                            subcategoryIds.includes(transaction.category_id || 0);
+            // Include only subcategories, not the parent category itself
+            matchesCategory = subcategoryIds.includes(transaction.category_id || 0);
           } else {
             // Subcategory selected - exact match only
             matchesCategory = transaction.category_id === selectedCategoryObj.id;
