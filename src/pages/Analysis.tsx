@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { BarChart3, ChevronLeft, ChevronRight, TrendingDown } from 'lucide-react';
+import { BarChart3, ChevronLeft, ChevronRight, TrendingDown, Wallet, CreditCard, Utensils, Car, Home, Gamepad2, Coffee, ShoppingBag } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { useCategorySpending, useRecentTransactions, useCategories } from '@/hooks/useSupabaseData';
 
@@ -18,17 +18,53 @@ const Analysis = () => {
   const { data: transactions = [], isLoading: transactionsLoading } = useRecentTransactions(100);
   const { data: categories = [] } = useCategories();
 
+  // Icon mapping for categories
+  const getCategoryIcon = (iconName: string, categoryName: string) => {
+    const iconMap: { [key: string]: React.ComponentType<any> } = {
+      'food': Utensils,
+      'transport': Car,
+      'house': Home,
+      'entertainment': Gamepad2,
+      'coffee': Coffee,
+      'shopping': ShoppingBag,
+      'card': CreditCard,
+      'wallet': Wallet
+    };
+    
+    // Try to match by icon name first, then by category name
+    const IconComponent = iconMap[iconName] || 
+                         iconMap[categoryName?.toLowerCase()] ||
+                         iconMap[Object.keys(iconMap).find(key => 
+                           categoryName?.toLowerCase().includes(key)
+                         ) || ''] ||
+                         Wallet;
+    
+    return IconComponent;
+  };
+
   // Process real category data
   const categoryData = useMemo(() => {
-    const colors = ['#4F46E5', '#22C55E', '#F59E0B', '#EF4444', '#8B5CF6', '#6B7280', '#EC4899', '#10B981'];
+    const colors = [
+      'hsl(var(--primary))',
+      'hsl(var(--success))', 
+      'hsl(var(--warning))', 
+      'hsl(var(--destructive))',
+      'hsl(var(--accent))',
+      'hsl(var(--secondary))',
+      '#EC4899', 
+      '#10B981'
+    ];
     
     return categorySpending.map((item, index) => {
       const category = categories.find(c => c.id === item.category_id);
+      const IconComponent = getCategoryIcon(category?.icon_name || '', item.category_name || '');
+      
       return {
         name: item.category_name || 'Sem categoria',
         value: Math.abs(Number(item.total_spent_in_category || 0)),
         color: colors[index % colors.length],
-        icon: category?.icon_name || '📦'
+        icon: category?.icon_name || '💳',
+        IconComponent
       };
     }).filter(item => item.value > 0);
   }, [categorySpending, categories]);
@@ -133,14 +169,22 @@ const Analysis = () => {
 
       <div className="px-4 sm:px-6 space-y-4 sm:space-y-6">
         {/* Total Spent Card */}
-        <div className="card-nexus text-center">
-          <div className="flex items-center justify-center mb-2">
-            <TrendingDown className="text-destructive mr-2" size={20} />
-            <h3 className="text-base sm:text-lg font-semibold text-foreground">Total Gasto</h3>
+        <div className="card-nexus text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-destructive/10 via-transparent to-warning/10"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-center mb-3">
+              <div className="p-3 rounded-full bg-destructive/20 mr-3">
+                <TrendingDown className="text-destructive" size={24} />
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold text-foreground">Gasto Total</h3>
+            </div>
+            <p className="text-3xl sm:text-4xl font-bold text-destructive text-financial mb-2">
+              {formatCurrency(totalSpent)}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {months[selectedMonth]} {selectedYear}
+            </p>
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-destructive text-financial">
-            {formatCurrency(totalSpent)}
-          </p>
         </div>
 
         {/* Spending by Category - Pie Chart */}
@@ -150,65 +194,130 @@ const Analysis = () => {
             <h3 className="font-semibold text-foreground text-sm sm:text-base">Gastos por Categoria</h3>
           </div>
           
-          <div className="h-48 sm:h-64 mb-3 sm:mb-4">
+          <div className="relative h-64 sm:h-80 mb-4 sm:mb-6">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  outerRadius={60}
+                  innerRadius={50}
+                  outerRadius={90}
                   dataKey="value"
                   startAngle={90}
                   endAngle={450}
                   className="sm:hidden"
                 >
                   {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" strokeWidth={2} />
                   ))}
                 </Pie>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  outerRadius={80}
+                  innerRadius={70}
+                  outerRadius={120}
                   dataKey="value"
                   startAngle={90}
                   endAngle={450}
                   className="hidden sm:block"
                 >
                   {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" strokeWidth={3} />
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
+            
+            {/* Center content */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="text-center">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-1">Total Gasto</p>
+                <p className="text-lg sm:text-xl font-bold text-destructive text-financial">
+                  {formatCurrency(totalSpent)}
+                </p>
+              </div>
+            </div>
+
+            {/* Floating category icons around the chart */}
+            {categoryData.slice(0, 6).map((category, index) => {
+              const angle = (index * 60) - 90; // Distribute icons around circle
+              const radius = 140; // Distance from center
+              const x = 50 + (radius * Math.cos(angle * Math.PI / 180)) / 3; // Convert to percentage
+              const y = 50 + (radius * Math.sin(angle * Math.PI / 180)) / 3;
+              
+              return (
+                <div
+                  key={index}
+                  className="absolute transform -translate-x-1/2 -translate-y-1/2 hidden sm:block"
+                  style={{
+                    left: `${x}%`,
+                    top: `${y}%`,
+                  }}
+                >
+                  <div 
+                    className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-fade-in"
+                    style={{ 
+                      backgroundColor: category.color,
+                      animationDelay: `${index * 100}ms`
+                    }}
+                  >
+                    <category.IconComponent size={20} className="text-white" />
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Category Legend */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+          {/* Category Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {categoryData.length > 0 ? categoryData.map((category, index) => (
               <button
                 key={index}
                 onClick={() => window.location.href = `/analysis/category/${index + 1}`}
-                className="flex items-center space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
+                className="group relative overflow-hidden"
               >
+                <div className="card-nexus p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-12 h-12 rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300"
+                      style={{ backgroundColor: category.color }}
+                    >
+                      <category.IconComponent size={24} className="text-white" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h4 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors">
+                        {category.name}
+                      </h4>
+                      <p className="text-lg font-bold text-financial" style={{ color: category.color }}>
+                        {formatCurrency(category.value)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {((category.value / totalSpent) * 100).toFixed(1)}% do total
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Hover effect gradient */}
                 <div 
-                  className="w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: category.color }}
+                  className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-lg"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${category.color}, transparent)` 
+                  }}
                 />
-                <span className="text-xs sm:text-sm text-foreground flex-1 truncate text-left">
-                  {category.icon} {category.name}
-                </span>
-                <span className="text-xs sm:text-sm font-medium text-financial group-hover:text-primary transition-colors">
-                  {formatCurrency(category.value)}
-                </span>
               </button>
             )) : (
-              <div className="col-span-2 text-center py-6 text-muted-foreground">
-                <p>Nenhum gasto registrado neste mês</p>
-                <p className="text-sm">Adicione algumas transações para ver a análise</p>
+              <div className="col-span-2 card-nexus text-center py-8">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                  <BarChart3 size={32} className="text-muted-foreground" />
+                </div>
+                <p className="text-foreground font-medium mb-2">Nenhum gasto registrado</p>
+                <p className="text-sm text-muted-foreground">
+                  Adicione algumas transações para ver a análise
+                </p>
               </div>
             )}
           </div>
