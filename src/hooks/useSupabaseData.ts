@@ -458,7 +458,9 @@ export const useUserActionPlan = (userGoalId: number) => {
         .eq('user_goal_id', userGoalId)
         .eq('user_id', user.id)
         .eq('status', 'active')
-        .maybeSingle();
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .single();
 
       if (error) throw error;
       return data;

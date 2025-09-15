@@ -105,19 +105,24 @@ const GoalDetails = () => {
     Math.min((goal.current_amount / goal.target_amount) * 100, 100) : 0;
 
   // Auto-create user action plan if missing but action plans exist
+  const [planCreationAttempted, setPlanCreationAttempted] = React.useState(false);
+  
   React.useEffect(() => {
     if (goal?.goal_template_id && 
         actionPlans?.length && 
         !userActionPlan && 
         !createUserActionPlanMutation.isPending &&
-        !createUserActionPlanMutation.isSuccess) {
+        !createUserActionPlanMutation.isSuccess &&
+        !planCreationAttempted) {
+      console.log('Creating action plan for goal:', goalId);
+      setPlanCreationAttempted(true);
       const firstActionPlan = actionPlans[0];
       createUserActionPlanMutation.mutate({
         userGoalId: goalId,
         planId: firstActionPlan.id
       });
     }
-  }, [goal, actionPlans, userActionPlan, goalId, createUserActionPlanMutation.isPending, createUserActionPlanMutation.isSuccess]);
+  }, [goal, actionPlans, userActionPlan, goalId, createUserActionPlanMutation.isPending, createUserActionPlanMutation.isSuccess, planCreationAttempted]);
 
   // Show success message only once when action plan is created
   React.useEffect(() => {
@@ -146,10 +151,22 @@ const GoalDetails = () => {
   };
 
   const handleAddAction = async () => {
-    if (!userActionPlan?.id || !newActionTitle.trim()) return;
+    console.log('handleAddAction called');
+    console.log('userActionPlan:', userActionPlan);
+    console.log('newActionTitle:', newActionTitle);
+    
+    if (!userActionPlan?.id || !newActionTitle.trim()) {
+      console.log('Missing required data:', { 
+        userActionPlanId: userActionPlan?.id, 
+        title: newActionTitle.trim() 
+      });
+      toast({ title: "Dados obrigatórios em falta", variant: "destructive" });
+      return;
+    }
     
     try {
       const nextOrder = Math.max(0, ...allActions.map(a => a.step_order)) + 1;
+      console.log('Creating custom action with order:', nextOrder);
       
       await createCustomAction.mutateAsync({
         userActionPlanId: userActionPlan.id,
@@ -163,6 +180,7 @@ const GoalDetails = () => {
       setShowAddAction(false);
       toast({ title: "Ação adicionada com sucesso!" });
     } catch (error) {
+      console.error('Error creating custom action:', error);
       toast({ title: "Erro ao adicionar ação", variant: "destructive" });
     }
   };
