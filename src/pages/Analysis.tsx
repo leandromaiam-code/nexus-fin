@@ -79,7 +79,12 @@ const Analysis = () => {
       // Ignora apenas reembolsos/devoluções (valores negativos)
       if (transaction.amount < 0) return;
       
-      const date = new Date(transaction.transaction_date);
+      // Corrige formato de data inválido (202025-08-25 → 2025-08-25)
+      let dateStr = transaction.transaction_date;
+      if (typeof dateStr === 'string' && dateStr.match(/^\d{6}-/)) {
+        dateStr = dateStr.substring(2); // Remove os 2 primeiros dígitos
+      }
+      const date = new Date(dateStr);
       const year = date.getFullYear();
       const month = date.getMonth();
       const monthKey = `${year}-${month}`;
@@ -96,7 +101,7 @@ const Analysis = () => {
     });
 
     // Ordenar cronologicamente e pegar últimos 4 meses
-    return Object.values(monthlyData)
+    const result = Object.values(monthlyData)
       .sort((a, b) => {
         if (a.year !== b.year) return a.year - b.year;
         return a.month - b.month;
@@ -106,6 +111,9 @@ const Analysis = () => {
         month: monthNames[item.month],
         amount: item.amount
       }));
+    
+    console.log('📊 Meses disponíveis:', result.length, result);
+    return result;
   }, [transactions]);
 
   // Calculate total from raw data BEFORE filtering (includes refunds/negatives)
@@ -157,7 +165,7 @@ const Analysis = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24 sm:pb-32 md:pb-0">
+    <div className="min-h-screen bg-background pb-32 sm:pb-40 md:pb-0">
       <header className="p-4 sm:p-6">
         <div className="flex items-center justify-center mb-3 sm:mb-4">
           <button 
@@ -353,13 +361,13 @@ const Analysis = () => {
         </button>
 
         {/* Monthly Trend */}
-        <div className="card-nexus mb-8 sm:mb-12">
+        <div className="card-nexus mb-16 sm:mb-20">
           <h3 className="font-semibold text-foreground mb-3 sm:mb-4 text-sm sm:text-base">
             Tendência dos Últimos Meses
           </h3>
           
           <div className="h-40 sm:h-48">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={monthlyTrend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis 
