@@ -37,15 +37,22 @@ export const useMonthlyData = (month?: string) => {
         throw new Error('Not authenticated');
       }
 
+      // Default to current month if not provided
+      const targetMonth = month || new Date().toISOString().slice(0, 7) + '-01';
+
       const { data, error } = await supabase
         .from('monthly_summaries')
         .select('*')
         .eq('user_id', user.id)
-        .order('month', { ascending: false })
-        .limit(1);
+        .eq('month', targetMonth)
+        .maybeSingle();
 
       if (error) throw error;
-      return data?.[0] || {
+      
+      // Return zeroed values if no data for this month
+      return data || {
+        user_id: user.id,
+        month: targetMonth,
         balance: 0,
         total_spent: 0,
         renda_base_amount: 0

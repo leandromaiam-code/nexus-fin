@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import MonthFilter from '@/components/dashboard/MonthFilter';
 import BalanceCard from '@/components/dashboard/BalanceCard';
 import GoalCard from '@/components/dashboard/GoalCard';
 import TransactionFeed from '@/components/dashboard/TransactionFeed';
@@ -15,10 +17,11 @@ import { AlertCircle, AlertTriangle } from 'lucide-react';
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM-01'));
 
   // Real Supabase data
   const { data: userData, isLoading: userLoading, error: userError } = useUserData();
-  const { data: monthlyData, isLoading: monthlyLoading } = useMonthlyData();
+  const { data: monthlyData, isLoading: monthlyLoading } = useMonthlyData(selectedMonth);
   const { data: primaryGoal, isLoading: goalLoading } = usePrimaryGoal();
   const { data: recentTransactions, isLoading: transactionsLoading } = useRecentTransactions(4);
 
@@ -113,6 +116,12 @@ const Dashboard = () => {
           </Alert>
         </div>
       )}
+
+      {/* Month Filter */}
+      <MonthFilter 
+        selectedMonth={selectedMonth}
+        onMonthChange={setSelectedMonth}
+      />
       
       <BalanceCard
         balance={balanceData.balance}
