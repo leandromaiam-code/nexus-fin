@@ -133,7 +133,7 @@
     }
     .text-display {
         font-family: 'Inter', sans-serif;
-        @apply font-bold text-white;
+        @apply font-bold text-foreground;
     }
     .bg-gradient-nexus {
         background-image: linear-gradient(to right, hsl(var(--primary)), hsl(243 75% 65%)));
