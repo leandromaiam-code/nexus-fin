@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import MonthFilter from '@/components/dashboard/MonthFilter';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import BalanceCard from '@/components/dashboard/BalanceCard';
 import GoalCard from '@/components/dashboard/GoalCard';
 import TransactionFeed from '@/components/dashboard/TransactionFeed';
@@ -90,6 +91,10 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0 animate-fade-in">
+      <div className="flex items-center justify-end px-4 sm:px-6 pt-4">
+        <ThemeToggle />
+      </div>
+      
       <DashboardHeader 
         userName={userData.full_name || 'Usuário'}
         financialArchetype={userData.financial_archetype || 'Sem arquétipo definido'}
