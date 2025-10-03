@@ -91,7 +91,8 @@ const Analysis = () => {
       .slice(-4);
   }, [transactions]);
 
-  const totalSpent = categoryData.reduce((sum, item) => sum + item.value, 0);
+  // Calculate total from raw data BEFORE filtering (includes refunds/negatives)
+  const totalSpent = categorySpending.reduce((sum, item) => sum + Number(item.total_spent_in_category || 0), 0);
   const isLoading = categoryLoading || transactionsLoading;
 
   const formatCurrency = (value: number) => {
