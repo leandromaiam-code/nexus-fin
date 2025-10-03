@@ -61,12 +61,12 @@ const Analysis = () => {
       
       return {
         name: item.category_name || 'Sem categoria',
-        value: Math.abs(Number(item.total_spent_in_category || 0)),
+        value: Number(item.total_spent_in_category || 0),
         color: colors[index % colors.length],
         icon: category?.icon_name || '💳',
         IconComponent
       };
-    }).filter(item => item.value > 0);
+    }).filter(item => item.value > 0); // Filtra apenas valores positivos (despesas reais)
   }, [categorySpending, categories]);
 
   // Calculate monthly trend from transactions
