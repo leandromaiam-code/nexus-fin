@@ -1,64 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, TrendingDown, Receipt, PieChart as PieChartIcon } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { ArrowLeft, TrendingDown, Receipt, Edit2, Trash2, Calendar, DollarSign } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useCategories, useRecentTransactions, useUpdateTransaction, useDeleteTransaction } from '@/hooks/useSupabaseData';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 
 const CategoryAnalysis = () => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
-  const [selectedMonth] = useState('2025-09');
 
-  // Mock category data based on categoryId
-  const getCategoryData = (id: string) => {
-    const categories: Record<string, any> = {
-      '1': {
-        name: 'Alimentação',
-        icon: '🍽️',
-        total: 1850,
-        color: '#4F46E5',
-        subcategories: [
-          { name: 'Supermercado', value: 980, color: '#4F46E5' },
-          { name: 'Restaurantes', value: 520, color: '#6366F1' },
-          { name: 'Delivery', value: 350, color: '#818CF8' }
-        ],
-        transactions: [
-          { date: '2025-09-15', description: 'Supermercado Extra', amount: 156.80, subcategory: 'Supermercado' },
-          { date: '2025-09-14', description: 'iFood - Pizza', amount: 45.90, subcategory: 'Delivery' },
-          { date: '2025-09-13', description: 'Restaurante Italiano', amount: 85.50, subcategory: 'Restaurantes' },
-          { date: '2025-09-12', description: 'Padaria Central', amount: 24.60, subcategory: 'Supermercado' },
-          { date: '2025-09-11', description: 'Uber Eats - Japonês', amount: 62.30, subcategory: 'Delivery' }
-        ]
-      },
-      '2': {
-        name: 'Transporte',
-        icon: '🚗',
-        total: 980,
-        color: '#22C55E',
-        subcategories: [
-          { name: 'Combustível', value: 450, color: '#22C55E' },
-          { name: 'Uber/99', value: 320, color: '#16A34A' },
-          { name: 'Estacionamento', value: 210, color: '#15803D' }
-        ],
-        transactions: [
-          { date: '2025-09-15', description: 'Posto Shell', amount: 89.50, subcategory: 'Combustível' },
-          { date: '2025-09-14', description: 'Uber - Centro', amount: 18.90, subcategory: 'Uber/99' },
-          { date: '2025-09-13', description: 'Estacionamento Shopping', amount: 12.00, subcategory: 'Estacionamento' },
-          { date: '2025-09-12', description: '99 - Aeroporto', amount: 45.60, subcategory: 'Uber/99' },
-          { date: '2025-09-11', description: 'Posto Ipiranga', amount: 78.20, subcategory: 'Combustível' }
-        ]
+  // Fetch real data
+  const { data: categories } = useCategories();
+  const { data: allTransactions = [], isLoading } = useRecentTransactions(1000);
+  
+  // Filter by category
+  const category = categories?.find(c => c.id === Number(categoryId));
+  const categoryTransactions = allTransactions.filter(
+    t => t.category_id === Number(categoryId)
+  );
+
+  // States for edit/delete
+  const [editTransaction, setEditTransaction] = useState<any>(null);
+  const [deleteTransactionId, setDeleteTransactionId] = useState<number | null>(null);
+  const [selectedTransactions, setSelectedTransactions] = useState<number[]>([]);
+  const [selectMode, setSelectMode] = useState(false);
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [editForm, setEditForm] = useState({
+    description: '',
+    amount: '',
+    category_id: '',
+    transaction_date: ''
+  });
+
+  // Mutations
+  const updateTransactionMutation = useUpdateTransaction();
+  const deleteTransactionMutation = useDeleteTransaction();
+
+  // Calculate totals
+  const totalSpent = useMemo(() => {
+    return categoryTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+  }, [categoryTransactions]);
+
+  // Monthly comparison (last 3 months)
+  const monthlyComparison = useMemo(() => {
+    const monthlyData: { [key: string]: number } = {};
+    
+    categoryTransactions.forEach(transaction => {
+      const date = new Date(transaction.transaction_date);
+      const monthKey = date.toLocaleDateString('pt-BR', { month: 'short' });
+      
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = 0;
       }
-    };
-    return categories[id] || categories['1'];
-  };
+      
+      monthlyData[monthKey] += Math.abs(transaction.amount);
+    });
 
-  const categoryData = getCategoryData(categoryId || '1');
-
-  // Mock comparison data (last 3 months)
-  const monthlyComparison = [
-    { month: 'Jul', amount: categoryData.total - 200 },
-    { month: 'Ago', amount: categoryData.total + 150 },
-    { month: 'Set', amount: categoryData.total }
-  ];
+    return Object.entries(monthlyData)
+      .map(([month, amount]) => ({ month, amount }))
+      .slice(-3);
+  }, [categoryTransactions]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -70,23 +78,105 @@ const CategoryAnalysis = () => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
-      month: '2-digit'
+      month: '2-digit',
+      year: 'numeric'
     });
   };
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
-          <p className="text-foreground font-medium">{payload[0].payload.name || payload[0].payload.month}</p>
-          <p className="text-primary text-financial">
-            {formatCurrency(payload[0].value)}
-          </p>
-        </div>
-      );
-    }
-    return null;
+  // Handlers
+  const handleEditClick = (transaction: any) => {
+    setEditTransaction(transaction);
+    setEditForm({
+      description: transaction.description || '',
+      amount: Math.abs(transaction.amount).toString(),
+      category_id: transaction.category_id?.toString() || '',
+      transaction_date: transaction.transaction_date
+    });
   };
+
+  const handleEditSubmit = async () => {
+    if (!editTransaction) return;
+    
+    try {
+      await updateTransactionMutation.mutateAsync({
+        transactionId: editTransaction.id,
+        transactionData: {
+          description: editForm.description,
+          amount: -Math.abs(parseFloat(editForm.amount)),
+          category_id: parseInt(editForm.category_id),
+          transaction_date: editForm.transaction_date
+        }
+      });
+      toast.success('Transação atualizada com sucesso!');
+      setEditTransaction(null);
+    } catch (error) {
+      toast.error('Erro ao atualizar transação');
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTransactionId) return;
+    
+    try {
+      await deleteTransactionMutation.mutateAsync(deleteTransactionId);
+      toast.success('Transação excluída com sucesso!');
+      setDeleteTransactionId(null);
+    } catch (error) {
+      toast.error('Erro ao excluir transação');
+    }
+  };
+
+  const handleBulkDelete = () => {
+    setShowBulkDeleteDialog(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    try {
+      for (const id of selectedTransactions) {
+        await deleteTransactionMutation.mutateAsync(id);
+      }
+      toast.success(`${selectedTransactions.length} transações excluídas com sucesso!`);
+      setSelectedTransactions([]);
+      setSelectMode(false);
+      setShowBulkDeleteDialog(false);
+    } catch (error) {
+      toast.error('Erro ao excluir transações');
+    }
+  };
+
+  const toggleTransactionSelection = (id: number) => {
+    setSelectedTransactions(prev => 
+      prev.includes(id) 
+        ? prev.filter(t => t !== id)
+        : [...prev, id]
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <div className="animate-pulse p-6 space-y-4">
+          <div className="h-6 bg-muted rounded w-48"></div>
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-32 bg-muted rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!category) {
+    return (
+      <div className="min-h-screen bg-background pb-20 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Categoria não encontrada</h1>
+          <Button onClick={() => navigate('/analysis')}>Voltar para Análise</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -100,8 +190,8 @@ const CategoryAnalysis = () => {
           </button>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-display flex items-center">
-              <span className="mr-2">{categoryData.icon}</span>
-              {categoryData.name}
+              <span className="mr-2">{category.icon_name || '💳'}</span>
+              {category.name}
             </h1>
             <p className="text-muted-foreground">Análise Detalhada</p>
           </div>
@@ -116,134 +206,257 @@ const CategoryAnalysis = () => {
             <h3 className="text-lg font-semibold text-foreground">Total da Categoria</h3>
           </div>
           <p className="text-3xl font-bold text-destructive text-financial">
-            {formatCurrency(categoryData.total)}
+            {formatCurrency(totalSpent)}
           </p>
-          <p className="text-sm text-muted-foreground mt-1">Setembro 2025</p>
-        </div>
-
-        {/* Subcategories Breakdown */}
-        <div className="card-nexus">
-          <div className="flex items-center mb-4">
-            <PieChartIcon className="text-primary mr-2" size={20} />
-            <h3 className="font-semibold text-foreground">Subcategorias</h3>
-          </div>
-
-          <div className="h-48 mb-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={categoryData.subcategories}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={60}
-                  dataKey="value"
-                  startAngle={90}
-                  endAngle={450}
-                >
-                  {categoryData.subcategories.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Subcategory Legend */}
-          <div className="space-y-2">
-            {categoryData.subcategories.map((subcategory: any, index: number) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div 
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: subcategory.color }}
-                  />
-                  <span className="text-sm text-foreground">{subcategory.name}</span>
-                </div>
-                <span className="text-sm font-medium text-financial">
-                  {formatCurrency(subcategory.value)}
-                </span>
-              </div>
-            ))}
-          </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            {categoryTransactions.length} transações
+          </p>
         </div>
 
         {/* Monthly Comparison */}
-        <div className="card-nexus">
-          <h3 className="font-semibold text-foreground mb-4">
-            Comparativo Mensal
-          </h3>
+        {monthlyComparison.length > 0 && (
+          <div className="card-nexus">
+            <h3 className="font-semibold text-foreground mb-4">
+              Comparativo Mensal
+            </h3>
 
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyComparison}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis 
-                  dataKey="month" 
-                  stroke="#9CA3AF"
-                  fontSize={12}
-                />
-                <YAxis 
-                  stroke="#9CA3AF"
-                  fontSize={12}
-                  tickFormatter={(value) => `R$ ${(value / 1000).toFixed(1)}k`}
-                />
-                <Tooltip 
-                  formatter={(value) => [formatCurrency(Number(value)), 'Gasto']}
-                  labelStyle={{ color: '#1F2937' }}
-                  contentStyle={{ 
-                    backgroundColor: '#161B22', 
-                    border: '1px solid #374151',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Bar 
-                  dataKey="amount" 
-                  fill={categoryData.color}
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyComparison}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="#9CA3AF"
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="#9CA3AF"
+                    fontSize={12}
+                    tickFormatter={(value) => `R$ ${(value / 1000).toFixed(1)}k`}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [formatCurrency(Number(value)), 'Gasto']}
+                    labelStyle={{ color: '#1F2937' }}
+                    contentStyle={{ 
+                      backgroundColor: '#161B22', 
+                      border: '1px solid #374151',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="amount" 
+                    fill="hsl(var(--primary))"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Recent Transactions */}
+        {/* Transactions with Edit/Delete */}
         <div className="card-nexus">
-          <div className="flex items-center mb-4">
-            <Receipt className="text-primary mr-2" size={20} />
-            <h3 className="font-semibold text-foreground">Transações Recentes</h3>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <Receipt className="text-primary mr-2" size={20} />
+              <h3 className="font-semibold text-foreground">Transações</h3>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant={selectMode ? "default" : "outline"}
+                onClick={() => {
+                  setSelectMode(!selectMode);
+                  setSelectedTransactions([]);
+                }}
+              >
+                {selectMode ? "Cancelar" : "Selecionar"}
+              </Button>
+              
+              {selectMode && selectedTransactions.length > 0 && (
+                <Button 
+                  size="sm" 
+                  variant="destructive" 
+                  onClick={handleBulkDelete}
+                >
+                  Excluir ({selectedTransactions.length})
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="space-y-3">
-            {categoryData.transactions.map((transaction: any, index: number) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                <div className="flex-1">
-                  <h4 className="font-medium text-foreground text-sm">
-                    {transaction.description}
-                  </h4>
-                  <div className="flex items-center text-xs text-muted-foreground mt-1">
-                    <span className="mr-2">{formatDate(transaction.date)}</span>
-                    <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">
-                      {transaction.subcategory}
-                    </span>
+            {categoryTransactions.length > 0 ? (
+              categoryTransactions.map((transaction) => (
+                <div key={transaction.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                  {selectMode && (
+                    <Checkbox
+                      checked={selectedTransactions.includes(transaction.id)}
+                      onCheckedChange={() => toggleTransactionSelection(transaction.id)}
+                    />
+                  )}
+                  
+                  <div className="flex-1">
+                    <h4 className="font-medium text-foreground text-sm">
+                      {transaction.description || 'Sem descrição'}
+                    </h4>
+                    <div className="flex items-center text-xs text-muted-foreground mt-1">
+                      <Calendar size={12} className="mr-1" />
+                      <span>{formatDate(transaction.transaction_date)}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-destructive text-financial">
-                    -{formatCurrency(transaction.amount)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+                  
+                  <div className="text-right">
+                    <p className="font-semibold text-destructive text-financial">
+                      {formatCurrency(Math.abs(transaction.amount))}
+                    </p>
+                  </div>
 
-          <div className="mt-4 text-center">
-            <button className="text-primary text-sm font-medium hover:underline">
-              Ver todas as transações
-            </button>
+                  {!selectMode && (
+                    <div className="flex gap-1">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => handleEditClick(transaction)}
+                      >
+                        <Edit2 size={16} />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => setDeleteTransactionId(transaction.id)}
+                      >
+                        <Trash2 size={16} className="text-destructive" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <Receipt size={48} className="mx-auto text-muted-foreground mb-2" />
+                <p className="text-foreground font-medium mb-1">Nenhuma transação</p>
+                <p className="text-sm text-muted-foreground">
+                  Não há transações nesta categoria
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Edit Transaction Modal */}
+      <Dialog open={!!editTransaction} onOpenChange={() => setEditTransaction(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Transação</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-description">Descrição</Label>
+              <Input
+                id="edit-description"
+                value={editForm.description}
+                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                placeholder="Ex: Supermercado"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-amount">Valor (R$)</Label>
+              <Input
+                id="edit-amount"
+                type="number"
+                step="0.01"
+                value={editForm.amount}
+                onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
+                placeholder="0.00"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-category">Categoria</Label>
+              <Select
+                value={editForm.category_id}
+                onValueChange={(value) => setEditForm({ ...editForm, category_id: value })}
+              >
+                <SelectTrigger id="edit-category">
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories?.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id.toString()}>
+                      {cat.icon_name} {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-date">Data</Label>
+              <Input
+                id="edit-date"
+                type="date"
+                value={editForm.transaction_date}
+                onChange={(e) => setEditForm({ ...editForm, transaction_date: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditTransaction(null)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleEditSubmit} disabled={updateTransactionMutation.isPending}>
+              {updateTransactionMutation.isPending ? 'Salvando...' : 'Salvar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Single Transaction Dialog */}
+      <AlertDialog open={!!deleteTransactionId} onOpenChange={() => setDeleteTransactionId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Transação</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Dialog */}
+      <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir {selectedTransactions.length} Transações</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir as {selectedTransactions.length} transações selecionadas? 
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmBulkDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir Todas
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

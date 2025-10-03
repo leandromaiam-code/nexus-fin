@@ -60,6 +60,7 @@ const Analysis = () => {
       const IconComponent = getCategoryIcon(category?.icon_name || '', item.category_name || '');
       
       return {
+        id: item.category_id,
         name: item.category_name || 'Sem categoria',
         value: Number(item.total_spent_in_category || 0),
         color: colors[index % colors.length],
@@ -277,7 +278,7 @@ const Analysis = () => {
             {categoryData.length > 0 ? categoryData.map((category, index) => (
               <button
                 key={index}
-                onClick={() => window.location.href = `/analysis/category/${index + 1}`}
+                onClick={() => window.location.href = `/analysis/category/${category.id}`}
                 className="group relative overflow-hidden"
               >
                 <div className="card-nexus p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
