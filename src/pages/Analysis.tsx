@@ -76,8 +76,8 @@ const Analysis = () => {
     const monthlyData: { [key: string]: { year: number; month: number; amount: number } } = {};
     
     transactions.forEach(transaction => {
-      // Só considerar despesas (valores negativos)
-      if (transaction.amount >= 0) return;
+      // Ignora apenas reembolsos/devoluções (valores negativos)
+      if (transaction.amount < 0) return;
       
       const date = new Date(transaction.transaction_date);
       const year = date.getFullYear();
@@ -157,7 +157,7 @@ const Analysis = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-24 sm:pb-32 md:pb-0">
       <header className="p-4 sm:p-6">
         <div className="flex items-center justify-center mb-3 sm:mb-4">
           <button 
@@ -353,7 +353,7 @@ const Analysis = () => {
         </button>
 
         {/* Monthly Trend */}
-        <div className="card-nexus">
+        <div className="card-nexus mb-8 sm:mb-12">
           <h3 className="font-semibold text-foreground mb-3 sm:mb-4 text-sm sm:text-base">
             Tendência dos Últimos Meses
           </h3>
