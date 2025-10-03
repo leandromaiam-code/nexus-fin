@@ -23,7 +23,7 @@ const Dashboard = () => {
   const { data: userData, isLoading: userLoading, error: userError } = useUserData();
   const { data: monthlyData, isLoading: monthlyLoading } = useMonthlyData(selectedMonth);
   const { data: primaryGoal, isLoading: goalLoading } = usePrimaryGoal();
-  const { data: recentTransactions, isLoading: transactionsLoading } = useRecentTransactions(4);
+  const { data: recentTransactions, isLoading: transactionsLoading } = useRecentTransactions(20);
 
   const isLoading = userLoading || monthlyLoading || goalLoading || transactionsLoading;
 
@@ -79,7 +79,7 @@ const Dashboard = () => {
   const transformedTransactions = recentTransactions?.map(transaction => ({
     id: transaction.id.toString(),
     description: transaction.description || 'Sem descrição',
-    amount: Math.abs(transaction.amount),
+    amount: transaction.amount,
     categoryName: transaction.categories?.name || 'Sem categoria',
     categoryIcon: transaction.categories?.icon_name || 'circle',
     isIncome: transaction.amount > 0,

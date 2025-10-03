@@ -44,7 +44,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
-    }).format(Math.abs(value));
+    }).format(value);
   };
 
   const formatDate = (dateString: string) => {
@@ -90,14 +90,14 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
                   "p-1.5 sm:p-2 rounded-lg flex-shrink-0",
                   transaction.isIncome 
                     ? "bg-success/10" 
-                    : "bg-muted"
+                    : "bg-destructive/10"
                 )}>
                   <CategoryIcon 
                     size={18} 
                     className={cn(
                       transaction.isIncome 
                         ? "text-success" 
-                        : "text-muted-foreground",
+                        : "text-destructive",
                       "sm:hidden"
                     )}
                   />
@@ -106,7 +106,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
                     className={cn(
                       transaction.isIncome 
                         ? "text-success" 
-                        : "text-muted-foreground",
+                        : "text-destructive",
                       "hidden sm:block"
                     )}
                   />
@@ -133,13 +133,24 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
                     "font-bold text-financial text-sm sm:text-base",
                     transaction.isIncome ? "text-success" : "text-destructive"
                   )}>
-                    {transaction.isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
+                    {formatCurrency(transaction.amount)}
                   </span>
                 </div>
               </div>
             </div>
           );
         })}
+        
+        {/* Ver Todas Button */}
+        <button
+          onClick={onViewAll}
+          className="w-full card-nexus !p-4 border-2 border-dashed border-muted hover:border-primary hover:bg-muted/50 transition-all duration-300 group"
+        >
+          <div className="flex items-center justify-center space-x-2 text-muted-foreground group-hover:text-primary">
+            <span className="font-medium text-sm sm:text-base">Ver todas as transações</span>
+            <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </div>
+        </button>
       </div>
     </div>
   );
