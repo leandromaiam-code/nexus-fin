@@ -40,11 +40,14 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
   transactions,
   onViewAll,
 }) => {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
+  const formatCurrency = (value: number, isIncome: boolean) => {
+    const absoluteValue = Math.abs(value);
+    const formatted = new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
-    }).format(value);
+    }).format(absoluteValue);
+    
+    return isIncome ? `+${formatted}` : `-${formatted}`;
   };
 
   const formatDate = (dateString: string) => {
@@ -133,7 +136,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
                     "font-bold text-financial text-sm sm:text-base",
                     transaction.isIncome ? "text-success" : "text-destructive"
                   )}>
-                    {formatCurrency(transaction.amount)}
+                    {formatCurrency(transaction.amount, transaction.isIncome)}
                   </span>
                 </div>
               </div>

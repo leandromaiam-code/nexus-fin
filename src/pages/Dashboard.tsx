@@ -82,7 +82,7 @@ const Dashboard = () => {
     amount: transaction.amount,
     categoryName: transaction.categories?.name || 'Sem categoria',
     categoryIcon: transaction.categories?.icon_name || 'circle',
-    isIncome: transaction.amount > 0,
+    isIncome: transaction.categories?.tipo === 'Entrada' || transaction.amount < 0,
     date: transaction.transaction_date
   })) || [];
 

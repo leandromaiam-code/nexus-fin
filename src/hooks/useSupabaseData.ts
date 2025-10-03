@@ -142,7 +142,8 @@ export const useRecentTransactions = (limit = 5) => {
           *,
           categories (
             name,
-            icon_name
+            icon_name,
+            tipo
           )
         `)
         .eq('user_id', user.id)
