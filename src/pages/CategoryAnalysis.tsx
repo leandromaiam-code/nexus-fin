@@ -1,6 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, TrendingDown, Receipt, Edit2, Trash2, Calendar, DollarSign } from 'lucide-react';
+import { 
+  ArrowLeft, TrendingDown, Receipt, Edit2, Trash2, Calendar, DollarSign,
+  ShoppingCart, Home, Car, Utensils, Film, Heart, Briefcase, 
+  GraduationCap, Smartphone, Plane, Gift, Zap, ShoppingBag, Cpu
+} from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useCategories, useRecentTransactions, useUpdateTransaction, useDeleteTransaction } from '@/hooks/useSupabaseData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -11,6 +15,27 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+
+const getCategoryIcon = (iconName: string) => {
+  const iconMap: { [key: string]: any } = {
+    'shopping-cart': ShoppingCart,
+    'home': Home,
+    'car': Car,
+    'utensils': Utensils,
+    'film': Film,
+    'heart': Heart,
+    'briefcase': Briefcase,
+    'graduation-cap': GraduationCap,
+    'smartphone': Smartphone,
+    'plane': Plane,
+    'gift': Gift,
+    'zap': Zap,
+    'shopping-bag': ShoppingBag,
+    'cpu': Cpu,
+  };
+  
+  return iconMap[iconName] || DollarSign;
+};
 
 const CategoryAnalysis = () => {
   const { categoryId } = useParams();
@@ -25,6 +50,8 @@ const CategoryAnalysis = () => {
   const categoryTransactions = allTransactions.filter(
     t => t.category_id === Number(categoryId)
   );
+  
+  const CategoryIcon = category ? getCategoryIcon(category.icon_name || '') : DollarSign;
 
   // States for edit/delete
   const [editTransaction, setEditTransaction] = useState<any>(null);
@@ -190,7 +217,7 @@ const CategoryAnalysis = () => {
           </button>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-display flex items-center">
-              <span className="mr-2">{category.icon_name || '💳'}</span>
+              <CategoryIcon size={28} className="mr-2 text-primary" />
               {category.name}
             </h1>
             <p className="text-muted-foreground">Análise Detalhada</p>
@@ -385,11 +412,17 @@ const CategoryAnalysis = () => {
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories?.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id.toString()}>
-                      {cat.icon_name} {cat.name}
-                    </SelectItem>
-                  ))}
+                  {categories?.map((cat) => {
+                    const CatIcon = getCategoryIcon(cat.icon_name || '');
+                    return (
+                      <SelectItem key={cat.id} value={cat.id.toString()}>
+                        <span className="flex items-center gap-2">
+                          <CatIcon size={16} />
+                          {cat.name}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
