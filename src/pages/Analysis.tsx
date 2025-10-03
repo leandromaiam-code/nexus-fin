@@ -15,7 +15,7 @@ const Analysis = () => {
   // Get real data from Supabase
   const currentMonthStr = `${selectedYear}-${(selectedMonth + 1).toString().padStart(2, '0')}-01`;
   const { data: categorySpending = [], isLoading: categoryLoading } = useCategorySpending(currentMonthStr);
-  const { data: transactions = [], isLoading: transactionsLoading } = useRecentTransactions(100);
+  const { data: transactions = [], isLoading: transactionsLoading } = useRecentTransactions(500);
   const { data: categories = [] } = useCategories();
 
   // Icon mapping for categories
@@ -72,24 +72,40 @@ const Analysis = () => {
 
   // Calculate monthly trend from transactions
   const monthlyTrend = useMemo(() => {
-    const monthlyData: { [key: string]: number } = {};
+    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const monthlyData: { [key: string]: { year: number; month: number; amount: number } } = {};
     
     transactions.forEach(transaction => {
+      // Só considerar despesas (valores negativos)
+      if (transaction.amount >= 0) return;
+      
       const date = new Date(transaction.transaction_date);
-      const monthKey = date.toLocaleDateString('pt-BR', { month: 'short' });
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const monthKey = `${year}-${month}`;
       
       if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = 0;
+        monthlyData[monthKey] = {
+          year,
+          month,
+          amount: 0
+        };
       }
       
-      if (transaction.amount < 0) {
-        monthlyData[monthKey] += Math.abs(transaction.amount);
-      }
+      monthlyData[monthKey].amount += Math.abs(transaction.amount);
     });
 
-    return Object.entries(monthlyData)
-      .map(([month, amount]) => ({ month, amount }))
-      .slice(-4);
+    // Ordenar cronologicamente e pegar últimos 4 meses
+    return Object.values(monthlyData)
+      .sort((a, b) => {
+        if (a.year !== b.year) return a.year - b.year;
+        return a.month - b.month;
+      })
+      .slice(-4)
+      .map(item => ({
+        month: monthNames[item.month],
+        amount: item.amount
+      }));
   }, [transactions]);
 
   // Calculate total from raw data BEFORE filtering (includes refunds/negatives)
