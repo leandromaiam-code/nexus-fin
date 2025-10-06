@@ -10,7 +10,8 @@ import {
   LogOut,
   X,
   Users,
-  Wallet
+  Wallet,
+  PiggyBank
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,12 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
       label: 'Contas',
       icon: Wallet,
       path: '/payment-accounts',
+    },
+    {
+      id: 'budget',
+      label: 'Orçamento',
+      icon: PiggyBank,
+      path: '/budget',
     },
     {
       id: 'plan',

@@ -18,7 +18,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <header className="flex items-center justify-between p-4 sm:p-6 bg-background">
         <div className="flex items-center space-x-2 sm:space-x-3">
           <button 
-            className="p-1.5 sm:p-2 rounded-lg hover:bg-muted transition-colors md:hidden"
+            className="p-1.5 sm:p-2 rounded-lg hover:bg-muted transition-colors"
             onClick={() => setIsSidebarOpen(true)}
           >
             <Menu size={20} className="text-foreground sm:hidden" />
