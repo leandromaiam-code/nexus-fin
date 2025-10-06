@@ -10,8 +10,8 @@ import MonthFilter from '@/components/dashboard/MonthFilter';
 import { MetricCard } from '@/components/analytics/MetricCard';
 import { GaugeChart } from '@/components/analytics/GaugeChart';
 import { CategoryIcon } from '@/components/analytics/CategoryIcon';
+import { BudgetComparisonChart } from '@/components/analytics/BudgetComparisonChart';
 import { useBudgetPerformance } from '@/hooks/useAnalyticsData';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const BudgetAnalysis = () => {
   const [selectedMonth, setSelectedMonth] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
@@ -28,6 +28,14 @@ const BudgetAnalysis = () => {
   const totalSpent = budgetData?.reduce((sum, item) => sum + Number(item.actual_spent), 0) || 0;
   const totalRemaining = totalBudgeted - totalSpent;
   const overallUsage = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
+
+  // Preparar dados para o gráfico de comparação
+  const comparisonData = budgetData?.map(item => ({
+    category: item.category_name || 'Sem categoria',
+    previsto: Number(item.budgeted),
+    realizado: Number(item.actual_spent),
+    percentage: Number(item.usage_percentage)
+  })) || [];
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -88,6 +96,9 @@ const BudgetAnalysis = () => {
             subtitle={`${overallUsage.toFixed(1)}% utilizado`}
           />
         </div>
+
+        {/* Budget Comparison Chart */}
+        <BudgetComparisonChart data={comparisonData} />
 
         {/* Gauge Charts */}
         {budgetData && budgetData.length > 0 && (
