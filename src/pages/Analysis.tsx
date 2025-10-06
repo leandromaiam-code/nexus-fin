@@ -168,7 +168,7 @@ const Analysis = () => {
   return (
     <div className="min-h-screen bg-background pb-32 sm:pb-40 md:pb-0">
       <header className="p-4 sm:p-6">
-        <BackButton to="/dashboard" className="mb-3 sm:mb-4" />
+        <BackButton to="/" className="mb-3 sm:mb-4" />
         <div className="flex items-center justify-center mb-3 sm:mb-4">
           <button 
             onClick={() => navigateMonth('prev')}

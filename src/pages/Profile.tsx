@@ -169,7 +169,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0">
       <header className="p-4 sm:p-6">
-        <BackButton to="/dashboard" className="mb-3" />
+        <BackButton to="/" className="mb-3" />
         <h1 className="text-xl sm:text-2xl font-bold text-display mb-2">Perfil</h1>
         <p className="text-sm sm:text-base text-muted-foreground">Gerencie sua conta e configurações</p>
       </header>

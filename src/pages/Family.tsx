@@ -33,7 +33,7 @@ const Family = () => {
     return (
       <div className="min-h-screen bg-background p-4">
         <div className="max-w-2xl mx-auto pt-8">
-          <BackButton to="/dashboard" className="mb-4" />
+          <BackButton to="/" className="mb-4" />
 
           <Card>
             <CardContent className="pt-6 text-center">
@@ -58,7 +58,7 @@ const Family = () => {
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <BackButton to="/dashboard" />
+              <BackButton to="/" />
               <div>
                 <h1 className="text-2xl font-bold">{familyData.nome_familia}</h1>
                 <p className="text-sm text-muted-foreground">

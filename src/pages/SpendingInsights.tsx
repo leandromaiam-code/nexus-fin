@@ -69,7 +69,7 @@ const SpendingInsights = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background p-6">
-        <BackButton to="/dashboard" />
+        <BackButton to="/" />
         <div className="mt-6 text-center text-muted-foreground">Carregando...</div>
       </div>
     );
@@ -77,7 +77,7 @@ const SpendingInsights = () => {
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 pb-24">
-      <BackButton to="/dashboard" />
+      <BackButton to="/" />
 
       <div className="max-w-7xl mx-auto mt-6">
         <div className="flex items-center justify-between mb-6">

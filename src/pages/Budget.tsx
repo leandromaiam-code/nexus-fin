@@ -46,7 +46,7 @@ const Budget = () => {
   return (
     <div className="min-h-screen bg-background p-6 space-y-6">
       <header className="space-y-4">
-        <BackButton to="/dashboard" />
+        <BackButton to="/" />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Orçamentos</h1>

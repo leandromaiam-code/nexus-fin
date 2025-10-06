@@ -35,7 +35,7 @@ const PaymentAccounts = () => {
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <BackButton to="/dashboard" />
+              <BackButton to="/" />
               <div>
                 <h1 className="text-2xl font-bold">Contas Pagadoras</h1>
                 <p className="text-sm text-muted-foreground">
