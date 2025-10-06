@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { 
-  ArrowLeft, TrendingDown, Receipt, Edit2, Trash2, Calendar, DollarSign,
+  TrendingDown, Receipt, Edit2, Trash2, Calendar, DollarSign,
   ShoppingCart, Home, Car, Utensils, Film, Heart, Briefcase, 
   GraduationCap, Smartphone, Plane, Gift, Zap, ShoppingBag, Cpu
 } from 'lucide-react';
@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import BackButton from '@/components/ui/back-button';
 
 const getCategoryIcon = (iconName: string) => {
   const iconMap: { [key: string]: any } = {
@@ -39,7 +40,6 @@ const getCategoryIcon = (iconName: string) => {
 
 const CategoryAnalysis = () => {
   const { categoryId } = useParams();
-  const navigate = useNavigate();
 
   // Fetch real data
   const { data: categories } = useCategories();
@@ -199,7 +199,7 @@ const CategoryAnalysis = () => {
       <div className="min-h-screen bg-background pb-20 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-2">Categoria não encontrada</h1>
-          <Button onClick={() => navigate('/analysis')}>Voltar para Análise</Button>
+          <BackButton to="/analysis" />
         </div>
       </div>
     );
@@ -208,13 +208,8 @@ const CategoryAnalysis = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="p-6">
-        <div className="flex items-center mb-4">
-          <button
-            onClick={() => navigate('/analysis')}
-            className="p-2 rounded-lg hover:bg-muted transition-colors mr-2"
-          >
-            <ArrowLeft size={20} className="text-foreground" />
-          </button>
+        <BackButton to="/analysis" className="mb-4" />
+        <div className="flex items-center">
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-display flex items-center">
               <CategoryIcon size={28} className="mr-2 text-primary" />

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Filter, Search, Pencil, Trash2, Plus, Minus, Calendar, CalendarIcon } from 'lucide-react';
+import { Filter, Search, Pencil, Trash2, Plus, Minus, Calendar, CalendarIcon } from 'lucide-react';
+import BackButton from '@/components/ui/back-button';
 import { useRecentTransactions, useCategories, useUpdateTransaction, useDeleteTransaction } from '@/hooks/useSupabaseData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,6 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
 const Transactions = () => {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [transactionType, setTransactionType] = useState<string>('all');
@@ -183,12 +182,7 @@ const Transactions = () => {
       <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border z-10">
         <div className="p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-4">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 rounded-lg hover:bg-muted transition-colors"
-            >
-              <ArrowLeft size={20} className="text-foreground" />
-            </button>
+            <BackButton />
             <h1 className="text-lg sm:text-2xl font-bold text-display">
               Todas as Transações
             </h1>

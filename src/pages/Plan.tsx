@@ -7,6 +7,7 @@ import { CardSkeleton } from '@/components/ui/skeleton-loader';
 import { NoGoalsEmpty } from '@/components/ui/empty-state';
 import { EditGoalModal } from '@/components/modals/EditGoalModal';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import BackButton from '@/components/ui/back-button';
 
 const Plan = () => {
   const navigate = useNavigate();
@@ -149,6 +150,7 @@ const Plan = () => {
   return (
     <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0 animate-fade-in">
       <header className="p-4 sm:p-6">
+        <BackButton to="/dashboard" className="mb-3" />
         <h1 className="text-xl sm:text-2xl font-bold text-display mb-2">Meu Plano Financeiro</h1>
         <p className="text-sm sm:text-base text-muted-foreground">Acompanhe seus objetivos e metas</p>
       </header>

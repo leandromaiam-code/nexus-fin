@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Target, Plus, Calendar, DollarSign } from 'lucide-react';
+import { Target, Plus, Calendar, DollarSign } from 'lucide-react';
+import BackButton from '@/components/ui/back-button';
 import { Card } from '@/components/ui/card';
 import { NexusButton } from '@/components/ui/nexus-button';
 import { Input } from '@/components/ui/input';
@@ -123,14 +124,8 @@ const GoalCatalog = () => {
   return (
     <div className="min-h-screen bg-background pb-20 animate-fade-in">
       {/* Header */}
-      <header className="p-6 flex items-center space-x-3">
-        <NexusButton
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/plan')}
-        >
-          <ArrowLeft size={20} />
-        </NexusButton>
+      <header className="p-6">
+        <BackButton to="/plan" className="mb-3" />
         <div>
           <h1 className="text-2xl font-bold text-display">Catálogo de Metas</h1>
           <p className="text-muted-foreground">Escolha uma meta ou crie a sua própria</p>

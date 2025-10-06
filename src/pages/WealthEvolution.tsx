@@ -1,10 +1,9 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, PiggyBank, CreditCard, BarChart3 } from 'lucide-react';
+import { TrendingUp, PiggyBank, CreditCard, BarChart3 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import BackButton from '@/components/ui/back-button';
 
 const WealthEvolution = () => {
-  const navigate = useNavigate();
 
   // Mock data for wealth evolution (static for prototype)
   const wealthData = [
@@ -55,17 +54,10 @@ const WealthEvolution = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="p-6">
-        <div className="flex items-center mb-4">
-          <button
-            onClick={() => navigate('/analysis')}
-            className="p-2 rounded-lg hover:bg-muted transition-colors mr-2"
-          >
-            <ArrowLeft size={20} className="text-foreground" />
-          </button>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-display">Evolução Patrimonial</h1>
-            <p className="text-muted-foreground">Acompanhe o crescimento do seu patrimônio</p>
-          </div>
+        <BackButton to="/analysis" className="mb-4" />
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-display">Evolução Patrimonial</h1>
+          <p className="text-muted-foreground">Acompanhe o crescimento do seu patrimônio</p>
         </div>
       </header>
 

@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, 
-  Target, 
+  Target,
   CheckCircle2, 
   Circle, 
   TrendingUp,
@@ -37,6 +36,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
+import BackButton from '@/components/ui/back-button';
 
 const GoalDetails = () => {
   const { id } = useParams();
@@ -279,14 +279,7 @@ const GoalDetails = () => {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => navigate('/plan')}
-          className="rounded-full"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+        <BackButton to="/plan" />
         <div>
           <h1 className="text-2xl font-bold">{goal.custom_name || goal.goal_templates?.name}</h1>
           <p className="text-muted-foreground">{goal.goal_templates?.description}</p>

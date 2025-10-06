@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, 
-  Settings, 
+  Settings,
   Plus, 
   Edit3, 
   Trash2, 
@@ -17,9 +15,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import BackButton from '@/components/ui/back-button';
 
 const ManageCategories = () => {
-  const navigate = useNavigate();
   const { data: categories, isLoading } = useCategories();
   
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
@@ -184,12 +182,7 @@ const ManageCategories = () => {
       <header className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <button
-              onClick={() => navigate('/profile')}
-              className="p-2 rounded-lg hover:bg-muted transition-colors mr-2"
-            >
-              <ArrowLeft size={20} className="text-foreground" />
-            </button>
+            <BackButton to="/profile" className="mr-2" />
             <div>
               <h1 className="text-2xl font-bold text-display">Gerenciar Categorias</h1>
               <p className="text-muted-foreground">Personalize seu plano de contas</p>

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { BarChart3, ChevronLeft, ChevronRight, TrendingDown, Wallet, CreditCard, Utensils, Car, Home, Gamepad2, Coffee, ShoppingBag } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { useCategorySpending, useRecentTransactions, useCategories } from '@/hooks/useSupabaseData';
+import BackButton from '@/components/ui/back-button';
 
 const Analysis = () => {
   const [selectedMonth, setSelectedMonth] = useState(8); // September (0-indexed)
@@ -167,6 +168,7 @@ const Analysis = () => {
   return (
     <div className="min-h-screen bg-background pb-32 sm:pb-40 md:pb-0">
       <header className="p-4 sm:p-6">
+        <BackButton to="/dashboard" className="mb-3 sm:mb-4" />
         <div className="flex items-center justify-center mb-3 sm:mb-4">
           <button 
             onClick={() => navigateMonth('prev')}

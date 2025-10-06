@@ -8,6 +8,7 @@ import BudgetCategoryCard from '@/components/budget/BudgetCategoryCard';
 import AddBudgetModal from '@/components/budget/AddBudgetModal';
 import BudgetSummary from '@/components/budget/BudgetSummary';
 import { Skeleton } from '@/components/ui/skeleton';
+import BackButton from '@/components/ui/back-button';
 
 const Budget = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7) + '-01');
@@ -44,15 +45,18 @@ const Budget = () => {
 
   return (
     <div className="min-h-screen bg-background p-6 space-y-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Orçamentos</h1>
-          <p className="text-muted-foreground">Defina e acompanhe seus limites por categoria</p>
+      <header className="space-y-4">
+        <BackButton to="/dashboard" />
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Orçamentos</h1>
+            <p className="text-muted-foreground">Defina e acompanhe seus limites por categoria</p>
+          </div>
+          <Button onClick={() => setShowAddModal(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Novo Orçamento
+          </Button>
         </div>
-        <Button onClick={() => setShowAddModal(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Novo Orçamento
-        </Button>
       </header>
 
       <MonthFilter selectedMonth={selectedMonth} onMonthChange={handleMonthChange} />
