@@ -14,6 +14,8 @@ import Analysis from "./pages/Analysis";
 import Profile from "./pages/Profile";
 import Onboarding from "./pages/Onboarding";
 import OnboardingFlow from "./pages/OnboardingFlow";
+import Family from "./pages/Family";
+import PaymentAccounts from "./pages/PaymentAccounts";
 import GoalCatalog from "./pages/GoalCatalog";
 import GoalDetails from "./pages/GoalDetails";
 import CategoryAnalysis from "./pages/CategoryAnalysis";
@@ -43,8 +45,10 @@ const AppRoutes = () => {
         <Route path="/signup" element={!user ? <SignUp /> : <Navigate to="/" />} />
         
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-        <Route path="/onboarding-flow" element={<ProtectedRoute><OnboardingFlow /></ProtectedRoute>} />
+            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+            <Route path="/onboarding-flow" element={<ProtectedRoute><OnboardingFlow /></ProtectedRoute>} />
+            <Route path="/family" element={<ProtectedRoute><Family /></ProtectedRoute>} />
+            <Route path="/payment-accounts" element={<ProtectedRoute><PaymentAccounts /></ProtectedRoute>} />
         <Route path="/plan" element={<ProtectedRoute><Plan /></ProtectedRoute>} />
         <Route path="/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
         <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />

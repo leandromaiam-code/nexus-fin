@@ -8,7 +8,9 @@ import {
   User,
   Stethoscope,
   LogOut,
-  X
+  X,
+  Users,
+  Wallet
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -33,6 +35,18 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
       label: 'Painel',
       icon: LayoutDashboard,
       path: '/',
+    },
+    {
+      id: 'family',
+      label: 'Família',
+      icon: Users,
+      path: '/family',
+    },
+    {
+      id: 'accounts',
+      label: 'Contas',
+      icon: Wallet,
+      path: '/payment-accounts',
     },
     {
       id: 'plan',

@@ -768,3 +768,251 @@ export const useDeleteTransaction = () => {
     }
   });
 };
+
+// ============================================
+// FAMILY HOOKS
+// ============================================
+
+export const useFamilyData = () => {
+  const { user } = useCurrentUser();
+
+  return useQuery({
+    queryKey: ['family', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+
+      const { data: memberData } = await supabase
+        .from('membros_familia')
+        .select('familia_id, papel')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!memberData?.familia_id) return null;
+
+      const { data: familyData, error } = await supabase
+        .from('familias')
+        .select('*')
+        .eq('id', memberData.familia_id)
+        .single();
+
+      if (error) throw error;
+
+      return { ...familyData, userRole: memberData.papel };
+    },
+    enabled: !!user?.id,
+  });
+};
+
+export const useFamilyMembers = () => {
+  const { user } = useCurrentUser();
+
+  return useQuery({
+    queryKey: ['familyMembers', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+
+      const { data: memberData } = await supabase
+        .from('membros_familia')
+        .select('familia_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!memberData?.familia_id) return [];
+
+      const { data, error } = await supabase
+        .from('membros_familia')
+        .select(`
+          *,
+          users (
+            id,
+            full_name
+          )
+        `)
+        .eq('familia_id', memberData.familia_id)
+        .order('papel', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+};
+
+export const useCreateFamilyMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { user_id: number; familia_id: number; papel: string; cota_mensal?: number }) => {
+      const { error } = await supabase
+        .from('membros_familia')
+        .insert(data);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
+    }
+  });
+};
+
+export const useUpdateFamilyMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<{ papel: string; cota_mensal: number }> }) => {
+      const { error } = await supabase
+        .from('membros_familia')
+        .update(data)
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
+    }
+  });
+};
+
+export const useDeleteFamilyMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (memberId: number) => {
+      const { error } = await supabase
+        .from('membros_familia')
+        .delete()
+        .eq('id', memberId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
+    }
+  });
+};
+
+// ============================================
+// PAYMENT ACCOUNTS HOOKS
+// ============================================
+
+export const usePaymentAccounts = () => {
+  const { user } = useCurrentUser();
+
+  return useQuery({
+    queryKey: ['paymentAccounts', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+
+      const { data, error } = await supabase
+        .from('contas_pagadoras')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .order('nome', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+};
+
+export const useCreatePaymentAccount = () => {
+  const queryClient = useQueryClient();
+  const { user } = useCurrentUser();
+
+  return useMutation({
+    mutationFn: async (data: { 
+      nome: string; 
+      tipo: string; 
+      saldo_inicial?: number;
+      dia_fechamento_fatura?: number;
+      icone?: string;
+      cor?: string;
+    }) => {
+      if (!user?.id) throw new Error('User not found');
+
+      const { error } = await supabase
+        .from('contas_pagadoras')
+        .insert({ ...data, user_id: user.id });
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['paymentAccounts'] });
+    }
+  });
+};
+
+export const useUpdatePaymentAccount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      id, 
+      data 
+    }: { 
+      id: number; 
+      data: Partial<{ 
+        nome: string; 
+        tipo: string; 
+        saldo_inicial: number;
+        dia_fechamento_fatura: number;
+        icone: string;
+        cor: string;
+      }> 
+    }) => {
+      const { error } = await supabase
+        .from('contas_pagadoras')
+        .update(data)
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['paymentAccounts'] });
+    }
+  });
+};
+
+export const useDeletePaymentAccount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (accountId: number) => {
+      const { error } = await supabase
+        .from('contas_pagadoras')
+        .update({ is_active: false })
+        .eq('id', accountId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['paymentAccounts'] });
+    }
+  });
+};
+
+export const useAccountBalance = (accountId: number) => {
+  return useQuery({
+    queryKey: ['accountBalance', accountId],
+    queryFn: async () => {
+      const { data: account } = await supabase
+        .from('contas_pagadoras')
+        .select('saldo_inicial')
+        .eq('id', accountId)
+        .single();
+
+      const { data: transactions } = await supabase
+        .from('transactions')
+        .select('amount')
+        .eq('conta_pagadora_id', accountId);
+
+      const initialBalance = account?.saldo_inicial || 0;
+      const transactionsTotal = transactions?.reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+
+      return initialBalance + transactionsTotal;
+    },
+    enabled: !!accountId,
+  });
+};

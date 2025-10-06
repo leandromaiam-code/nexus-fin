@@ -77,6 +77,7 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          description_agente: string | null
           icon_name: string | null
           id: number
           name: string
@@ -87,6 +88,7 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
+          description_agente?: string | null
           icon_name?: string | null
           id?: never
           name: string
@@ -97,6 +99,7 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
+          description_agente?: string | null
           icon_name?: string | null
           id?: never
           name?: string
@@ -128,6 +131,81 @@ export type Database = {
           },
         ]
       }
+      contas_pagadoras: {
+        Row: {
+          cor: string | null
+          dia_fechamento_fatura: number | null
+          icone: string | null
+          id: number
+          is_active: boolean | null
+          nome: string
+          saldo_inicial: number | null
+          tipo: string
+          user_id: number
+        }
+        Insert: {
+          cor?: string | null
+          dia_fechamento_fatura?: number | null
+          icone?: string | null
+          id?: never
+          is_active?: boolean | null
+          nome: string
+          saldo_inicial?: number | null
+          tipo: string
+          user_id: number
+        }
+        Update: {
+          cor?: string | null
+          dia_fechamento_fatura?: number | null
+          icone?: string | null
+          id?: never
+          is_active?: boolean | null
+          nome?: string
+          saldo_inicial?: number | null
+          tipo?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contas_pagadoras_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "contas_pagadoras_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      desafios: {
+        Row: {
+          descricao: string
+          id: number
+          pontos: number
+          tipo: string
+          titulo: string
+        }
+        Insert: {
+          descricao: string
+          id?: never
+          pontos: number
+          tipo: string
+          titulo: string
+        }
+        Update: {
+          descricao?: string
+          id?: never
+          pontos?: number
+          tipo?: string
+          titulo?: string
+        }
+        Relationships: []
+      }
       diagnostic_questions: {
         Row: {
           id: number
@@ -152,6 +230,24 @@ export type Database = {
         }
         Relationships: []
       }
+      familias: {
+        Row: {
+          created_at: string
+          id: number
+          nome_familia: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          nome_familia: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          nome_familia?: string
+        }
+        Relationships: []
+      }
       goal_templates: {
         Row: {
           description: string | null
@@ -170,6 +266,52 @@ export type Database = {
         }
         Relationships: []
       }
+      membros_familia: {
+        Row: {
+          cota_mensal: number | null
+          familia_id: number
+          id: number
+          papel: string
+          user_id: number
+        }
+        Insert: {
+          cota_mensal?: number | null
+          familia_id: number
+          id?: never
+          papel: string
+          user_id: number
+        }
+        Update: {
+          cota_mensal?: number | null
+          familia_id?: number
+          id?: never
+          papel?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membros_familia_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "familias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "membros_familia_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "membros_familia_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memoria_conversas: {
         Row: {
           id: number
@@ -187,6 +329,62 @@ export type Database = {
           session_id?: string
         }
         Relationships: []
+      }
+      orcamentos: {
+        Row: {
+          category_id: number
+          familia_id: number | null
+          id: number
+          mes_ano: string
+          user_id: number | null
+          valor_orcado: number
+        }
+        Insert: {
+          category_id: number
+          familia_id?: number | null
+          id?: never
+          mes_ano: string
+          user_id?: number | null
+          valor_orcado: number
+        }
+        Update: {
+          category_id?: number
+          familia_id?: number | null
+          id?: never
+          mes_ano?: string
+          user_id?: number | null
+          valor_orcado?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orcamentos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orcamentos_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "familias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orcamentos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "orcamentos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plan_steps: {
         Row: {
@@ -220,10 +418,141 @@ export type Database = {
           },
         ]
       }
+      progresso_desafios_usuario: {
+        Row: {
+          data_conclusao: string | null
+          data_inicio: string | null
+          desafio_id: number
+          id: number
+          progresso: number | null
+          status: string
+          user_id: number
+        }
+        Insert: {
+          data_conclusao?: string | null
+          data_inicio?: string | null
+          desafio_id: number
+          id?: never
+          progresso?: number | null
+          status?: string
+          user_id: number
+        }
+        Update: {
+          data_conclusao?: string | null
+          data_inicio?: string | null
+          desafio_id?: number
+          id?: never
+          progresso?: number | null
+          status?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progresso_desafios_usuario_desafio_id_fkey"
+            columns: ["desafio_id"]
+            isOneToOne: false
+            referencedRelation: "desafios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progresso_desafios_usuario_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "progresso_desafios_usuario_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recompensas: {
+        Row: {
+          descricao: string | null
+          disponivel: boolean | null
+          familia_id: number
+          id: number
+          pontos_necessarios: number
+          titulo: string
+        }
+        Insert: {
+          descricao?: string | null
+          disponivel?: boolean | null
+          familia_id: number
+          id?: never
+          pontos_necessarios: number
+          titulo: string
+        }
+        Update: {
+          descricao?: string | null
+          disponivel?: boolean | null
+          familia_id?: number
+          id?: never
+          pontos_necessarios?: number
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recompensas_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "familias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recompensas_resgatadas: {
+        Row: {
+          data_resgate: string | null
+          id: number
+          recompensa_id: number
+          user_id: number
+        }
+        Insert: {
+          data_resgate?: string | null
+          id?: never
+          recompensa_id: number
+          user_id: number
+        }
+        Update: {
+          data_resgate?: string | null
+          id?: never
+          recompensa_id?: number
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recompensas_resgatadas_recompensa_id_fkey"
+            columns: ["recompensa_id"]
+            isOneToOne: false
+            referencedRelation: "recompensas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recompensas_resgatadas_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "recompensas_resgatadas_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
           category_id: number | null
+          conta_pagadora_id: number | null
           created_at: string
           description: string | null
           id: number
@@ -233,6 +562,7 @@ export type Database = {
         Insert: {
           amount: number
           category_id?: number | null
+          conta_pagadora_id?: number | null
           created_at?: string
           description?: string | null
           id?: never
@@ -242,6 +572,7 @@ export type Database = {
         Update: {
           amount?: number
           category_id?: number | null
+          conta_pagadora_id?: number | null
           created_at?: string
           description?: string | null
           id?: never
@@ -254,6 +585,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_conta_pagadora_id_fkey"
+            columns: ["conta_pagadora_id"]
+            isOneToOne: false
+            referencedRelation: "contas_pagadoras"
             referencedColumns: ["id"]
           },
           {
@@ -512,6 +850,7 @@ export type Database = {
       users: {
         Row: {
           auth_id: string | null
+          confirmar_registros: boolean
           cost_of_living_reported: number | null
           created_at: string
           financial_archetype: string | null
@@ -526,6 +865,7 @@ export type Database = {
         }
         Insert: {
           auth_id?: string | null
+          confirmar_registros?: boolean
           cost_of_living_reported?: number | null
           created_at?: string
           financial_archetype?: string | null
@@ -540,6 +880,7 @@ export type Database = {
         }
         Update: {
           auth_id?: string | null
+          confirmar_registros?: boolean
           cost_of_living_reported?: number | null
           created_at?: string
           financial_archetype?: string | null
