@@ -1189,6 +1189,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      is_family_admin: {
+        Args: { _familia_id: number; _user_id: number }
+        Returns: boolean
+      }
+      is_family_empty: {
+        Args: { _familia_id: number }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
