@@ -13,6 +13,7 @@ import Register from "./pages/Register";
 import Analysis from "./pages/Analysis";
 import Profile from "./pages/Profile";
 import Onboarding from "./pages/Onboarding";
+import OnboardingFlow from "./pages/OnboardingFlow";
 import GoalCatalog from "./pages/GoalCatalog";
 import GoalDetails from "./pages/GoalDetails";
 import CategoryAnalysis from "./pages/CategoryAnalysis";
@@ -43,6 +44,7 @@ const AppRoutes = () => {
         
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+        <Route path="/onboarding-flow" element={<ProtectedRoute><OnboardingFlow /></ProtectedRoute>} />
         <Route path="/plan" element={<ProtectedRoute><Plan /></ProtectedRoute>} />
         <Route path="/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
         <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />

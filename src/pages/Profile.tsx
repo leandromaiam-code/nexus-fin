@@ -18,11 +18,14 @@ import { executeWebAction } from '@/lib/n8nClient';
 import { toast } from '@/hooks/use-toast';
 import { isDiagnosticComplete } from '@/lib/diagnosticUtils';
 import { useUserData } from '@/hooks/useSupabaseData';
+import { Switch } from '@/components/ui/switch';
+import { useTransactionConfirmation } from '@/hooks/useTransactionConfirmation';
 
 const Profile = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { data: userData } = useUserData();
+  const { needsConfirmation, updatePreference } = useTransactionConfirmation();
 
   const handleDiagnosticClick = () => {
     if (!userData || !isDiagnosticComplete(userData)) {
@@ -68,6 +71,18 @@ const Profile = () => {
       ]
     },
     {
+      title: "Preferências",
+      items: [
+        {
+          icon: Shield,
+          label: "Confirmar Transações",
+          description: "Revisar antes de salvar",
+          action: null,
+          isConfirmToggle: true
+        }
+      ]
+    },
+    {
       title: "Aparência",
       items: [
         {
@@ -107,6 +122,26 @@ const Profile = () => {
             </div>
           </div>
           <ThemeToggle />
+        </div>
+      );
+    }
+
+    if (item.isConfirmToggle) {
+      return (
+        <div className="w-full flex items-center justify-between p-3 sm:p-4 bg-card rounded-xl border border-border">
+          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0 flex-1">
+            <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg flex-shrink-0">
+              <item.icon className="text-primary" size={18} />
+            </div>
+            <div className="text-left min-w-0 flex-1">
+              <p className="font-medium text-foreground text-sm sm:text-base">{item.label}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">{item.description}</p>
+            </div>
+          </div>
+          <Switch 
+            checked={needsConfirmation}
+            onCheckedChange={updatePreference}
+          />
         </div>
       );
     }
