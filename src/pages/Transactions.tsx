@@ -178,7 +178,7 @@ const Transactions = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 sm:pb-6">
+    <div className="min-h-screen bg-background pb-6">
       {/* Header */}
       <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border z-10">
         <div className="p-4 sm:p-6">

@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Brain, TrendingUp, RefreshCw, BarChart3 } from 'lucide-react';
+import { Brain, RefreshCw } from 'lucide-react';
 import { useUserData } from '@/hooks/useSupabaseData';
 import { NexusButton } from '@/components/ui/nexus-button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { executeWebAction } from '@/lib/n8nClient';
 import { toast } from '@/hooks/use-toast';
+import BackButton from '@/components/ui/back-button';
 
 const MyDiagnostic = () => {
   const navigate = useNavigate();
@@ -50,12 +50,7 @@ const MyDiagnostic = () => {
     <div className="min-h-screen bg-background pb-20">
       <header className="p-6">
         <div className="flex items-center mb-4">
-          <button
-            onClick={() => navigate('/profile')}
-            className="p-2 rounded-lg hover:bg-muted transition-colors mr-2"
-          >
-            <ArrowLeft size={20} className="text-foreground" />
-          </button>
+          <BackButton to="/profile" className="mr-2" />
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-display">Meu Diagnóstico</h1>
             <p className="text-muted-foreground">Seu perfil e evolução financeira</p>

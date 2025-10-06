@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Users, Plus, ArrowLeft } from 'lucide-react';
+import { Users, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFamilyData, useFamilyMembers } from '@/hooks/useSupabaseData';
 import FamilyMemberCard from '@/components/family/FamilyMemberCard';
 import AddMemberModal from '@/components/family/AddMemberModal';
+import BackButton from '@/components/ui/back-button';
 
 const Family = () => {
   const navigate = useNavigate();
@@ -32,14 +33,7 @@ const Family = () => {
     return (
       <div className="min-h-screen bg-background p-4">
         <div className="max-w-2xl mx-auto pt-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/dashboard')}
-            className="mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Button>
+          <BackButton to="/dashboard" className="mb-4" />
 
           <Card>
             <CardContent className="pt-6 text-center">
@@ -64,13 +58,7 @@ const Family = () => {
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/dashboard')}
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
+              <BackButton to="/dashboard" />
               <div>
                 <h1 className="text-2xl font-bold">{familyData.nome_familia}</h1>
                 <p className="text-sm text-muted-foreground">

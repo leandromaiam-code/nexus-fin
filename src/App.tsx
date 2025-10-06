@@ -28,7 +28,7 @@ import Login from "./pages/Login";
 import Transactions from "./pages/Transactions";
 import Diagnostic from "./pages/Diagnostic";
 import NotFound from "./pages/NotFound";
-import TabNavigation from "./components/layout/TabNavigation";
+import FloatingAddButton from "./components/layout/FloatingAddButton";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -67,7 +67,7 @@ const AppRoutes = () => {
         
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <TabNavigation />
+      <FloatingAddButton />
     </>
   )
 }
