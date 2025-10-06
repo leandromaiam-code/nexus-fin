@@ -975,6 +975,154 @@ export const useUpdatePaymentAccount = () => {
   });
 };
 
+// ==================== BUDGETS ====================
+export const useBudgets = (month?: string) => {
+  const { user } = useCurrentUser();
+  const targetMonth = month || new Date().toISOString().slice(0, 7) + '-01';
+
+  return useQuery({
+    queryKey: ['budgets', user?.id, targetMonth],
+    queryFn: async () => {
+      if (!user?.id) return [];
+
+      const { data, error } = await supabase
+        .from('orcamentos')
+        .select(`
+          *,
+          category:categories(id, name, icon_name, tipo)
+        `)
+        .eq('user_id', user.id)
+        .eq('mes_ano', targetMonth)
+        .order('valor_orcado', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+};
+
+export const useCreateBudget = () => {
+  const queryClient = useQueryClient();
+  const { user } = useCurrentUser();
+
+  return useMutation({
+    mutationFn: async (budget: {
+      category_id: number;
+      valor_orcado: number;
+      mes_ano: string;
+    }) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('orcamentos')
+        .insert({
+          user_id: user.id,
+          ...budget,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+      toast({ title: 'Orçamento criado com sucesso!' });
+    },
+    onError: (error: Error) => {
+      console.error('Error creating budget:', error);
+      toast({ title: 'Erro ao criar orçamento.', variant: 'destructive' });
+    },
+  });
+};
+
+export const useUpdateBudget = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, valor_orcado }: { id: number; valor_orcado: number }) => {
+      const { data, error } = await supabase
+        .from('orcamentos')
+        .update({ valor_orcado })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+      toast({ title: 'Orçamento atualizado!' });
+    },
+    onError: (error: Error) => {
+      console.error('Error updating budget:', error);
+      toast({ title: 'Erro ao atualizar orçamento.', variant: 'destructive' });
+    },
+  });
+};
+
+export const useDeleteBudget = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { error } = await supabase.from('orcamentos').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+      toast({ title: 'Orçamento removido!' });
+    },
+    onError: (error: Error) => {
+      console.error('Error deleting budget:', error);
+      toast({ title: 'Erro ao remover orçamento.', variant: 'destructive' });
+    },
+  });
+};
+
+export const useBudgetVsActual = (month?: string) => {
+  const { user } = useCurrentUser();
+  const targetMonth = month || new Date().toISOString().slice(0, 7);
+
+  return useQuery({
+    queryKey: ['budget-vs-actual', user?.id, targetMonth],
+    queryFn: async () => {
+      if (!user?.id) return [];
+
+      const { data: spending } = await supabase
+        .from('category_spending_by_month')
+        .select('*')
+        .eq('user_id', user.id)
+        .like('month', `${targetMonth}%`);
+
+      const { data: budgets } = await supabase
+        .from('orcamentos')
+        .select(`
+          *,
+          category:categories(id, name, icon_name)
+        `)
+        .eq('user_id', user.id)
+        .eq('mes_ano', `${targetMonth}-01`);
+
+      const combined = (budgets || []).map((budget) => {
+        const spent = spending?.find((s) => s.category_id === budget.category_id);
+        return {
+          ...budget,
+          actual: spent?.total_spent_in_category || 0,
+          percentage: spent
+            ? (Number(spent.total_spent_in_category) / Number(budget.valor_orcado)) * 100
+            : 0,
+        };
+      });
+
+      return combined;
+    },
+    enabled: !!user?.id,
+  });
+};
+
 export const useDeletePaymentAccount = () => {
   const queryClient = useQueryClient();
 

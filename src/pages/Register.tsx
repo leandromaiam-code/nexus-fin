@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
-import { Send, MessageSquare, DollarSign } from 'lucide-react';
-import { NexusButton } from '@/components/ui/nexus-button';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
 import { sendExpenseToN8n } from '@/lib/n8nClient';
+import { Textarea } from '@/components/ui/textarea';
+import { NexusButton } from '@/components/ui/nexus-button';
+import { toast } from '@/hooks/use-toast';
+import { MessageSquare, DollarSign } from 'lucide-react';
+import ConfirmTransactionModal from '@/components/modals/ConfirmTransactionModal';
+import { useTransactionConfirmation, TransactionData } from '@/hooks/useTransactionConfirmation';
+import { supabase } from '@/integrations/supabase/client';
 
 const Register = () => {
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { user, session } = useAuth(); // Pega o usuário e a sessão do contexto
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingTransaction, setPendingTransaction] = useState<TransactionData | null>(null);
+  const { user, session } = useAuth();
+  const { needsConfirmation } = useTransactionConfirmation();
 
   const handleSubmit = async () => {
     if (!description.trim() || !user || !session) {
@@ -20,14 +26,17 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      // Chama o nosso novo serviço, passando o texto, o número de telefone e o token
-      await sendExpenseToN8n(description, user.phone_number, session.access_token);
+      const response = await sendExpenseToN8n(description, user.phone_number, session.access_token);
       
-      toast({
-        title: "Despesa Enviada!",
-        description: "O Nexus já está a processar o seu registo."
-      });
-      setDescription('');
+      // Se retornou dados estruturados e precisa confirmação
+      if (needsConfirmation && response?.parsedData) {
+        setPendingTransaction(response.parsedData);
+        setShowConfirmModal(true);
+        toast({ title: "Revise os dados antes de confirmar." });
+      } else {
+        toast({ title: "Despesa Enviada!", description: "O Nexus já está a processar o seu registo." });
+        setDescription('');
+      }
 
     } catch (error: any) {
       console.error('Erro ao enviar despesa:', error);
@@ -39,6 +48,43 @@ const Register = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleConfirmTransaction = async () => {
+    if (!pendingTransaction || !user?.id) return;
+
+    try {
+      const { error } = await supabase.from('transactions').insert({
+        user_id: user.id,
+        description: pendingTransaction.description,
+        amount: pendingTransaction.amount,
+        category_id: pendingTransaction.category_id,
+        conta_pagadora_id: pendingTransaction.conta_pagadora_id,
+        transaction_date: pendingTransaction.transaction_date
+      });
+
+      if (error) throw error;
+
+      toast({ title: 'Transação confirmada e salva!' });
+      setShowConfirmModal(false);
+      setPendingTransaction(null);
+      setDescription('');
+    } catch (error) {
+      console.error('Erro ao salvar transação:', error);
+      toast({ title: 'Erro ao salvar transação.', variant: 'destructive' });
+    }
+  };
+
+  const handleEditTransaction = () => {
+    if (pendingTransaction) {
+      setDescription(pendingTransaction.description);
+    }
+    setShowConfirmModal(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowConfirmModal(false);
+    setPendingTransaction(null);
   };
 
   const exampleTexts = [
@@ -93,12 +139,10 @@ const Register = () => {
               {isLoading ? (
                 <div className="flex items-center">
                   <div className="animate-spin rounded-full h-3 sm:h-4 w-3 sm:w-4 border-2 border-white border-t-transparent mr-1.5 sm:mr-2" />
-                  <span className="sm:hidden">Enviando...</span>
-                  <span className="hidden sm:inline">Enviando...</span>
+                  <span>Enviando...</span>
                 </div>
               ) : (
                 <div className="flex items-center">
-                  <Send size={14} className="mr-1.5 sm:mr-2" />
                   Registrar
                 </div>
               )}
@@ -135,6 +179,16 @@ const Register = () => {
           </p>
         </div>
       </div>
+
+      {pendingTransaction && (
+        <ConfirmTransactionModal
+          isOpen={showConfirmModal}
+          onClose={handleCloseModal}
+          transaction={pendingTransaction}
+          onConfirm={handleConfirmTransaction}
+          onEdit={handleEditTransaction}
+        />
+      )}
     </div>
   );
 };
