@@ -6,7 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
-import SignUp from "./SignUp"; // Importe a nova página
+// Page imports
+import SignUp from "./SignUp";
 import Dashboard from "./pages/Dashboard";
 import Plan from "./pages/Plan";
 import Register from "./pages/Register";
@@ -45,10 +46,10 @@ const AppRoutes = () => {
         <Route path="/signup" element={!user ? <SignUp /> : <Navigate to="/" />} />
         
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-            <Route path="/onboarding-flow" element={<ProtectedRoute><OnboardingFlow /></ProtectedRoute>} />
-            <Route path="/family" element={<ProtectedRoute><Family /></ProtectedRoute>} />
-            <Route path="/payment-accounts" element={<ProtectedRoute><PaymentAccounts /></ProtectedRoute>} />
+        <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+        <Route path="/onboarding-flow" element={<ProtectedRoute><OnboardingFlow /></ProtectedRoute>} />
+        <Route path="/family" element={<ProtectedRoute><Family /></ProtectedRoute>} />
+        <Route path="/payment-accounts" element={<ProtectedRoute><PaymentAccounts /></ProtectedRoute>} />
         <Route path="/plan" element={<ProtectedRoute><Plan /></ProtectedRoute>} />
         <Route path="/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
         <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
