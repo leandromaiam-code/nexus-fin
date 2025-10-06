@@ -11,7 +11,9 @@ import {
   X,
   Users,
   Wallet,
-  PiggyBank
+  PiggyBank,
+  TrendingUp,
+  Lightbulb
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -72,6 +74,24 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
       label: 'Análise',
       icon: BarChart3,
       path: '/analysis',
+    },
+    {
+      id: 'budget-analysis',
+      label: 'Performance Orçamento',
+      icon: Target,
+      path: '/budget-analysis',
+    },
+    {
+      id: 'spending-insights',
+      label: 'Insights de Gastos',
+      icon: Lightbulb,
+      path: '/spending-insights',
+    },
+    {
+      id: 'wealth',
+      label: 'Evolução Patrimonial',
+      icon: TrendingUp,
+      path: '/wealth-evolution',
     },
     {
       id: 'diagnostic',

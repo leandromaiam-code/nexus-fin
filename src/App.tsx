@@ -24,6 +24,8 @@ import CategoryAnalysis from "./pages/CategoryAnalysis";
 import WealthEvolution from "./pages/WealthEvolution";
 import MyDiagnostic from "./pages/MyDiagnostic";
 import ManageCategories from "./pages/ManageCategories";
+import BudgetAnalysis from "./pages/BudgetAnalysis";
+import SpendingInsights from "./pages/SpendingInsights";
 import Login from "./pages/Login";
 import Transactions from "./pages/Transactions";
 import Diagnostic from "./pages/Diagnostic";
@@ -62,6 +64,8 @@ const AppRoutes = () => {
         <Route path="/goal/:id" element={<ProtectedRoute><GoalDetails /></ProtectedRoute>} />
         <Route path="/analysis/category/:categoryId" element={<ProtectedRoute><CategoryAnalysis /></ProtectedRoute>} />
         <Route path="/wealth-evolution" element={<ProtectedRoute><WealthEvolution /></ProtectedRoute>} />
+        <Route path="/budget-analysis" element={<ProtectedRoute><BudgetAnalysis /></ProtectedRoute>} />
+        <Route path="/spending-insights" element={<ProtectedRoute><SpendingInsights /></ProtectedRoute>} />
         <Route path="/my-diagnostic" element={<ProtectedRoute><MyDiagnostic /></ProtectedRoute>} />
         <Route path="/manage-categories" element={<ProtectedRoute><ManageCategories /></ProtectedRoute>} />
         
