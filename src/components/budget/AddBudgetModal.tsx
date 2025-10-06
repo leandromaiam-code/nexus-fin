@@ -19,7 +19,7 @@ const AddBudgetModal = ({ isOpen, onClose, availableCategories, month }: AddBudg
 
   const createBudget = useCreateBudget();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const categoryId = parseInt(selectedCategory);
@@ -29,20 +29,21 @@ const AddBudgetModal = ({ isOpen, onClose, availableCategories, month }: AddBudg
       return;
     }
 
-    createBudget.mutate(
-      {
+    try {
+      await createBudget.mutateAsync({
         category_id: categoryId,
         valor_orcado: amount,
         mes_ano: month,
-      },
-      {
-        onSuccess: () => {
-          setSelectedCategory('');
-          setValue('');
-          onClose();
-        },
-      }
-    );
+      });
+      
+      setSelectedCategory('');
+      setValue('');
+      onClose();
+    } catch (error: any) {
+      console.error('Erro detalhado ao criar orçamento:', error);
+      const message = error.message || 'Erro desconhecido ao criar orçamento';
+      alert(`Erro ao criar orçamento: ${message}`);
+    }
   };
 
   return (

@@ -30,6 +30,8 @@ const FamilySetup: React.FC<FamilySetupProps> = ({ familyData, onDataChange }) =
 
     setIsCreating(true);
     try {
+      console.log('Criando família para user_id:', user.id);
+      
       // Criar família
       const { data: familia, error: familiaError } = await supabase
         .from('familias' as any)
@@ -37,7 +39,12 @@ const FamilySetup: React.FC<FamilySetupProps> = ({ familyData, onDataChange }) =
         .select()
         .single();
 
-      if (familiaError) throw familiaError;
+      if (familiaError) {
+        console.error('Erro ao criar família:', familiaError);
+        throw familiaError;
+      }
+
+      console.log('Família criada:', familia);
 
       // Adicionar usuário como responsável
       const { error: membroError } = await supabase
@@ -49,7 +56,12 @@ const FamilySetup: React.FC<FamilySetupProps> = ({ familyData, onDataChange }) =
           cota_mensal: 0
         } as any);
 
-      if (membroError) throw membroError;
+      if (membroError) {
+        console.error('Erro ao adicionar membro:', membroError);
+        throw membroError;
+      }
+
+      console.log('Membro adicionado com sucesso');
 
       onDataChange(familia);
       
@@ -58,10 +70,11 @@ const FamilySetup: React.FC<FamilySetupProps> = ({ familyData, onDataChange }) =
         description: `${familyName} foi criada com sucesso.`
       });
     } catch (error: any) {
-      console.error('Erro ao criar família:', error);
+      console.error('Erro detalhado ao criar família:', error);
+      const message = error.message || 'Erro desconhecido';
       toast({
-        title: "Erro",
-        description: "Não foi possível criar a família. Tente novamente.",
+        title: "Erro ao criar família",
+        description: `${message}. Verifique o console para mais detalhes.`,
         variant: "destructive"
       });
     } finally {

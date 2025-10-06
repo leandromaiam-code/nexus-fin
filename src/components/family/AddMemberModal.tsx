@@ -40,9 +40,10 @@ const AddMemberModal = ({ isOpen, onClose, familyId }: AddMemberModalProps) => {
       setUserId('');
       setPapel('Dependente');
       setCotaMensal('');
-    } catch (error) {
-      toast.error('Erro ao adicionar membro');
-      console.error(error);
+    } catch (error: any) {
+      console.error('Erro detalhado ao adicionar membro:', error);
+      const message = error.message || 'Erro desconhecido ao adicionar membro';
+      toast.error(`Erro ao adicionar membro: ${message}`);
     }
   };
 
