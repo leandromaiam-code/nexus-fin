@@ -9,7 +9,9 @@ import {
   LogOut, 
   ChevronRight,
   Target,
-  BarChart3
+  BarChart3,
+  Crown,
+  Calendar
 } from 'lucide-react';
 import { NexusButton } from '@/components/ui/nexus-button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,12 +22,15 @@ import { useUserData } from '@/hooks/useSupabaseData';
 import { Switch } from '@/components/ui/switch';
 import { useTransactionConfirmation } from '@/hooks/useTransactionConfirmation';
 import BackButton from '@/components/ui/back-button';
+import { useSubscription } from '@/hooks/useSubscription';
+import { Button } from '@/components/ui/button';
 
 const Profile = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { data: userData } = useUserData();
   const { needsConfirmation, updatePreference } = useTransactionConfirmation();
+  const { subscription, createBillingPortalSession, isCreatingPortal } = useSubscription();
 
   const handleDiagnosticClick = () => {
     if (!userData || !isDiagnosticComplete(userData)) {
@@ -155,6 +160,71 @@ const Profile = () => {
             <h2 className="text-lg sm:text-xl font-bold text-display truncate">{user?.full_name}</h2>
             <p className="text-xs sm:text-sm text-primary font-medium">{user?.financial_archetype}</p>
             </div>
+          </div>
+        </div>
+
+        {/* Subscription Card */}
+        <div className="card-nexus">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2">
+              <Crown className="text-primary" size={18} />
+              <h3 className="text-base sm:text-lg font-semibold text-foreground">Sua Assinatura</h3>
+            </div>
+            {subscription?.plan_type === 'premium' && (
+              <span className="text-xs bg-gradient-nexus text-white px-2 py-1 rounded-full">Premium</span>
+            )}
+            {subscription?.plan_type === 'plus' && (
+              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">Plus</span>
+            )}
+          </div>
+          
+          <div className="space-y-2 mb-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Plano atual:</span>
+              <span className="font-semibold capitalize">{subscription?.plan_type || 'free'}</span>
+            </div>
+            
+            {subscription?.current_period_end && subscription.plan_type !== 'free' && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Renova em:</span>
+                <span className="font-medium">
+                  {new Date(subscription.current_period_end).toLocaleDateString('pt-BR')}
+                </span>
+              </div>
+            )}
+            
+            {subscription?.status && subscription.plan_type !== 'free' && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Status:</span>
+                <span className={`font-medium ${
+                  subscription.status === 'active' ? 'text-green-500' : 'text-yellow-500'
+                }`}>
+                  {subscription.status === 'active' ? 'Ativo' : subscription.status}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1 text-sm"
+              onClick={() => navigate('/pricing')}
+            >
+              {subscription?.plan_type === 'free' ? 'Ver Planos' : 'Mudar Plano'}
+            </Button>
+            
+            {subscription?.stripe_customer_id && subscription.plan_type !== 'free' && (
+              <Button
+                variant="outline"
+                className="flex-1 text-sm"
+                onClick={() => createBillingPortalSession()}
+                disabled={isCreatingPortal}
+              >
+                <Settings size={14} className="mr-1" />
+                Gerenciar
+              </Button>
+            )}
           </div>
         </div>
 
