@@ -269,6 +269,98 @@ export type Database = {
         }
         Relationships: []
       }
+      family_invites: {
+        Row: {
+          accepted_at: string | null
+          accepted_by_user_id: number | null
+          cota_mensal: number | null
+          created_at: string
+          expires_at: string
+          familia_id: number
+          id: number
+          invited_by_user_id: number
+          papel: string
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by_user_id?: number | null
+          cota_mensal?: number | null
+          created_at?: string
+          expires_at: string
+          familia_id: number
+          id?: never
+          invited_by_user_id: number
+          papel: string
+          status?: string
+          token: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by_user_id?: number | null
+          cota_mensal?: number | null
+          created_at?: string
+          expires_at?: string
+          familia_id?: number
+          id?: never
+          invited_by_user_id?: number
+          papel?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_invites_accepted_by_user_id_fkey"
+            columns: ["accepted_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "family_invites_accepted_by_user_id_fkey"
+            columns: ["accepted_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "spending_trends_monthly"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "family_invites_accepted_by_user_id_fkey"
+            columns: ["accepted_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_invites_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "familias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_invites_invited_by_user_id_fkey"
+            columns: ["invited_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "family_invites_invited_by_user_id_fkey"
+            columns: ["invited_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "spending_trends_monthly"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "family_invites_invited_by_user_id_fkey"
+            columns: ["invited_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goal_templates: {
         Row: {
           description: string | null
@@ -1252,6 +1344,10 @@ export type Database = {
       }
     }
     Functions: {
+      generate_invite_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: number

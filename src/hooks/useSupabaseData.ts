@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { toast as sonnerToast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Helper hook to get current user from auth context
@@ -972,6 +973,208 @@ export const useUpdatePaymentAccount = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['paymentAccounts'] });
+    }
+  });
+};
+
+// ==================== FAMILY INVITES ====================
+export const useFamilyInvites = (familyId?: number) => {
+  return useQuery({
+    queryKey: ['family-invites', familyId],
+    queryFn: async () => {
+      if (!familyId) return [];
+      
+      const { data, error } = await supabase
+        .from('family_invites')
+        .select('*')
+        .eq('familia_id', familyId)
+        .in('status', ['pending', 'accepted'])
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!familyId,
+  });
+};
+
+export const useCreateFamilyInvite = () => {
+  const queryClient = useQueryClient();
+  const { user } = useCurrentUser();
+  
+  return useMutation({
+    mutationFn: async ({ 
+      familyId, 
+      papel, 
+      cotaMensal 
+    }: { 
+      familyId: number; 
+      papel: string; 
+      cotaMensal?: number;
+    }) => {
+      if (!user?.id) throw new Error('User not authenticated');
+      
+      // Gerar token único
+      const { data: tokenData, error: tokenError } = await supabase
+        .rpc('generate_invite_token');
+      
+      if (tokenError) throw tokenError;
+      
+      // Criar convite com expiração de 7 dias
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7);
+      
+      const { data, error } = await supabase
+        .from('family_invites')
+        .insert({
+          familia_id: familyId,
+          invited_by_user_id: user.id,
+          token: tokenData,
+          papel,
+          cota_mensal: cotaMensal,
+          expires_at: expiresAt.toISOString(),
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['family-invites'] });
+      sonnerToast.success('Convite criado com sucesso!');
+    },
+    onError: (error) => {
+      console.error('Error creating family invite:', error);
+      sonnerToast.error('Erro ao criar convite');
+    }
+  });
+};
+
+export const useCancelFamilyInvite = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (inviteId: number) => {
+      const { error } = await supabase
+        .from('family_invites')
+        .update({ status: 'cancelled' })
+        .eq('id', inviteId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['family-invites'] });
+      sonnerToast.success('Convite cancelado');
+    },
+    onError: (error) => {
+      console.error('Error cancelling invite:', error);
+      sonnerToast.error('Erro ao cancelar convite');
+    }
+  });
+};
+
+export const useGetInviteByToken = (token?: string) => {
+  return useQuery({
+    queryKey: ['family-invite', token],
+    queryFn: async () => {
+      if (!token) return null;
+      
+      const { data, error } = await supabase
+        .from('family_invites')
+        .select(`
+          *,
+          familias(nome_familia),
+          users!family_invites_invited_by_user_id_fkey(full_name)
+        `)
+        .eq('token', token)
+        .eq('status', 'pending')
+        .single();
+      
+      if (error) throw error;
+      
+      // Verificar se o convite expirou
+      if (new Date(data.expires_at) < new Date()) {
+        // Atualizar status para expirado
+        await supabase
+          .from('family_invites')
+          .update({ status: 'expired' })
+          .eq('id', data.id);
+        throw new Error('Convite expirado');
+      }
+      
+      return data;
+    },
+    enabled: !!token,
+  });
+};
+
+export const useAcceptFamilyInvite = () => {
+  const queryClient = useQueryClient();
+  const { user } = useCurrentUser();
+  
+  return useMutation({
+    mutationFn: async ({ inviteId, token }: { inviteId: number; token: string }) => {
+      if (!user?.id) throw new Error('User not authenticated');
+      
+      // Buscar o convite
+      const { data: invite, error: inviteError } = await supabase
+        .from('family_invites')
+        .select('*')
+        .eq('id', inviteId)
+        .eq('token', token)
+        .eq('status', 'pending')
+        .single();
+      
+      if (inviteError) throw inviteError;
+      
+      // Verificar se o usuário já é membro da família
+      const { data: existingMember } = await supabase
+        .from('membros_familia')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('familia_id', invite.familia_id)
+        .single();
+      
+      if (existingMember) {
+        throw new Error('Você já é membro desta família');
+      }
+      
+      // Criar o membro da família
+      const { error: memberError } = await supabase
+        .from('membros_familia')
+        .insert({
+          user_id: user.id,
+          familia_id: invite.familia_id,
+          papel: invite.papel,
+          cota_mensal: invite.cota_mensal,
+        });
+      
+      if (memberError) throw memberError;
+      
+      // Atualizar o convite
+      const { error: updateError } = await supabase
+        .from('family_invites')
+        .update({
+          status: 'accepted',
+          accepted_by_user_id: user.id,
+          accepted_at: new Date().toISOString(),
+        })
+        .eq('id', inviteId);
+      
+      if (updateError) throw updateError;
+      
+      return invite;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['family-invites'] });
+      queryClient.invalidateQueries({ queryKey: ['family-members'] });
+      queryClient.invalidateQueries({ queryKey: ['family'] });
+      sonnerToast.success('Você entrou na família com sucesso!');
+    },
+    onError: (error: any) => {
+      console.error('Error accepting invite:', error);
+      sonnerToast.error(error.message || 'Erro ao aceitar convite');
     }
   });
 };

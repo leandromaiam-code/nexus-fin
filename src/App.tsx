@@ -32,6 +32,7 @@ import Transactions from "./pages/Transactions";
 import Diagnostic from "./pages/Diagnostic";
 import Pricing from "./pages/Pricing";
 import Subscription from "./pages/Subscription";
+import AcceptInvite from "./pages/AcceptInvite";
 import NotFound from "./pages/NotFound";
 import FloatingAddButton from "./components/layout/FloatingAddButton";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -74,6 +75,7 @@ const AppRoutes = () => {
         <Route path="/manage-categories" element={<ProtectedRoute><ManageCategories /></ProtectedRoute>} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+        <Route path="/aceitar-convite/:token" element={<AcceptInvite />} />
         
         <Route path="*" element={<NotFound />} />
       </Routes>

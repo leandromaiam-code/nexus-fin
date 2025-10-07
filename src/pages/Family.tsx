@@ -1,16 +1,19 @@
 import { useState } from 'react';
-import { Users, Plus } from 'lucide-react';
+import { Users, Plus, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFamilyData, useFamilyMembers } from '@/hooks/useSupabaseData';
 import FamilyMemberCard from '@/components/family/FamilyMemberCard';
 import AddMemberModal from '@/components/family/AddMemberModal';
+import { InviteMemberModal } from '@/components/family/InviteMemberModal';
+import { InvitesList } from '@/components/family/InvitesList';
 import BackButton from '@/components/ui/back-button';
 
 const Family = () => {
   const navigate = useNavigate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   
   const { data: familyData, isLoading: isFamilyLoading } = useFamilyData();
   const { data: members = [], isLoading: isMembersLoading } = useFamilyMembers();
@@ -68,17 +71,19 @@ const Family = () => {
             </div>
 
             {isResponsavel && (
-              <Button onClick={() => setIsAddModalOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Adicionar Membro
+              <Button onClick={() => setIsInviteModalOpen(true)}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Convidar Membro
               </Button>
             )}
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        {isResponsavel && <InvitesList familyId={familyData.id} />}
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -133,6 +138,12 @@ const Family = () => {
         </div>
       </div>
 
+      <InviteMemberModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        familyId={familyData.id}
+      />
+      
       <AddMemberModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
