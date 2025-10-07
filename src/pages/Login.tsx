@@ -87,7 +87,7 @@ const Login = () => {
       <div className="relative z-10 flex flex-col items-center w-full">
         <Card className="w-full max-w-sm sm:max-w-md shadow-lg">
           <CardHeader className="p-4 sm:p-6 flex flex-col items-center">
-            <img src={theme === "dark" ? LogoBlack : LogoWhite} alt="Nexus Logo" className="h-20 sm:h-25 mb-8" />
+            <img src={theme === "dark" ? LogoBlack : LogoWhite} alt="Nexus Logo" className="h-32 sm:h-40 mb-16" />
             <CardDescription className="text-center text-sm sm:text-base">Bem-vindo de volta.</CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0">
