@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Target, 
-  Plus, 
-  BarChart3, 
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Target,
+  Plus,
+  BarChart3,
   User,
   Stethoscope,
   LogOut,
@@ -14,16 +14,16 @@ import {
   PiggyBank,
   TrendingUp,
   Lightbulb,
-  CreditCard
-} from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { useUserData } from '@/hooks/useSupabaseData';
-import { getArchetypeName } from '@/lib/diagnosticUtils';
-import LogoWhite from '@/assets/LogoNexus-white.png';
-import LogoBlack from '@/assets/LogoNexus-Black.png';
+  CreditCard,
+} from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useUserData } from "@/hooks/useSupabaseData";
+import { getArchetypeName } from "@/lib/diagnosticUtils";
+import LogoWhite from "@/assets/LogoNexus-Black.png";
+import LogoBlack from "@/assets/LogoNexus-white.png";
 
 interface AppSidebarProps {
   isOpen: boolean;
@@ -39,70 +39,70 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
 
   const menuItems = [
     {
-      id: 'dashboard',
-      label: 'Painel',
+      id: "dashboard",
+      label: "Painel",
       icon: LayoutDashboard,
-      path: '/',
+      path: "/",
     },
     {
-      id: 'family',
-      label: 'Família',
+      id: "family",
+      label: "Família",
       icon: Users,
-      path: '/family',
+      path: "/family",
     },
     {
-      id: 'accounts',
-      label: 'Contas',
+      id: "accounts",
+      label: "Contas",
       icon: Wallet,
-      path: '/payment-accounts',
+      path: "/payment-accounts",
     },
     {
-      id: 'budget',
-      label: 'Orçamento',
+      id: "budget",
+      label: "Orçamento",
       icon: PiggyBank,
-      path: '/budget',
+      path: "/budget",
     },
     {
-      id: 'plan',
-      label: 'Plano',
+      id: "plan",
+      label: "Plano",
       icon: Target,
-      path: '/plan',
+      path: "/plan",
     },
     {
-      id: 'register',
-      label: 'Registrar',
+      id: "register",
+      label: "Registrar",
       icon: Plus,
-      path: '/register',
+      path: "/register",
     },
     {
-      id: 'analysis',
-      label: 'Análise',
+      id: "analysis",
+      label: "Análise",
       icon: BarChart3,
-      path: '/analysis',
+      path: "/analysis",
     },
     {
-      id: 'budget-analysis',
-      label: 'Performance Orçamento',
+      id: "budget-analysis",
+      label: "Performance Orçamento",
       icon: Target,
-      path: '/budget-analysis',
+      path: "/budget-analysis",
     },
     {
-      id: 'spending-insights',
-      label: 'Insights de Gastos',
+      id: "spending-insights",
+      label: "Insights de Gastos",
       icon: Lightbulb,
-      path: '/spending-insights',
+      path: "/spending-insights",
     },
     {
-      id: 'diagnostic',
-      label: 'Diagnóstico',
+      id: "diagnostic",
+      label: "Diagnóstico",
       icon: Stethoscope,
-      path: '/diagnostic',
+      path: "/diagnostic",
     },
     {
-      id: 'profile',
-      label: 'Perfil',
+      id: "profile",
+      label: "Perfil",
       icon: User,
-      path: '/profile',
+      path: "/profile",
     },
   ];
 
@@ -113,7 +113,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
     onClose();
   };
 
@@ -122,30 +122,23 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Overlay */}
-      <div 
-        className="fixed inset-0 bg-black/50 z-40"
-        onClick={onClose}
-      />
-      
+      <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />
+
       {/* Sidebar */}
       <div className="fixed top-0 left-0 h-full w-72 sm:w-80 bg-card border-r border-border z-50 transform transition-transform duration-300 ease-in-out">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center">
-            <img 
-              src={theme === 'dark' ? LogoWhite : LogoBlack} 
-              alt="Nexus Logo" 
+            <img
+              src={theme === "dark" ? LogoWhite : LogoBlack}
+              alt="Nexus Logo"
               className="h-10 w-auto object-contain"
               onError={(e) => {
-                console.error('Erro ao carregar logo:', theme);
+                console.error("Erro ao carregar logo:", theme);
               }}
             />
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-          >
+          <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="w-5 h-5" />
           </Button>
         </div>
@@ -171,16 +164,16 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              
+
               return (
                 <button
                   key={item.id}
                   onClick={() => handleNavigation(item.path)}
                   className={cn(
                     "w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-left",
-                    isActive 
-                      ? "bg-primary/10 text-primary" 
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    isActive
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
                   <Icon className="w-5 h-5" />
@@ -205,7 +198,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
           ) : (
             <Button
               onClick={() => {
-                navigate('/login');
+                navigate("/login");
                 onClose();
               }}
               className="w-full"
