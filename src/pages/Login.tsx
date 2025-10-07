@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import LogoWhite from '@/assets/LogoNexus-white.png';
+import LogoBlack from '@/assets/LogoNexus-Black.png';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,6 +19,7 @@ const Login = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [isResetting, setIsResetting] = useState(false);
   const { login, resetPassword } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirect = searchParams.get('redirect');
@@ -69,7 +73,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-3 sm:p-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-3 sm:p-4">
+      <div className="mb-6">
+        <img 
+          src={theme === 'dark' ? LogoWhite : LogoBlack} 
+          alt="Nexus Logo" 
+          className="h-8 sm:h-10"
+        />
+      </div>
       <Card className="w-full max-w-sm sm:max-w-md shadow-lg">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="text-center text-lg sm:text-xl">Acessar o Nexus</CardTitle>
