@@ -825,7 +825,7 @@ export const useFamilyMembers = () => {
         .from('membros_familia')
         .select(`
           *,
-          users (
+          users!inner (
             id,
             full_name,
             phone_number
