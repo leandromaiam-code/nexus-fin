@@ -79,12 +79,12 @@ const Login = () => {
         <img
           src={theme === "dark" ? LogoBlack : LogoWhite}
           alt="Nexus Background"
-          className="w-[1050px] max-w-[120vw] opacity-5"
+          className="w-[1600px] max-w-[120vw] opacity-5"
         />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center w-full">
+      <div className="relative z-2 flex flex-col items-center w-full">
         <Card className="w-full max-w-sm sm:max-w-md shadow-lg">
           <CardHeader className="p-4 sm:p-6 flex flex-col items-center">
             <img src={theme === "dark" ? LogoBlack : LogoWhite} alt="Nexus Logo" className="h-32 sm:h-40 mb-0" />
