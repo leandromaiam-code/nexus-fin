@@ -11,7 +11,7 @@
 
 @layer base {
   :root {
-    /* Paleta de Cores Nexus (Dark Mode First) */
+    /* Paleta de Cores Nexus (Clean Mode Default) */
     --azul-nocturno: 220 26% 10%;      /* #0D1117 */
     --grafite-profundo: 220 25% 13%;   /* #161B22 */
     --indigo-nexus: 243 75% 59%;       /* #4F46E5 */
@@ -21,53 +21,7 @@
     --branco-nevoa: 215 25% 91%;       /* #E6EDF3 */
     --branco-puro: 0 0% 100%;          /* #FFFFFF */
     
-    /* Design Tokens Semânticos */
-    --background: var(--azul-nocturno);
-    --foreground: var(--branco-nevoa);
-    
-    --card: var(--grafite-profundo);
-    --card-foreground: var(--branco-nevoa);
-    
-    --popover: var(--grafite-profundo);
-    --popover-foreground: var(--branco-nevoa);
-    
-    --primary: var(--indigo-nexus);
-    --primary-foreground: var(--branco-puro);
-    
-    --secondary: 220 25% 16%;
-    --secondary-foreground: var(--branco-nevoa);
-    
-    --muted: 220 25% 16%;
-    --muted-foreground: 215 15% 55%;
-    
-    --accent: 220 25% 20%;
-    --accent-foreground: var(--branco-puro);
-    
-    --success: var(--verde-crescimento);
-    --success-foreground: var(--branco-puro);
-    
-    --warning: var(--ambar-atencao);
-    --warning-foreground: var(--azul-nocturno);
-    
-    --destructive: var(--vermelho-critico);
-    --destructive-foreground: var(--branco-puro);
-    
-    --border: 220 25% 20%;
-    --input: var(--grafite-profundo);
-    --ring: var(--indigo-nexus);
-    
-    --radius: 0.75rem;
-  }
- 
-  .dark {
-    /* Mantém as mesmas variáveis para a estratégia Dark Mode First */
-    --background: var(--azul-nocturno);
-    --foreground: var(--branco-nevoa);
-    /* ...e assim por diante para todos os tokens */
-  }
-
-  .clean {
-    /* Paleta Clean Mode - Invertida */
+    /* Design Tokens Semânticos - Clean Mode */
     --background: 0 0% 100%;           /* #FFFFFF */
     --foreground: 217 33% 17%;         /* #1F2937 */
     
@@ -101,6 +55,49 @@
     --border: 220 13% 91%;             /* #E5E7EB */
     --input: 220 13% 91%;
     --ring: 243 75% 59%;
+    
+    --radius: 0.75rem;
+  }
+ 
+  .dark {
+    /* Dark Mode Theme */
+    --background: var(--azul-nocturno);
+    --foreground: var(--branco-nevoa);
+    
+    --card: var(--grafite-profundo);
+    --card-foreground: var(--branco-nevoa);
+    
+    --popover: var(--grafite-profundo);
+    --popover-foreground: var(--branco-nevoa);
+    
+    --primary: var(--indigo-nexus);
+    --primary-foreground: var(--branco-puro);
+    
+    --secondary: 220 25% 16%;
+    --secondary-foreground: var(--branco-nevoa);
+    
+    --muted: 220 25% 16%;
+    --muted-foreground: 215 15% 55%;
+    
+    --accent: 220 25% 20%;
+    --accent-foreground: var(--branco-puro);
+    
+    --success: var(--verde-crescimento);
+    --success-foreground: var(--branco-puro);
+    
+    --warning: var(--ambar-atencao);
+    --warning-foreground: var(--azul-nocturno);
+    
+    --destructive: var(--vermelho-critico);
+    --destructive-foreground: var(--branco-puro);
+    
+    --border: 220 25% 20%;
+    --input: var(--grafite-profundo);
+    --ring: var(--indigo-nexus);
+  }
+
+  .clean {
+    /* Clean mode inherits from :root */
   }
 }
  
