@@ -27,7 +27,7 @@ const BudgetCategoryCard = ({ budget, month }: BudgetCategoryCardProps) => {
 
   const getProgressColor = () => {
     if (percentage >= 100) return 'bg-destructive';
-    if (percentage >= 80) return 'bg-yellow-500';
+    if (percentage >= 80) return 'bg-warning';
     return 'bg-primary';
   };
 
@@ -124,7 +124,7 @@ const BudgetCategoryCard = ({ budget, month }: BudgetCategoryCardProps) => {
               <p className="text-xs text-destructive">⚠️ Orçamento excedido!</p>
             )}
             {percentage >= 80 && percentage < 100 && (
-              <p className="text-xs text-yellow-600">⚠️ Próximo do limite</p>
+              <p className="text-xs text-warning-foreground">⚠️ Próximo do limite</p>
             )}
           </>
         )}

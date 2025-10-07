@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, Menu } from 'lucide-react';
 import AppSidebar from '@/components/layout/AppSidebar';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 interface DashboardHeaderProps {
   userName: string;
@@ -34,11 +35,14 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </div>
         </div>
         
-        <button className="relative p-1.5 sm:p-2 rounded-lg hover:bg-muted transition-colors">
-          <Bell size={20} className="text-foreground sm:hidden" />
-          <Bell size={24} className="text-foreground hidden sm:block" />
-          <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2.5 sm:w-3 h-2.5 sm:h-3 bg-primary rounded-full"></div>
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button className="relative p-1.5 sm:p-2 rounded-lg hover:bg-muted transition-colors">
+            <Bell size={20} className="text-foreground sm:hidden" />
+            <Bell size={24} className="text-foreground hidden sm:block" />
+            <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2.5 sm:w-3 h-2.5 sm:h-3 bg-primary rounded-full"></div>
+          </button>
+        </div>
       </header>
 
       <AppSidebar 

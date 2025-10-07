@@ -45,9 +45,9 @@ const FamilyMemberCard = ({ member, isResponsavel }: FamilyMemberCardProps) => {
       case 'Responsável':
         return 'text-primary';
       case 'Cônjuge':
-        return 'text-blue-500';
+        return 'text-accent-foreground';
       case 'Dependente':
-        return 'text-amber-500';
+        return 'text-warning';
       default:
         return 'text-muted-foreground';
     }
@@ -124,7 +124,7 @@ const FamilyMemberCard = ({ member, isResponsavel }: FamilyMemberCardProps) => {
             {cotaMensal > gastoAtual && (
               <div className="pt-2 border-t">
                 <p className="text-xs text-muted-foreground">Disponível</p>
-                <p className="text-sm font-semibold text-green-600">
+                <p className="text-sm font-semibold text-success">
                   {new Intl.NumberFormat('pt-BR', {
                     style: 'currency',
                     currency: 'BRL',

@@ -21,7 +21,7 @@ const BudgetSummary = ({ totalBudgeted, budgets, month }: BudgetSummaryProps) =>
 
   const getStatusColor = () => {
     if (percentage >= 100) return 'text-destructive';
-    if (percentage >= 80) return 'text-yellow-600';
+    if (percentage >= 80) return 'text-warning-foreground';
     return 'text-primary';
   };
 
