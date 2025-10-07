@@ -47,7 +47,14 @@ const Transactions = () => {
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('pt-BR', {
+    const dateObj = new Date(date);
+    
+    // Validar se a data é válida
+    if (isNaN(dateObj.getTime())) {
+      return 'Data inválida';
+    }
+    
+    return dateObj.toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'

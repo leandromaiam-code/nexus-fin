@@ -53,6 +53,17 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
+    
+    // Validar se a data é válida
+    if (isNaN(date.getTime())) {
+      return 'Data inválida';
+    }
+    
+    // Se a data é futura, mostrar a data formatada
+    if (date > now) {
+      return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    }
+    
     const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
     
     if (diffInDays === 0) return 'Hoje';

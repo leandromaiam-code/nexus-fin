@@ -148,6 +148,7 @@ export const useRecentTransactions = (limit = 5) => {
         `)
         .eq('user_id', user.id)
         .order('transaction_date', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(limit);
 
       if (error) throw error;
