@@ -43,12 +43,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
       path: '/',
     },
     {
-      id: 'subscription',
-      label: 'Minha Assinatura',
-      icon: CreditCard,
-      path: '/subscription',
-    },
-    {
       id: 'family',
       label: 'Família',
       icon: Users,
@@ -95,12 +89,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
       label: 'Insights de Gastos',
       icon: Lightbulb,
       path: '/spending-insights',
-    },
-    {
-      id: 'wealth',
-      label: 'Evolução Patrimonial',
-      icon: TrendingUp,
-      path: '/wealth-evolution',
     },
     {
       id: 'diagnostic',
