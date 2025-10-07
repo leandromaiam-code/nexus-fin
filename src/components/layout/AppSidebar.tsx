@@ -18,6 +18,8 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useUserData } from '@/hooks/useSupabaseData';
+import { getArchetypeName } from '@/lib/diagnosticUtils';
 // Placeholder logo
 // import nexusLogo from '@/assets/nexus-logo.png';
 
@@ -30,6 +32,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { data: userData } = useUserData();
 
   const menuItems = [
     {
@@ -160,7 +163,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
               </div>
               <div>
                 <p className="font-medium text-foreground">{user.full_name}</p>
-                <p className="text-sm text-muted-foreground">{user.phone_number}</p>
+                <p className="text-sm text-muted-foreground">{getArchetypeName(userData?.financial_archetype)}</p>
               </div>
             </div>
           </div>

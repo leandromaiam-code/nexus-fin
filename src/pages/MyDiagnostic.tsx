@@ -6,28 +6,11 @@ import { NexusButton } from '@/components/ui/nexus-button';
 import { executeWebAction } from '@/lib/n8nClient';
 import { toast } from '@/hooks/use-toast';
 import BackButton from '@/components/ui/back-button';
+import { archetypeData, normalizeArchetype } from '@/lib/diagnosticUtils';
 
 const MyDiagnostic = () => {
   const navigate = useNavigate();
   const { data: userData, isLoading } = useUserData();
-
-  const archetypeData = {
-    investor: {
-      name: 'Investidor',
-      description: 'Você tem uma visão de longo prazo e um superávit para alocar em seus investimentos.',
-      icon: '🚀',
-    },
-    equilibrist: {
-      name: 'Equilibrista',
-      description: 'Você balanceia bem entre economia e gastos, adaptando-se às situações.',
-      icon: '⚖️',
-    },
-    rescuer: {
-      name: 'Piloto de Resgate',
-      description: 'Sua missão é reverter o déficit e reestruturar suas finanças para retomar o controle.',
-      icon: '🛡️',
-    }
-  };
 
   const handleRecalibrate = async () => {
     try {
@@ -43,16 +26,6 @@ const MyDiagnostic = () => {
     // ... Skeleton loader ...
     return <div>Carregando...</div>;
   }
-
-  // Normalize archetype from database (accepts both PT/EN and capitalized/lowercase)
-  const normalizeArchetype = (archetype?: string | null): keyof typeof archetypeData => {
-    if (!archetype) return 'equilibrist';
-    const normalized = archetype.toLowerCase();
-    if (normalized.includes('invest')) return 'investor';
-    if (normalized.includes('equilib')) return 'equilibrist';
-    if (normalized.includes('piloto') || normalized.includes('rescue') || normalized.includes('resgate')) return 'rescuer';
-    return 'equilibrist';
-  };
 
   const currentArchetype = archetypeData[normalizeArchetype(userData?.financial_archetype)];
 
