@@ -131,11 +131,16 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
       <div className="fixed top-0 left-0 h-full w-72 sm:w-80 bg-card border-r border-border z-50 transform transition-transform duration-300 ease-in-out">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <img 
-            src={theme === 'dark' ? LogoWhite : LogoBlack} 
-            alt="Nexus Logo" 
-            className="h-8"
-          />
+          <div className="flex items-center">
+            <img 
+              src={theme === 'dark' ? LogoWhite : LogoBlack} 
+              alt="Nexus Logo" 
+              className="h-10 w-auto object-contain"
+              onError={(e) => {
+                console.error('Erro ao carregar logo:', theme);
+              }}
+            />
+          </div>
           <Button
             variant="ghost"
             size="sm"
