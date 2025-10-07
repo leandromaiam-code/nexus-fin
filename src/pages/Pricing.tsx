@@ -9,6 +9,7 @@ import { FeatureComparison } from '@/components/pricing/FeatureComparison';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import BackButton from '@/components/ui/back-button';
 
 // TODO: Substituir pelos Price IDs reais do Stripe Dashboard
 const PRICE_IDS = {
@@ -69,8 +70,13 @@ export default function Pricing() {
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-background via-background to-accent/5 pb-20">
+        {/* Header with Back Button */}
+        <header className="container mx-auto px-6 pt-6">
+          <BackButton />
+        </header>
+
         {/* Hero Section */}
-        <section className="pt-20 pb-12 text-center px-6">
+        <section className="pt-12 pb-12 text-center px-6">
           <h1 className="text-5xl md:text-6xl font-bold bg-gradient-nexus bg-clip-text text-transparent mb-4">
             Escolha seu plano
           </h1>
