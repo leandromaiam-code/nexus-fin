@@ -827,7 +827,8 @@ export const useFamilyMembers = () => {
           *,
           users (
             id,
-            full_name
+            full_name,
+            phone_number
           )
         `)
         .eq('familia_id', memberData.familia_id)

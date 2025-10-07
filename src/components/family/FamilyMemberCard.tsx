@@ -64,7 +64,7 @@ const FamilyMemberCard = ({ member, isResponsavel }: FamilyMemberCardProps) => {
               </div>
               <div>
                 <h3 className="font-semibold">
-                  {member.users?.full_name || 'Nome não disponível'}
+                  {member.users?.full_name || member.users?.phone_number || 'Usuário sem nome'}
                 </h3>
                 <p className={`text-sm font-medium ${getPapelColor(member.papel)}`}>
                   {member.papel}
@@ -141,7 +141,7 @@ const FamilyMemberCard = ({ member, isResponsavel }: FamilyMemberCardProps) => {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja remover {member.users?.full_name} da família?
+              Tem certeza que deseja remover {member.users?.full_name || member.users?.phone_number || 'este membro'} da família?
               Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
