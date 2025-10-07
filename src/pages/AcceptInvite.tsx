@@ -113,13 +113,13 @@ const AcceptInvite = () => {
               </div>
             </div>
 
-            {invite.users && (
-              <div className="pt-4 border-t">
-                <p className="text-sm text-muted-foreground">
-                  Convidado por: <span className="font-medium">{invite.users.full_name}</span>
-                </p>
-              </div>
-            )}
+            <div className="pt-4 border-t">
+              <p className="text-sm text-muted-foreground">
+                Responsável pela família: <span className="font-medium">
+                  {(invite.familias as any)?.responsavel?.full_name || invite.users?.full_name}
+                </span>
+              </p>
+            </div>
           </div>
 
           <div className="flex gap-3">

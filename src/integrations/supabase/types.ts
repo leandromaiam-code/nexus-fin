@@ -256,18 +256,43 @@ export type Database = {
           created_at: string
           id: number
           nome_familia: string
+          responsavel_user_id: number
         }
         Insert: {
           created_at?: string
           id?: never
           nome_familia: string
+          responsavel_user_id: number
         }
         Update: {
           created_at?: string
           id?: never
           nome_familia?: string
+          responsavel_user_id?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "familias_responsavel_user_id_fkey"
+            columns: ["responsavel_user_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "familias_responsavel_user_id_fkey"
+            columns: ["responsavel_user_id"]
+            isOneToOne: false
+            referencedRelation: "spending_trends_monthly"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "familias_responsavel_user_id_fkey"
+            columns: ["responsavel_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       family_invites: {
         Row: {
@@ -1351,6 +1376,10 @@ export type Database = {
       get_current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      has_valid_invite: {
+        Args: { _familia_id: number; _user_id: number }
+        Returns: boolean
       }
       is_family_admin: {
         Args: { _familia_id: number; _user_id: number }

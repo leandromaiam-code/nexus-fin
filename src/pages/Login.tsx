@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,8 @@ const Login = () => {
   const [isResetting, setIsResetting] = useState(false);
   const { login, resetPassword } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +37,7 @@ const Login = () => {
         title: "Login realizado com sucesso!",
         description: "Bem-vindo(a) de volta!"
       });
-      navigate('/');
+      navigate(redirect || '/');
     }
     
     setIsLoading(false);

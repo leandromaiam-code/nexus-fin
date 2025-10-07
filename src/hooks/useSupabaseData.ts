@@ -1084,7 +1084,10 @@ export const useGetInviteByToken = (token?: string) => {
         .from('family_invites')
         .select(`
           *,
-          familias(nome_familia),
+          familias(
+            nome_familia,
+            responsavel:users!familias_responsavel_user_id_fkey(full_name)
+          ),
           users!family_invites_invited_by_user_id_fkey(full_name)
         `)
         .eq('token', token)

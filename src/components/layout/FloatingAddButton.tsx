@@ -9,8 +9,9 @@ const FloatingAddButton = () => {
 
   // Não mostrar em telas de login, signup, onboarding, diagnóstico e registro
   const hiddenRoutes = ['/login', '/signup', '/onboarding', '/onboarding-flow', '/diagnostic', '/register'];
+  const isHidden = hiddenRoutes.includes(location.pathname) || location.pathname.startsWith('/aceitar-convite/');
   
-  if (hiddenRoutes.includes(location.pathname)) {
+  if (isHidden) {
     return null;
   }
 
