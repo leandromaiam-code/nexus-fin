@@ -8,8 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import LogoWhite from "@/assets/LogoNexus-Black.png";
-import LogoBlack from "@/assets/LogoNexus-white.png";
+// O ideal é que a logo branca seja para o tema light e a preta para o dark
+import LogoWhite from "@/assets/LogoNexus-white.png";
+import LogoBlack from "@/assets/LogoNexus-Black.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,6 +25,7 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const redirect = searchParams.get("redirect");
 
+  // ... (O restante da sua lógica permanece igual)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -73,20 +75,33 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative flex flex-col items-center justify-center p-3 sm:p-4">
+    // Adicionei overflow-hidden aqui para garantir que a imagem grande não crie barras de rolagem
+    <div className="min-h-screen bg-background relative flex flex-col items-center justify-center p-3 sm:p-4 overflow-hidden">
       {/* Background Logo */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+      {/* A div continua cobrindo toda a tela com `absolute inset-0` */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <img
-          src={theme === "dark" ? LogoWhite : LogoBlack}
+          // ✅ CORREÇÃO 1: Lógica das logos invertida para a correta
+          // Agora, tema 'dark' usa a logo preta, e tema 'light' usa a logo branca.
+          src={theme === "dark" ? LogoBlack : LogoWhite}
           alt="Nexus Background"
-          className="w-3/4 sm:w-1/2 max-w-2xl opacity-50"
+          // ✅ CORREÇÃO 2: Estilo do background para o efeito "vazado"
+          // - w-[800px]: Um tamanho fixo e grande para forçar o transbordamento.
+          // - max-w-[120vw]: Impede que a imagem fique absurdamente grande em telas gigantes.
+          // - opacity-5: Opacidade bem baixa (5%) para um efeito de marca d'água sutil.
+          className="w-[800px] max-w-[120vw] opacity-5"
         />
       </div>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center w-full">
         <div className="mb-6">
-          <img src={theme === "dark" ? LogoWhite : LogoBlack} alt="Nexus Logo" className="h-8 sm:h-10" />
+          <img
+            // ✅ CORREÇÃO 1 (aplicada aqui também): Lógica das logos invertida para a correta.
+            src={theme === "dark" ? LogoBlack : LogoWhite}
+            alt="Nexus Logo"
+            className="h-8 sm:h-10"
+          />
         </div>
         <Card className="w-full max-w-sm sm:max-w-md shadow-lg">
           <CardHeader className="p-4 sm:p-6">
@@ -141,7 +156,7 @@ const Login = () => {
           </CardContent>
         </Card>
 
-        {/* Reset Password Modal */}
+        {/* Reset Password Modal (sem alterações) */}
         <Dialog open={showResetModal} onOpenChange={setShowResetModal}>
           <DialogContent className="max-w-sm">
             <DialogHeader>
