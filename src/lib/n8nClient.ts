@@ -43,8 +43,21 @@ export const executeWebAction = async (action_type: string, payload: any = {}) =
  * @param text O texto da despesa.
  * @param phoneNumber O número de telefone do usuário.
  * @param authToken O token de acesso da sessão do usuário.
+ * @param additionalData Dados adicionais opcionais (conta pagadora e membro da família).
  */
-export const sendExpenseToN8n = async (text: string, phoneNumber: string, authToken: string) => {
+export const sendExpenseToN8n = async (
+  text: string, 
+  phoneNumber: string, 
+  authToken: string,
+  additionalData?: {
+    conta_pagadora_id?: number | null;
+    conta_pagadora_nome?: string | null;
+    membro_familia_id?: number | null;
+    membro_familia_nome?: string | null;
+    user_id?: number;
+    user_nome?: string;
+  }
+) => {
     const response = await fetch(N8N_WEBHOOK_PREFIX + 'whatsapp-inbound', {
         method: 'POST',
         headers: {
@@ -56,6 +69,15 @@ export const sendExpenseToN8n = async (text: string, phoneNumber: string, authTo
             sender: `${phoneNumber}@s.whatsapp.net`,
             message: {
                 conversation: text
+            },
+            // Dados adicionais
+            conta_pagadora: additionalData?.conta_pagadora_id ? {
+              id: additionalData.conta_pagadora_id,
+              nome: additionalData.conta_pagadora_nome
+            } : null,
+            membro_familia: {
+              id: additionalData?.membro_familia_id || additionalData?.user_id,
+              nome: additionalData?.membro_familia_nome || additionalData?.user_nome
             }
         })
     });

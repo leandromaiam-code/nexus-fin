@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { sendExpenseToN8n } from '@/lib/n8nClient';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,6 +8,8 @@ import { MessageSquare, DollarSign } from 'lucide-react';
 import ConfirmTransactionModal from '@/components/modals/ConfirmTransactionModal';
 import { useTransactionConfirmation, TransactionData } from '@/hooks/useTransactionConfirmation';
 import { supabase } from '@/integrations/supabase/client';
+import BackButton from '@/components/ui/back-button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const Register = () => {
   const [description, setDescription] = useState('');
@@ -16,6 +18,57 @@ const Register = () => {
   const [pendingTransaction, setPendingTransaction] = useState<TransactionData | null>(null);
   const { user, session } = useAuth();
   const { needsConfirmation } = useTransactionConfirmation();
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [familyMembers, setFamilyMembers] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchAccountsAndMembers = async () => {
+      if (!user?.id) return;
+      
+      // Buscar contas pagadoras
+      const { data: accountsData } = await supabase
+        .from('contas_pagadoras')
+        .select('id, nome, tipo')
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+      
+      if (accountsData) setAccounts(accountsData);
+      
+      // Buscar familia_id do usuário atual
+      const { data: userFamilyData } = await supabase
+        .from('membros_familia')
+        .select('familia_id')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (userFamilyData?.familia_id) {
+        // Buscar membros da família
+        const { data: membersData } = await supabase
+          .from('membros_familia')
+          .select(`
+            id,
+            user_id,
+            papel,
+            users!inner(id, full_name)
+          `)
+          .eq('familia_id', userFamilyData.familia_id);
+        
+        if (membersData) {
+          const formattedMembers = membersData.map((m: any) => ({
+            id: m.id,
+            user_id: m.user_id,
+            nome: m.users.full_name,
+            papel: m.papel
+          }));
+          setFamilyMembers(formattedMembers);
+        }
+      }
+    };
+    
+    fetchAccountsAndMembers();
+  }, [user?.id]);
 
   const handleSubmit = async () => {
     if (!description.trim() || !user || !session) {
@@ -26,7 +79,25 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      const response = await sendExpenseToN8n(description, user.phone_number, session.access_token);
+      // Preparar dados adicionais
+      const selectedAccount = accounts.find(a => a.id === selectedAccountId);
+      const selectedMember = familyMembers.find(m => m.id === selectedMemberId);
+      
+      const additionalData = {
+        conta_pagadora_id: selectedAccountId,
+        conta_pagadora_nome: selectedAccount?.nome || null,
+        membro_familia_id: selectedMemberId,
+        membro_familia_nome: selectedMember?.nome || null,
+        user_id: user.id,
+        user_nome: user.full_name
+      };
+      
+      const response = await sendExpenseToN8n(
+        description, 
+        user.phone_number, 
+        session.access_token,
+        additionalData
+      );
       
       // Se retornou dados estruturados e precisa confirmação
       if (needsConfirmation && response?.parsedData) {
@@ -36,6 +107,8 @@ const Register = () => {
       } else {
         toast({ title: "Despesa Enviada!", description: "O Nexus já está a processar o seu registo." });
         setDescription('');
+        setSelectedAccountId(null);
+        setSelectedMemberId(null);
       }
 
     } catch (error: any) {
@@ -96,16 +169,20 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16 sm:pb-20 md:pb-0">
-      <header className="p-4 sm:p-6 text-center">
-        <div className="flex justify-center mb-3 sm:mb-4">
-          <div className="p-3 sm:p-4 bg-gradient-nexus rounded-full">
-            <DollarSign className="text-white" size={24} />
+      <header className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <BackButton />
+          <div className="flex-1 flex justify-center">
+            <div className="p-3 sm:p-4 bg-gradient-nexus rounded-full">
+              <DollarSign className="text-white" size={24} />
+            </div>
           </div>
+          <div className="w-10"></div>
         </div>
-        <h1 className="text-xl sm:text-2xl font-bold text-display mb-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-display mb-2 text-center">
           Registrar Despesa
         </h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
+        <p className="text-sm sm:text-base text-muted-foreground text-center">
           Descreva sua despesa de forma natural
         </p>
       </header>
@@ -147,6 +224,59 @@ const Register = () => {
                 </div>
               )}
             </NexusButton>
+          </div>
+        </div>
+
+        {/* Campos Opcionais */}
+        <div className="card-nexus space-y-4">
+          <h3 className="font-semibold text-foreground text-sm sm:text-base">
+            Informações Adicionais (Opcional)
+          </h3>
+          
+          {/* Conta Pagadora */}
+          <div className="space-y-2">
+            <label className="text-xs sm:text-sm text-muted-foreground">
+              Conta Pagadora
+            </label>
+            <Select 
+              value={selectedAccountId?.toString() || "none"} 
+              onValueChange={(val) => setSelectedAccountId(val === "none" ? null : Number(val))}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione uma conta" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Nenhuma selecionada</SelectItem>
+                {accounts.map(acc => (
+                  <SelectItem key={acc.id} value={acc.id.toString()}>
+                    {acc.nome} ({acc.tipo})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Membro da Família */}
+          <div className="space-y-2">
+            <label className="text-xs sm:text-sm text-muted-foreground">
+              Membro da Família
+            </label>
+            <Select 
+              value={selectedMemberId?.toString() || "none"} 
+              onValueChange={(val) => setSelectedMemberId(val === "none" ? null : Number(val))}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione um membro" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Eu mesmo (padrão)</SelectItem>
+                {familyMembers.map(member => (
+                  <SelectItem key={member.id} value={member.id.toString()}>
+                    {member.nome} - {member.papel}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
