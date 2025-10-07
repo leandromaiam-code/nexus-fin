@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Mail, Phone, User, DollarSign, TrendingDown } from 'lucide-react';
+import { Mail, Phone, User, Lock, Calendar } from 'lucide-react';
 import BackButton from '@/components/ui/back-button';
 import { NexusButton } from '@/components/ui/nexus-button';
 import { Input } from '@/components/ui/input';
@@ -14,9 +14,7 @@ import { toast } from '@/hooks/use-toast';
 
 const accountSchema = z.object({
   full_name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres").max(100, "Nome muito longo"),
-  phone_number: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Telefone inválido (ex: +5511999999999)"),
-  renda_base_amount: z.string().optional(),
-  cost_of_living_reported: z.string().optional()
+  phone_number: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Telefone inválido (ex: +5511999999999)")
 });
 
 type AccountFormData = z.infer<typeof accountSchema>;
@@ -31,9 +29,7 @@ const AccountInfo = () => {
     resolver: zodResolver(accountSchema),
     defaultValues: {
       full_name: user?.full_name || '',
-      phone_number: user?.phone_number || '',
-      renda_base_amount: user?.renda_base_amount?.toString() || '',
-      cost_of_living_reported: user?.cost_of_living_reported?.toString() || ''
+      phone_number: user?.phone_number || ''
     }
   });
 
@@ -49,9 +45,7 @@ const AccountInfo = () => {
     if (user) {
       reset({
         full_name: user.full_name || '',
-        phone_number: user.phone_number || '',
-        renda_base_amount: user.renda_base_amount?.toString() || '',
-        cost_of_living_reported: user.cost_of_living_reported?.toString() || ''
+        phone_number: user.phone_number || ''
       });
     }
   }, [user, reset]);
@@ -61,9 +55,7 @@ const AccountInfo = () => {
     try {
       const updates = {
         full_name: data.full_name,
-        phone_number: data.phone_number,
-        renda_base_amount: data.renda_base_amount ? parseFloat(data.renda_base_amount) : undefined,
-        cost_of_living_reported: data.cost_of_living_reported ? parseFloat(data.cost_of_living_reported) : undefined
+        phone_number: data.phone_number
       };
 
       const { error } = await updateUserProfile(updates);
@@ -151,37 +143,40 @@ const AccountInfo = () => {
             )}
           </div>
 
-          {/* Renda Base */}
+          {/* Alterar Senha */}
           <div className="space-y-2">
-            <Label htmlFor="renda_base_amount" className="flex items-center gap-2">
-              <DollarSign size={16} className="text-primary" />
-              Renda Base Mensal
+            <Label className="flex items-center gap-2">
+              <Lock size={16} className="text-primary" />
+              Senha
             </Label>
-            <Input
-              id="renda_base_amount"
-              type="number"
-              step="0.01"
-              {...register('renda_base_amount')}
-              placeholder="0.00"
-            />
-            <p className="text-xs text-muted-foreground">Sua renda mensal regular</p>
+            <NexusButton
+              type="button"
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate('/reset-password')}
+            >
+              Alterar Senha
+            </NexusButton>
           </div>
 
-          {/* Custo de Vida */}
-          <div className="space-y-2">
-            <Label htmlFor="cost_of_living_reported" className="flex items-center gap-2">
-              <TrendingDown size={16} className="text-primary" />
-              Custo de Vida Mensal
-            </Label>
-            <Input
-              id="cost_of_living_reported"
-              type="number"
-              step="0.01"
-              {...register('cost_of_living_reported')}
-              placeholder="0.00"
-            />
-            <p className="text-xs text-muted-foreground">Suas despesas mensais estimadas</p>
-          </div>
+          {/* Data de Criação da Conta */}
+          {user?.created_at && (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Calendar size={16} className="text-primary" />
+                Membro desde
+              </Label>
+              <Input
+                value={new Date(user.created_at).toLocaleDateString('pt-BR', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+                disabled
+                className="bg-muted cursor-not-allowed"
+              />
+            </div>
+          )}
 
           {/* Botões de Ação */}
           <div className="pt-4 space-y-3">

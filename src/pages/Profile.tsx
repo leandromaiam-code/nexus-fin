@@ -152,11 +152,8 @@ const Profile = () => {
               <User className="text-white" size={20} />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg sm:text-xl font-bold text-display truncate">{user?.full_name}</h2>
-              <p className="text-xs sm:text-sm text-primary font-medium">{user?.financial_archetype}</p>
-              {user?.phone_number && (
-                <p className="text-xs text-muted-foreground">{user.phone_number}</p>
-              )}
+            <h2 className="text-lg sm:text-xl font-bold text-display truncate">{user?.full_name}</h2>
+            <p className="text-xs sm:text-sm text-primary font-medium">{user?.financial_archetype}</p>
             </div>
           </div>
         </div>
