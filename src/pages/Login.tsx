@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -73,25 +73,22 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative flex flex-col items-center justify-center p-3 sm:p-4">
+    <div className="min-h-screen bg-background relative flex flex-col items-center justify-center p-3 sm:p-4 overflow-hidden">
       {/* Background Logo */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <img
-          src={theme === "dark" ? LogoWhite : LogoBlack}
+          src={theme === "dark" ? LogoBlack : LogoWhite}
           alt="Nexus Background"
-          className="w-3/4 sm:w-1/2 max-w-2xl opacity-50"
+          className="w-[1050px] max-w-[120vw] opacity-5"
         />
       </div>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center w-full">
-        <div className="mb-6">
-          <img src={theme === "dark" ? LogoWhite : LogoBlack} alt="Nexus Logo" className="h-16 sm:h-20 mb-4" />
-        </div>
         <Card className="w-full max-w-sm sm:max-w-md shadow-lg">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-center text-lg sm:text-xl">Acessar o Nexus</CardTitle>
-            <CardDescription className="text-center text-sm sm:text-base">Bem-vindo(a) de volta.</CardDescription>
+          <CardHeader className="p-4 sm:p-6 flex flex-col items-center">
+            <img src={theme === "dark" ? LogoBlack : LogoWhite} alt="Nexus Logo" className="h-20 sm:h-25 mb-8" />
+            <CardDescription className="text-center text-sm sm:text-base">Bem-vindo de volta.</CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0">
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
