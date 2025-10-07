@@ -44,7 +44,17 @@ const MyDiagnostic = () => {
     return <div>Carregando...</div>;
   }
 
-  const currentArchetype = archetypeData[userData?.financial_archetype as keyof typeof archetypeData] || archetypeData['equilibrist'];
+  // Normalize archetype from database (accepts both PT/EN and capitalized/lowercase)
+  const normalizeArchetype = (archetype?: string | null): keyof typeof archetypeData => {
+    if (!archetype) return 'equilibrist';
+    const normalized = archetype.toLowerCase();
+    if (normalized.includes('invest')) return 'investor';
+    if (normalized.includes('equilib')) return 'equilibrist';
+    if (normalized.includes('piloto') || normalized.includes('rescue') || normalized.includes('resgate')) return 'rescuer';
+    return 'equilibrist';
+  };
+
+  const currentArchetype = archetypeData[normalizeArchetype(userData?.financial_archetype)];
 
   return (
     <div className="min-h-screen bg-background pb-20">
