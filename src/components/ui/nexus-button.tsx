@@ -8,7 +8,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        nexus: "bg-gradient-nexus text-white hover:shadow-nexus hover:scale-105 active:scale-95",
+        nexus: "bg-gradient-nexus text-white shadow-lg hover:shadow-nexus hover:scale-105 active:scale-95 font-semibold border border-white/20",
         success: "bg-gradient-success text-white hover:shadow-lg hover:scale-105 active:scale-95",
         ghost: "bg-transparent border border-muted text-foreground hover:bg-muted hover:scale-105 active:scale-95",
         outline: "border border-border bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground",

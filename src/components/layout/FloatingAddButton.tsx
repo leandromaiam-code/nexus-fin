@@ -7,8 +7,8 @@ const FloatingAddButton = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Não mostrar em telas de login, signup, onboarding e diagnóstico
-  const hiddenRoutes = ['/login', '/signup', '/onboarding', '/onboarding-flow', '/diagnostic'];
+  // Não mostrar em telas de login, signup, onboarding, diagnóstico e registro
+  const hiddenRoutes = ['/login', '/signup', '/onboarding', '/onboarding-flow', '/diagnostic', '/register'];
   
   if (hiddenRoutes.includes(location.pathname)) {
     return null;
