@@ -17,12 +17,13 @@ import {
   CreditCard
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useUserData } from '@/hooks/useSupabaseData';
 import { getArchetypeName } from '@/lib/diagnosticUtils';
-// Placeholder logo
-// import nexusLogo from '@/assets/nexus-logo.png';
+import LogoWhite from '@/assets/LogoNexus-white.png';
+import LogoBlack from '@/assets/LogoNexus-Black.png';
 
 interface AppSidebarProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { theme } = useTheme();
   const { data: userData } = useUserData();
 
   const menuItems = [
@@ -129,17 +131,11 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
       <div className="fixed top-0 left-0 h-full w-72 sm:w-80 bg-card border-r border-border z-50 transform transition-transform duration-300 ease-in-out">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 6v6l4 2"/>
-              </svg>
-            </div>
-            <h2 className="text-lg font-semibold text-foreground">
-              Nexus
-            </h2>
-          </div>
+          <img 
+            src={theme === 'dark' ? LogoWhite : LogoBlack} 
+            alt="Nexus Logo" 
+            className="h-8"
+          />
           <Button
             variant="ghost"
             size="sm"
