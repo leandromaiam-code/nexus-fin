@@ -43,7 +43,7 @@ const Profile = () => {
           icon: User,
           label: "Informações Pessoais",
           description: "Nome, email e dados básicos",
-          action: () => toast({ title: "Em breve", description: "Edição de perfil em desenvolvimento." })
+          action: () => navigate("/account-info")
         },
         {
           icon: FileText,
@@ -154,6 +154,9 @@ const Profile = () => {
             <div className="flex-1 min-w-0">
               <h2 className="text-lg sm:text-xl font-bold text-display truncate">{user?.full_name}</h2>
               <p className="text-xs sm:text-sm text-primary font-medium">{user?.financial_archetype}</p>
+              {user?.phone_number && (
+                <p className="text-xs text-muted-foreground">{user.phone_number}</p>
+              )}
             </div>
           </div>
         </div>

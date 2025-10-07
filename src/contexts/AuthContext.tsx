@@ -6,9 +6,17 @@ import { isDiagnosticComplete } from '@/lib/diagnosticUtils';
 // Este é o nosso tipo de perfil de usuário da tabela public.users
 interface UserProfile {
   id: number;
-  full_name: string;
+  full_name: string | null;
   phone_number: string;
-  financial_archetype?: string;
+  financial_archetype?: string | null;
+  income_input_typical?: number | null;
+  income_input_best?: number | null;
+  income_input_worst?: number | null;
+  cost_of_living_reported?: number | null;
+  renda_base_amount?: number | null;
+  created_at?: string;
+  auth_id?: string | null;
+  confirmar_registros?: boolean;
 }
 
 interface AuthContextType {
@@ -20,6 +28,7 @@ interface AuthContextType {
   logout: () => void;
   hasCompleteDiagnostic: () => boolean;
   resetPassword: (email: string) => Promise<any>;
+  updateUserProfile: (updates: Partial<UserProfile>) => Promise<{error: any}>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -114,8 +123,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
+  const updateUserProfile = async (updates: Partial<UserProfile>) => {
+    if (!user) return { error: { message: 'Usuário não autenticado' } };
+    
+    // Remove id from updates to prevent TypeScript error
+    const { id, ...updateData } = updates;
+    
+    const { error } = await supabase
+      .from('users')
+      .update(updateData)
+      .eq('id', user.id);
+    
+    if (!error) {
+      setUser({ ...user, ...updateData });
+    }
+    
+    return { error };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, login, signUp, logout, hasCompleteDiagnostic, resetPassword }}>
+    <AuthContext.Provider value={{ user, session, isLoading, login, signUp, logout, hasCompleteDiagnostic, resetPassword, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );

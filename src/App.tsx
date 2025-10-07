@@ -13,6 +13,7 @@ import Plan from "./pages/Plan";
 import Register from "./pages/Register";
 import Analysis from "./pages/Analysis";
 import Profile from "./pages/Profile";
+import AccountInfo from "./pages/AccountInfo";
 import Onboarding from "./pages/Onboarding";
 import OnboardingFlow from "./pages/OnboardingFlow";
 import Family from "./pages/Family";
@@ -60,6 +61,7 @@ const AppRoutes = () => {
         <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
         <Route path="/diagnostic" element={<ProtectedRoute><Diagnostic /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/account-info" element={<ProtectedRoute><AccountInfo /></ProtectedRoute>} />
         <Route path="/goal-catalog" element={<ProtectedRoute><GoalCatalog /></ProtectedRoute>} />
         <Route path="/goal/:id" element={<ProtectedRoute><GoalDetails /></ProtectedRoute>} />
         <Route path="/analysis/category/:categoryId" element={<ProtectedRoute><CategoryAnalysis /></ProtectedRoute>} />
