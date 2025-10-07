@@ -132,7 +132,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
             <img
               src={theme === "dark" ? LogoWhite : LogoBlack}
               alt="Nexus Logo"
-              className="h-25 w-auto object-contain"
+              className="h-20 w-auto object-contain"
               onError={(e) => {
                 console.error("Erro ao carregar logo:", theme);
               }}
