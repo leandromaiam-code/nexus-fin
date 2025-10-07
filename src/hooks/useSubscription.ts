@@ -21,6 +21,16 @@ export interface Subscription {
   updated_at: string;
 }
 
+export interface Invoice {
+  id: string;
+  date: number;
+  amount: number;
+  currency: string;
+  status: string;
+  pdfUrl: string | null;
+  description: string;
+}
+
 export const useSubscription = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -44,6 +54,23 @@ export const useSubscription = () => {
       return data as Subscription | null;
     },
     enabled: !!user?.id,
+  });
+
+  const { data: invoices, isLoading: isLoadingInvoices } = useQuery({
+    queryKey: ['invoices', user?.id],
+    queryFn: async (): Promise<Invoice[]> => {
+      if (!user?.id) return [];
+
+      const { data, error } = await supabase.functions.invoke('get-customer-invoices');
+
+      if (error) {
+        console.error('Error fetching invoices:', error);
+        return [];
+      }
+
+      return data?.invoices || [];
+    },
+    enabled: !!user?.id && !!subscription?.stripe_customer_id,
   });
 
   const createCheckoutSession = useMutation({
@@ -92,6 +119,30 @@ export const useSubscription = () => {
     },
   });
 
+  const cancelSubscription = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('cancel-subscription');
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription', user?.id] });
+      toast({
+        title: 'Assinatura cancelada',
+        description: 'Você continuará com acesso até o final do período pago.',
+      });
+    },
+    onError: (error: Error) => {
+      console.error('Cancel subscription error:', error);
+      toast({
+        title: 'Erro ao cancelar assinatura',
+        description: error.message || 'Tente novamente mais tarde',
+        variant: 'destructive',
+      });
+    },
+  });
+
   const isPremium = subscription?.plan_type === 'premium' && subscription?.status === 'active';
   const isPlus = subscription?.plan_type === 'plus' && subscription?.status === 'active';
   const isFree = !subscription || subscription?.plan_type === 'free';
@@ -102,9 +153,13 @@ export const useSubscription = () => {
     isPremium,
     isPlus,
     isFree,
+    invoices,
+    isLoadingInvoices,
     createCheckoutSession: createCheckoutSession.mutate,
     createBillingPortalSession: createBillingPortalSession.mutate,
+    cancelSubscription: cancelSubscription.mutate,
     isCreatingCheckout: createCheckoutSession.isPending,
     isCreatingPortal: createBillingPortalSession.isPending,
+    isCanceling: cancelSubscription.isPending,
   };
 };

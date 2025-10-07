@@ -31,6 +31,7 @@ import Login from "./pages/Login";
 import Transactions from "./pages/Transactions";
 import Diagnostic from "./pages/Diagnostic";
 import Pricing from "./pages/Pricing";
+import Subscription from "./pages/Subscription";
 import NotFound from "./pages/NotFound";
 import FloatingAddButton from "./components/layout/FloatingAddButton";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -72,6 +73,7 @@ const AppRoutes = () => {
         <Route path="/my-diagnostic" element={<ProtectedRoute><MyDiagnostic /></ProtectedRoute>} />
         <Route path="/manage-categories" element={<ProtectedRoute><ManageCategories /></ProtectedRoute>} />
         <Route path="/pricing" element={<Pricing />} />
+        <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
         
         <Route path="*" element={<NotFound />} />
       </Routes>

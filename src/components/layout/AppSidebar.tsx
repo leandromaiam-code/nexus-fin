@@ -13,7 +13,8 @@ import {
   Wallet,
   PiggyBank,
   TrendingUp,
-  Lightbulb
+  Lightbulb,
+  CreditCard
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,12 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
       label: 'Painel',
       icon: LayoutDashboard,
       path: '/',
+    },
+    {
+      id: 'subscription',
+      label: 'Minha Assinatura',
+      icon: CreditCard,
+      path: '/subscription',
     },
     {
       id: 'family',

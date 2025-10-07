@@ -218,11 +218,10 @@ const Profile = () => {
               <Button
                 variant="outline"
                 className="flex-1 text-sm"
-                onClick={() => createBillingPortalSession()}
-                disabled={isCreatingPortal}
+                onClick={() => navigate('/subscription')}
               >
                 <Settings size={14} className="mr-1" />
-                Gerenciar
+                Ver Detalhes
               </Button>
             )}
           </div>

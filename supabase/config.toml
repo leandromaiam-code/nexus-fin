@@ -6,5 +6,11 @@ verify_jwt = true
 [functions.create-billing-portal-session]
 verify_jwt = true
 
+[functions.get-customer-invoices]
+verify_jwt = true
+
+[functions.cancel-subscription]
+verify_jwt = true
+
 [functions.stripe-webhook]
 verify_jwt = false
