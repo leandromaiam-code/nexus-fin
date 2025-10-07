@@ -12,7 +12,6 @@ import {
   BarChart3
 } from 'lucide-react';
 import { NexusButton } from '@/components/ui/nexus-button';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { executeWebAction } from '@/lib/n8nClient';
 import { toast } from '@/hooks/use-toast';
@@ -82,18 +81,6 @@ const Profile = () => {
           isConfirmToggle: true
         }
       ]
-    },
-    {
-      title: "Aparência",
-      items: [
-        {
-          icon: Palette,
-          label: "Tema do Aplicativo",
-          description: "Alternar entre modo Dark e Clean",
-          action: null,
-          isThemeToggle: true
-        }
-      ]
     }
   ];
 
@@ -110,23 +97,6 @@ const Profile = () => {
   };
 
   const MenuItem = ({ item }: { item: any }) => {
-    if (item.isThemeToggle) {
-      return (
-        <div className="w-full flex items-center justify-between p-3 sm:p-4 bg-card rounded-xl border border-border">
-          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0 flex-1">
-            <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg flex-shrink-0">
-              <item.icon className="text-primary" size={18} />
-            </div>
-            <div className="text-left min-w-0 flex-1">
-              <p className="font-medium text-foreground text-sm sm:text-base">{item.label}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground truncate">{item.description}</p>
-            </div>
-          </div>
-          <ThemeToggle />
-        </div>
-      );
-    }
-
     if (item.isConfirmToggle) {
       return (
         <div className="w-full flex items-center justify-between p-3 sm:p-4 bg-card rounded-xl border border-border">

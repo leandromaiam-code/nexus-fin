@@ -18,7 +18,6 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 // Placeholder logo
 // import nexusLogo from '@/assets/nexus-logo.png';
 
@@ -195,11 +194,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Footer */}
         <div className="p-4 border-t border-border space-y-3">
-          <div className="flex items-center justify-between px-4 py-2">
-            <span className="text-sm text-muted-foreground">Aparência</span>
-            <ThemeToggle />
-          </div>
-          
           {user ? (
             <Button
               variant="ghost"
