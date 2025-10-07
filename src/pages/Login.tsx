@@ -73,15 +73,26 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-3 sm:p-4">
-      <div className="mb-6">
+    <div className="min-h-screen bg-background relative flex flex-col items-center justify-center p-3 sm:p-4">
+      {/* Background Logo */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
         <img 
           src={theme === 'dark' ? LogoWhite : LogoBlack} 
-          alt="Nexus Logo" 
-          className="h-8 sm:h-10"
+          alt="Nexus Background" 
+          className="w-3/4 sm:w-1/2 max-w-2xl opacity-50"
         />
       </div>
-      <Card className="w-full max-w-sm sm:max-w-md shadow-lg">
+      
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center w-full">
+        <div className="mb-6">
+          <img 
+            src={theme === 'dark' ? LogoWhite : LogoBlack} 
+            alt="Nexus Logo" 
+            className="h-8 sm:h-10"
+          />
+        </div>
+        <Card className="w-full max-w-sm sm:max-w-md shadow-lg">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="text-center text-lg sm:text-xl">Acessar o Nexus</CardTitle>
           <CardDescription className="text-center text-sm sm:text-base">Bem-vindo(a) de volta.</CardDescription>
@@ -171,8 +182,9 @@ const Login = () => {
               </Button>
             </div>
           </form>
-        </DialogContent>
-      </Dialog>
+         </DialogContent>
+       </Dialog>
+      </div>
     </div>
   );
 };
