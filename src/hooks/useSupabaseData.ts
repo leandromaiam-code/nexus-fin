@@ -1,8 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
-import { toast as sonnerToast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Helper hook to get current user from auth context
 const useCurrentUser = () => {
@@ -13,211 +13,216 @@ const useCurrentUser = () => {
 // User Data Hook
 export const useUserData = () => {
   const { user, isAuthenticated } = useCurrentUser();
-  
+
   return useQuery({
-    queryKey: ['user-data', user?.id],
+    queryKey: ["user-data", user?.id],
     queryFn: async () => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
       return user;
     },
     enabled: isAuthenticated && !!user,
-    retry: false
+    retry: false,
   });
 };
 
 // Monthly Summary Hook
 export const useMonthlyData = (month?: string) => {
   const { user, isAuthenticated } = useCurrentUser();
-  
+
   return useQuery({
-    queryKey: ['monthly-data', month, user?.id],
+    queryKey: ["monthly-data", month, user?.id],
     queryFn: async () => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
       // Default to current month if not provided
-      const targetMonth = month || new Date().toISOString().slice(0, 7) + '-01';
+      const targetMonth = month || new Date().toISOString().slice(0, 7) + "-01";
 
       const { data, error } = await supabase
-        .from('monthly_summaries')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('month', targetMonth)
+        .from("monthly_summaries")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("month", targetMonth)
         .maybeSingle();
 
       if (error) throw error;
-      
+
       // Return zeroed values if no data for this month
-      return data || {
-        user_id: user.id,
-        month: targetMonth,
-        balance: 0,
-        total_spent: 0,
-        renda_base_amount: 0
-      };
+      return (
+        data || {
+          user_id: user.id,
+          month: targetMonth,
+          balance: 0,
+          total_spent: 0,
+          renda_base_amount: 0,
+        }
+      );
     },
-    enabled: isAuthenticated && !!user
+    enabled: isAuthenticated && !!user,
   });
 };
 
 // User Goals Hook
 export const useUserGoals = () => {
   const { user, isAuthenticated } = useCurrentUser();
-  
+
   return useQuery({
-    queryKey: ['user-goals', user?.id],
+    queryKey: ["user-goals", user?.id],
     queryFn: async () => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
       const { data, error } = await supabase
-        .from('user_goals')
-        .select(`
+        .from("user_goals")
+        .select(
+          `
           *,
           goal_templates (
             name,
             description
           )
-        `)
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('is_primary', { ascending: false });
+        `,
+        )
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .order("is_primary", { ascending: false });
 
       if (error) throw error;
       return data || [];
     },
-    enabled: isAuthenticated && !!user
+    enabled: isAuthenticated && !!user,
   });
 };
 
 // Primary Goal Hook
 export const usePrimaryGoal = () => {
   const { user, isAuthenticated } = useCurrentUser();
-  
+
   return useQuery({
-    queryKey: ['primary-goal', user?.id],
+    queryKey: ["primary-goal", user?.id],
     queryFn: async () => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
       const { data, error } = await supabase
-        .from('user_goals')
-        .select(`
+        .from("user_goals")
+        .select(
+          `
           *,
           goal_templates (
             name,
             description
           )
-        `)
-        .eq('user_id', user.id)
-        .eq('is_primary', true)
-        .eq('status', 'active')
+        `,
+        )
+        .eq("user_id", user.id)
+        .eq("is_primary", true)
+        .eq("status", "active")
         .maybeSingle();
 
       if (error) throw error;
       return data;
     },
-    enabled: isAuthenticated && !!user
+    enabled: isAuthenticated && !!user,
   });
 };
 
 // Recent Transactions Hook
 export const useRecentTransactions = (limit = 5) => {
   const { user, isAuthenticated } = useCurrentUser();
-  
+
   return useQuery({
-    queryKey: ['recent-transactions', limit, user?.id],
+    queryKey: ["recent-transactions", limit, user?.id],
     queryFn: async () => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
       const { data, error } = await supabase
-        .from('transactions')
-        .select(`
+        .from("transactions")
+        .select(
+          `
           *,
           categories (
             name,
             icon_name,
             tipo
           )
-        `)
-        .eq('user_id', user.id)
-        .order('transaction_date', { ascending: false })
-        .order('created_at', { ascending: false })
+        `,
+        )
+        .eq("user_id", user.id)
+        .order("transaction_date", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(limit);
 
       if (error) throw error;
       return data || [];
     },
-    enabled: isAuthenticated && !!user
+    enabled: isAuthenticated && !!user,
   });
 };
 
 // Category Spending Hook
 export const useCategorySpending = (month?: string) => {
   const { user, isAuthenticated } = useCurrentUser();
-  
+
   return useQuery({
-    queryKey: ['category-spending', month, user?.id],
+    queryKey: ["category-spending", month, user?.id],
     queryFn: async () => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
-      const currentMonth = month || new Date().toISOString().slice(0, 7) + '-01';
+      const currentMonth = month || new Date().toISOString().slice(0, 7) + "-01";
 
       const { data, error } = await supabase
-        .from('category_spending_by_month')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('month', currentMonth)
-        .order('total_spent_in_category', { ascending: false });
+        .from("category_spending_by_month")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("month", currentMonth)
+        .order("total_spent_in_category", { ascending: false });
 
       if (error) throw error;
       return data || [];
     },
-    enabled: isAuthenticated && !!user
+    enabled: isAuthenticated && !!user,
   });
 };
 
 // Goal Templates Hook
 export const useGoalTemplates = () => {
   return useQuery({
-    queryKey: ['goal-templates'],
+    queryKey: ["goal-templates"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('goal_templates')
-        .select('*')
-        .order('name');
+      const { data, error } = await supabase.from("goal_templates").select("*").order("name");
 
       if (error) throw error;
       return data || [];
-    }
+    },
   });
 };
 
 // Categories Hook
 export const useCategories = () => {
   const { user } = useCurrentUser();
-  
+
   return useQuery({
-    queryKey: ['categories', user?.id],
+    queryKey: ["categories", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .or(`user_id.is.null${user ? `,user_id.eq.${user.id}` : ''}`)
-        .order('name');
+        .from("categories")
+        .select("*")
+        .or(`user_id.is.null${user ? `,user_id.eq.${user.id}` : ""}`)
+        .order("name");
 
       if (error) throw error;
       return data || [];
-    }
+    },
   });
 };
 
@@ -236,15 +241,15 @@ export const useCreateGoal = () => {
       current_amount?: number;
     }) => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
       const { data, error } = await supabase
-        .from('user_goals')
+        .from("user_goals")
         .insert({
           user_id: user.id,
           current_amount: goalData.current_amount || 0,
-          ...goalData
+          ...goalData,
         })
         .select()
         .single();
@@ -253,21 +258,21 @@ export const useCreateGoal = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-goals'] });
-      queryClient.invalidateQueries({ queryKey: ['primary-goal'] });
+      queryClient.invalidateQueries({ queryKey: ["user-goals"] });
+      queryClient.invalidateQueries({ queryKey: ["primary-goal"] });
       toast({
         title: "Sucesso",
         description: "Meta criada com sucesso!",
-        variant: "default"
+        variant: "default",
       });
     },
     onError: (error) => {
       toast({
         title: "Erro",
         description: "Erro ao criar meta. Tente novamente.",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 };
 
@@ -278,9 +283,9 @@ export const useUpdateGoalProgress = () => {
   return useMutation({
     mutationFn: async ({ goalId, amount }: { goalId: number; amount: number }) => {
       const { data, error } = await supabase
-        .from('user_goals')
+        .from("user_goals")
         .update({ current_amount: amount })
-        .eq('id', goalId)
+        .eq("id", goalId)
         .select()
         .single();
 
@@ -288,13 +293,13 @@ export const useUpdateGoalProgress = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-goals'] });
-      queryClient.invalidateQueries({ queryKey: ['primary-goal'] });
+      queryClient.invalidateQueries({ queryKey: ["user-goals"] });
+      queryClient.invalidateQueries({ queryKey: ["primary-goal"] });
       toast({
         title: "Progresso Atualizado",
         description: "Meta atualizada com sucesso!",
       });
-    }
+    },
   });
 };
 
@@ -304,24 +309,27 @@ export const useUpdateTransaction = () => {
   const { user, isAuthenticated } = useCurrentUser();
 
   return useMutation({
-    mutationFn: async ({ transactionId, transactionData }: { 
-      transactionId: number; 
+    mutationFn: async ({
+      transactionId,
+      transactionData,
+    }: {
+      transactionId: number;
       transactionData: {
         description?: string;
         amount?: number;
         category_id?: number;
         transaction_date?: string;
-      }
+      };
     }) => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
       const { data, error } = await supabase
-        .from('transactions')
+        .from("transactions")
         .update(transactionData)
-        .eq('id', transactionId)
-        .eq('user_id', user.id)
+        .eq("id", transactionId)
+        .eq("user_id", user.id)
         .select()
         .single();
 
@@ -329,9 +337,9 @@ export const useUpdateTransaction = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['monthly-data'] });
-      queryClient.invalidateQueries({ queryKey: ['category-spending'] });
+      queryClient.invalidateQueries({ queryKey: ["recent-transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["monthly-data"] });
+      queryClient.invalidateQueries({ queryKey: ["category-spending"] });
       toast({
         title: "Sucesso",
         description: "Transação atualizada com sucesso!",
@@ -341,9 +349,9 @@ export const useUpdateTransaction = () => {
       toast({
         title: "Erro",
         description: "Erro ao atualizar transação. Tente novamente.",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 };
 
@@ -353,24 +361,27 @@ export const useUpdateGoal = () => {
   const { user, isAuthenticated } = useCurrentUser();
 
   return useMutation({
-    mutationFn: async ({ goalId, goalData }: { 
-      goalId: number; 
+    mutationFn: async ({
+      goalId,
+      goalData,
+    }: {
+      goalId: number;
       goalData: {
         custom_name?: string;
         target_amount?: number;
         target_date?: string;
         current_amount?: number;
-      }
+      };
     }) => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
       const { data, error } = await supabase
-        .from('user_goals')
+        .from("user_goals")
         .update(goalData)
-        .eq('id', goalId)
-        .eq('user_id', user.id)
+        .eq("id", goalId)
+        .eq("user_id", user.id)
         .select()
         .single();
 
@@ -378,8 +389,8 @@ export const useUpdateGoal = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-goals'] });
-      queryClient.invalidateQueries({ queryKey: ['primary-goal'] });
+      queryClient.invalidateQueries({ queryKey: ["user-goals"] });
+      queryClient.invalidateQueries({ queryKey: ["primary-goal"] });
       toast({
         title: "Sucesso",
         description: "Meta atualizada com sucesso!",
@@ -389,9 +400,9 @@ export const useUpdateGoal = () => {
       toast({
         title: "Erro",
         description: "Erro ao atualizar meta. Tente novamente.",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 };
 
@@ -403,21 +414,17 @@ export const useDeleteGoal = () => {
   return useMutation({
     mutationFn: async (goalId: number) => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
-      const { error } = await supabase
-        .from('user_goals')
-        .delete()
-        .eq('id', goalId)
-        .eq('user_id', user.id);
+      const { error } = await supabase.from("user_goals").delete().eq("id", goalId).eq("user_id", user.id);
 
       if (error) throw error;
       return goalId;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-goals'] });
-      queryClient.invalidateQueries({ queryKey: ['primary-goal'] });
+      queryClient.invalidateQueries({ queryKey: ["user-goals"] });
+      queryClient.invalidateQueries({ queryKey: ["primary-goal"] });
       toast({
         title: "Sucesso",
         description: "Meta excluída com sucesso!",
@@ -427,28 +434,25 @@ export const useDeleteGoal = () => {
       toast({
         title: "Erro",
         description: "Erro ao excluir meta. Tente novamente.",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 };
 
 // Action Plans Hooks
 export const useActionPlans = (goalTemplateId?: number) => {
   return useQuery({
-    queryKey: ['action-plans', goalTemplateId],
+    queryKey: ["action-plans", goalTemplateId],
     queryFn: async () => {
       if (!goalTemplateId) return [];
 
-      const { data, error } = await supabase
-        .from('action_plans')
-        .select('*')
-        .eq('goal_template_id', goalTemplateId);
+      const { data, error } = await supabase.from("action_plans").select("*").eq("goal_template_id", goalTemplateId);
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!goalTemplateId
+    enabled: !!goalTemplateId,
   });
 };
 
@@ -456,63 +460,59 @@ export const useUserActionPlan = (userGoalId: number) => {
   const { user, isAuthenticated } = useCurrentUser();
 
   return useQuery({
-    queryKey: ['user-action-plan', userGoalId, user?.id],
+    queryKey: ["user-action-plan", userGoalId, user?.id],
     queryFn: async () => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
       const { data, error } = await supabase
-        .from('user_action_plans')
-        .select('*')
-        .eq('user_goal_id', userGoalId)
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('started_at', { ascending: false })
+        .from("user_action_plans")
+        .select("*")
+        .eq("user_goal_id", userGoalId)
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .order("started_at", { ascending: false })
         .limit(1)
         .single();
 
       if (error) throw error;
       return data;
     },
-    enabled: isAuthenticated && !!user && !!userGoalId
+    enabled: isAuthenticated && !!user && !!userGoalId,
   });
 };
 
 export const usePlanSteps = (planId?: number) => {
   return useQuery({
-    queryKey: ['plan-steps', planId],
+    queryKey: ["plan-steps", planId],
     queryFn: async () => {
       if (!planId) return [];
 
-      const { data, error } = await supabase
-        .from('plan_steps')
-        .select('*')
-        .eq('plan_id', planId)
-        .order('step_order');
+      const { data, error } = await supabase.from("plan_steps").select("*").eq("plan_id", planId).order("step_order");
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!planId
+    enabled: !!planId,
   });
 };
 
 export const useStepProgress = (userActionPlanId?: number) => {
   return useQuery({
-    queryKey: ['step-progress', userActionPlanId],
+    queryKey: ["step-progress", userActionPlanId],
     queryFn: async () => {
       if (!userActionPlanId) return [];
 
       const { data, error } = await supabase
-        .from('user_plan_step_progress')
-        .select('*')
-        .eq('user_action_plan_id', userActionPlanId);
+        .from("user_plan_step_progress")
+        .select("*")
+        .eq("user_action_plan_id", userActionPlanId);
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!userActionPlanId
+    enabled: !!userActionPlanId,
   });
 };
 
@@ -520,28 +520,28 @@ export const useStepProgress = (userActionPlanId?: number) => {
 export const useCreateUserActionPlan = () => {
   const queryClient = useQueryClient();
   const { user, isAuthenticated } = useCurrentUser();
-  
+
   return useMutation({
     mutationFn: async ({ userGoalId, planId }: { userGoalId: number; planId: number }) => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
       const { data, error } = await supabase
-        .from('user_action_plans')
+        .from("user_action_plans")
         .insert({
           user_goal_id: userGoalId,
           plan_id: planId,
-          user_id: user.id
+          user_id: user.id,
         })
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-action-plan'] });
+      queryClient.invalidateQueries({ queryKey: ["user-action-plan"] });
       toast({
         title: "Plano de ação criado",
         description: "Agora você pode adicionar ações personalizadas!",
@@ -551,9 +551,9 @@ export const useCreateUserActionPlan = () => {
       toast({
         title: "Erro ao criar plano",
         description: "Tente novamente mais tarde.",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 };
 
@@ -562,46 +562,35 @@ export const useToggleStepProgress = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      userActionPlanId, 
-      planStepId 
-    }: { 
-      userActionPlanId: number; 
-      planStepId: number; 
-    }) => {
+    mutationFn: async ({ userActionPlanId, planStepId }: { userActionPlanId: number; planStepId: number }) => {
       // Check if progress record exists
       const { data: existing } = await supabase
-        .from('user_plan_step_progress')
-        .select('id')
-        .eq('user_action_plan_id', userActionPlanId)
-        .eq('plan_step_id', planStepId)
+        .from("user_plan_step_progress")
+        .select("id")
+        .eq("user_action_plan_id", userActionPlanId)
+        .eq("plan_step_id", planStepId)
         .maybeSingle();
 
       if (existing) {
         // Delete existing progress (uncheck)
-        const { error } = await supabase
-          .from('user_plan_step_progress')
-          .delete()
-          .eq('id', existing.id);
-        
+        const { error } = await supabase.from("user_plan_step_progress").delete().eq("id", existing.id);
+
         if (error) throw error;
-        return { action: 'unchecked' };
+        return { action: "unchecked" };
       } else {
         // Create new progress record (check)
-        const { error } = await supabase
-          .from('user_plan_step_progress')
-          .insert({
-            user_action_plan_id: userActionPlanId,
-            plan_step_id: planStepId,
-            completed_at: new Date().toISOString()
-          });
-        
+        const { error } = await supabase.from("user_plan_step_progress").insert({
+          user_action_plan_id: userActionPlanId,
+          plan_step_id: planStepId,
+          completed_at: new Date().toISOString(),
+        });
+
         if (error) throw error;
-        return { action: 'checked' };
+        return { action: "checked" };
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['step-progress'] });
+      queryClient.invalidateQueries({ queryKey: ["step-progress"] });
     },
   });
 };
@@ -609,15 +598,15 @@ export const useToggleStepProgress = () => {
 // Custom Actions Hooks
 export const useCustomActions = (userActionPlanId?: number) => {
   return useQuery({
-    queryKey: ['custom-actions', userActionPlanId],
+    queryKey: ["custom-actions", userActionPlanId],
     queryFn: async () => {
       if (!userActionPlanId) return [];
-      
+
       const { data, error } = await supabase
-        .from('user_custom_actions')
-        .select('*')
-        .eq('user_action_plan_id', userActionPlanId)
-        .order('step_order', { ascending: true });
+        .from("user_custom_actions")
+        .select("*")
+        .eq("user_action_plan_id", userActionPlanId)
+        .order("step_order", { ascending: true });
 
       if (error) throw error;
       return data || [];
@@ -630,23 +619,23 @@ export const useCreateCustomAction = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      userActionPlanId, 
-      title, 
+    mutationFn: async ({
+      userActionPlanId,
+      title,
       content,
-      stepOrder 
-    }: { 
-      userActionPlanId: number; 
-      title: string; 
+      stepOrder,
+    }: {
+      userActionPlanId: number;
+      title: string;
       content?: string;
       stepOrder: number;
     }) => {
       const { data, error } = await supabase
-        .from('user_custom_actions')
+        .from("user_custom_actions")
         .insert({
           user_action_plan_id: userActionPlanId,
           title,
-          content: content || '',
+          content: content || "",
           step_order: stepOrder,
         })
         .select()
@@ -656,7 +645,7 @@ export const useCreateCustomAction = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['custom-actions'] });
+      queryClient.invalidateQueries({ queryKey: ["custom-actions"] });
     },
   });
 };
@@ -665,19 +654,11 @@ export const useUpdateCustomAction = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      id, 
-      title, 
-      content 
-    }: { 
-      id: number; 
-      title: string; 
-      content?: string; 
-    }) => {
+    mutationFn: async ({ id, title, content }: { id: number; title: string; content?: string }) => {
       const { data, error } = await supabase
-        .from('user_custom_actions')
+        .from("user_custom_actions")
         .update({ title, content })
-        .eq('id', id)
+        .eq("id", id)
         .select()
         .single();
 
@@ -685,7 +666,7 @@ export const useUpdateCustomAction = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['custom-actions'] });
+      queryClient.invalidateQueries({ queryKey: ["custom-actions"] });
     },
   });
 };
@@ -695,15 +676,12 @@ export const useDeleteCustomAction = () => {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      const { error } = await supabase
-        .from('user_custom_actions')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from("user_custom_actions").delete().eq("id", id);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['custom-actions'] });
+      queryClient.invalidateQueries({ queryKey: ["custom-actions"] });
     },
   });
 };
@@ -714,12 +692,12 @@ export const useToggleCustomActionProgress = () => {
   return useMutation({
     mutationFn: async ({ id, isCompleted }: { id: number; isCompleted: boolean }) => {
       const { data, error } = await supabase
-        .from('user_custom_actions')
-        .update({ 
+        .from("user_custom_actions")
+        .update({
           is_completed: !isCompleted,
-          completed_at: !isCompleted ? new Date().toISOString() : null
+          completed_at: !isCompleted ? new Date().toISOString() : null,
         })
-        .eq('id', id)
+        .eq("id", id)
         .select()
         .single();
 
@@ -727,7 +705,7 @@ export const useToggleCustomActionProgress = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['custom-actions'] });
+      queryClient.invalidateQueries({ queryKey: ["custom-actions"] });
     },
   });
 };
@@ -740,22 +718,18 @@ export const useDeleteTransaction = () => {
   return useMutation({
     mutationFn: async (transactionId: number) => {
       if (!isAuthenticated || !user) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
-      const { error } = await supabase
-        .from('transactions')
-        .delete()
-        .eq('id', transactionId)
-        .eq('user_id', user.id);
+      const { error } = await supabase.from("transactions").delete().eq("id", transactionId).eq("user_id", user.id);
 
       if (error) throw error;
       return transactionId;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['monthly-data'] });
-      queryClient.invalidateQueries({ queryKey: ['category-spending'] });
+      queryClient.invalidateQueries({ queryKey: ["recent-transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["monthly-data"] });
+      queryClient.invalidateQueries({ queryKey: ["category-spending"] });
       toast({
         title: "Sucesso",
         description: "Transação excluída com sucesso!",
@@ -765,9 +739,9 @@ export const useDeleteTransaction = () => {
       toast({
         title: "Erro",
         description: "Erro ao excluir transação. Tente novamente.",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 };
 
@@ -779,22 +753,22 @@ export const useFamilyData = () => {
   const { user } = useCurrentUser();
 
   return useQuery({
-    queryKey: ['family', user?.id],
+    queryKey: ["family", user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
 
       const { data: memberData } = await supabase
-        .from('membros_familia')
-        .select('familia_id, papel')
-        .eq('user_id', user.id)
+        .from("membros_familia")
+        .select("familia_id, papel")
+        .eq("user_id", user.id)
         .single();
 
       if (!memberData?.familia_id) return null;
 
       const { data: familyData, error } = await supabase
-        .from('familias')
-        .select('*')
-        .eq('id', memberData.familia_id)
+        .from("familias")
+        .select("*")
+        .eq("id", memberData.familia_id)
         .single();
 
       if (error) throw error;
@@ -809,30 +783,32 @@ export const useFamilyMembers = () => {
   const { user } = useCurrentUser();
 
   return useQuery({
-    queryKey: ['familyMembers', user?.id],
+    queryKey: ["familyMembers", user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
 
       const { data: memberData } = await supabase
-        .from('membros_familia')
-        .select('familia_id')
-        .eq('user_id', user.id)
+        .from("membros_familia")
+        .select("familia_id")
+        .eq("user_id", user.id)
         .single();
 
       if (!memberData?.familia_id) return [];
 
       const { data, error } = await supabase
-        .from('membros_familia')
-        .select(`
+        .from("membros_familia")
+        .select(
+          `
           *,
           users!inner (
             id,
             full_name,
             phone_number
           )
-        `)
-        .eq('familia_id', memberData.familia_id)
-        .order('papel', { ascending: true });
+        `,
+        )
+        .eq("familia_id", memberData.familia_id)
+        .order("papel", { ascending: true });
 
       if (error) throw error;
       return data || [];
@@ -846,15 +822,13 @@ export const useCreateFamilyMember = () => {
 
   return useMutation({
     mutationFn: async (data: { user_id: number; familia_id: number; papel: string; cota_mensal?: number }) => {
-      const { error } = await supabase
-        .from('membros_familia')
-        .insert(data);
-      
+      const { error } = await supabase.from("membros_familia").insert(data);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["familyMembers"] });
+    },
   });
 };
 
@@ -863,16 +837,13 @@ export const useUpdateFamilyMember = () => {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<{ papel: string; cota_mensal: number }> }) => {
-      const { error } = await supabase
-        .from('membros_familia')
-        .update(data)
-        .eq('id', id);
-      
+      const { error } = await supabase.from("membros_familia").update(data).eq("id", id);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["familyMembers"] });
+    },
   });
 };
 
@@ -881,16 +852,13 @@ export const useDeleteFamilyMember = () => {
 
   return useMutation({
     mutationFn: async (memberId: number) => {
-      const { error } = await supabase
-        .from('membros_familia')
-        .delete()
-        .eq('id', memberId);
-      
+      const { error } = await supabase.from("membros_familia").delete().eq("id", memberId);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["familyMembers"] });
+    },
   });
 };
 
@@ -902,16 +870,16 @@ export const usePaymentAccounts = () => {
   const { user } = useCurrentUser();
 
   return useQuery({
-    queryKey: ['paymentAccounts', user?.id],
+    queryKey: ["paymentAccounts", user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
 
       const { data, error } = await supabase
-        .from('contas_pagadoras')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_active', true)
-        .order('nome', { ascending: true });
+        .from("contas_pagadoras")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .order("nome", { ascending: true });
 
       if (error) throw error;
       return data || [];
@@ -925,25 +893,23 @@ export const useCreatePaymentAccount = () => {
   const { user } = useCurrentUser();
 
   return useMutation({
-    mutationFn: async (data: { 
-      nome: string; 
-      tipo: string; 
+    mutationFn: async (data: {
+      nome: string;
+      tipo: string;
       saldo_inicial?: number;
       dia_fechamento_fatura?: number;
       icone?: string;
       cor?: string;
     }) => {
-      if (!user?.id) throw new Error('User not found');
+      if (!user?.id) throw new Error("User not found");
 
-      const { error } = await supabase
-        .from('contas_pagadoras')
-        .insert({ ...data, user_id: user.id });
-      
+      const { error } = await supabase.from("contas_pagadoras").insert({ ...data, user_id: user.id });
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['paymentAccounts'] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["paymentAccounts"] });
+    },
   });
 };
 
@@ -951,47 +917,44 @@ export const useUpdatePaymentAccount = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      id, 
-      data 
-    }: { 
-      id: number; 
-      data: Partial<{ 
-        nome: string; 
-        tipo: string; 
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: Partial<{
+        nome: string;
+        tipo: string;
         saldo_inicial: number;
         dia_fechamento_fatura: number;
         icone: string;
         cor: string;
-      }> 
+      }>;
     }) => {
-      const { error } = await supabase
-        .from('contas_pagadoras')
-        .update(data)
-        .eq('id', id);
-      
+      const { error } = await supabase.from("contas_pagadoras").update(data).eq("id", id);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['paymentAccounts'] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["paymentAccounts"] });
+    },
   });
 };
 
 // ==================== FAMILY INVITES ====================
 export const useFamilyInvites = (familyId?: number) => {
   return useQuery({
-    queryKey: ['family-invites', familyId],
+    queryKey: ["family-invites", familyId],
     queryFn: async () => {
       if (!familyId) return [];
-      
+
       const { data, error } = await supabase
-        .from('family_invites')
-        .select('*')
-        .eq('familia_id', familyId)
-        .in('status', ['pending', 'accepted'])
-        .order('created_at', { ascending: false });
-      
+        .from("family_invites")
+        .select("*")
+        .eq("familia_id", familyId)
+        .in("status", ["pending", "accepted"])
+        .order("created_at", { ascending: false });
+
       if (error) throw error;
       return data;
     },
@@ -1002,31 +965,22 @@ export const useFamilyInvites = (familyId?: number) => {
 export const useCreateFamilyInvite = () => {
   const queryClient = useQueryClient();
   const { user } = useCurrentUser();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      familyId, 
-      papel, 
-      cotaMensal 
-    }: { 
-      familyId: number; 
-      papel: string; 
-      cotaMensal?: number;
-    }) => {
-      if (!user?.id) throw new Error('User not authenticated');
-      
+    mutationFn: async ({ familyId, papel, cotaMensal }: { familyId: number; papel: string; cotaMensal?: number }) => {
+      if (!user?.id) throw new Error("User not authenticated");
+
       // Gerar token único
-      const { data: tokenData, error: tokenError } = await supabase
-        .rpc('generate_invite_token');
-      
+      const { data: tokenData, error: tokenError } = await supabase.rpc("generate_invite_token");
+
       if (tokenError) throw tokenError;
-      
+
       // Criar convite com expiração de 7 dias
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7);
-      
+
       const { data, error } = await supabase
-        .from('family_invites')
+        .from("family_invites")
         .insert({
           familia_id: familyId,
           invited_by_user_id: user.id,
@@ -1037,76 +991,72 @@ export const useCreateFamilyInvite = () => {
         })
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['family-invites'] });
-      sonnerToast.success('Convite criado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ["family-invites"] });
+      sonnerToast.success("Convite criado com sucesso!");
     },
     onError: (error) => {
-      console.error('Error creating family invite:', error);
-      sonnerToast.error('Erro ao criar convite');
-    }
+      console.error("Error creating family invite:", error);
+      sonnerToast.error("Erro ao criar convite");
+    },
   });
 };
 
 export const useCancelFamilyInvite = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (inviteId: number) => {
-      const { error } = await supabase
-        .from('family_invites')
-        .update({ status: 'cancelled' })
-        .eq('id', inviteId);
-      
+      const { error } = await supabase.from("family_invites").update({ status: "cancelled" }).eq("id", inviteId);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['family-invites'] });
-      sonnerToast.success('Convite cancelado');
+      queryClient.invalidateQueries({ queryKey: ["family-invites"] });
+      sonnerToast.success("Convite cancelado");
     },
     onError: (error) => {
-      console.error('Error cancelling invite:', error);
-      sonnerToast.error('Erro ao cancelar convite');
-    }
+      console.error("Error cancelling invite:", error);
+      sonnerToast.error("Erro ao cancelar convite");
+    },
   });
 };
 
 export const useGetInviteByToken = (token?: string) => {
   return useQuery({
-    queryKey: ['family-invite', token],
+    queryKey: ["family-invite", token],
     queryFn: async () => {
       if (!token) return null;
-      
+
       const { data, error } = await supabase
-        .from('family_invites')
-        .select(`
+        .from("family_invites")
+        .select(
+          `
           *,
           familias(
             nome_familia,
             responsavel:users!familias_responsavel_user_id_fkey(full_name)
           ),
           users!family_invites_invited_by_user_id_fkey(full_name)
-        `)
-        .eq('token', token)
-        .eq('status', 'pending')
+        `,
+        )
+        .eq("token", token)
+        .eq("status", "pending")
         .single();
-      
+
       if (error) throw error;
-      
+
       // Verificar se o convite expirou
       if (new Date(data.expires_at) < new Date()) {
         // Atualizar status para expirado
-        await supabase
-          .from('family_invites')
-          .update({ status: 'expired' })
-          .eq('id', data.id);
-        throw new Error('Convite expirado');
+        await supabase.from("family_invites").update({ status: "expired" }).eq("id", data.id);
+        throw new Error("Convite expirado");
       }
-      
+
       return data;
     },
     enabled: !!token,
@@ -1116,92 +1066,92 @@ export const useGetInviteByToken = (token?: string) => {
 export const useAcceptFamilyInvite = () => {
   const queryClient = useQueryClient();
   const { user } = useCurrentUser();
-  
+
   return useMutation({
     mutationFn: async ({ inviteId, token }: { inviteId: number; token: string }) => {
-      if (!user?.id) throw new Error('User not authenticated');
-      
+      if (!user?.id) throw new Error("User not authenticated");
+
       // Buscar o convite
       const { data: invite, error: inviteError } = await supabase
-        .from('family_invites')
-        .select('*')
-        .eq('id', inviteId)
-        .eq('token', token)
-        .eq('status', 'pending')
+        .from("family_invites")
+        .select("*")
+        .eq("id", inviteId)
+        .eq("token", token)
+        .eq("status", "pending")
         .single();
-      
+
       if (inviteError) throw inviteError;
-      
+
       // Verificar se o usuário já é membro da família
       const { data: existingMember } = await supabase
-        .from('membros_familia')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('familia_id', invite.familia_id)
+        .from("membros_familia")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("familia_id", invite.familia_id)
         .single();
-      
+
       if (existingMember) {
-        throw new Error('Você já é membro desta família');
+        throw new Error("Você já é membro desta família");
       }
-      
+
       // Criar o membro da família
-      const { error: memberError } = await supabase
-        .from('membros_familia')
-        .insert({
-          user_id: user.id,
-          familia_id: invite.familia_id,
-          papel: invite.papel,
-          cota_mensal: invite.cota_mensal,
-        });
-      
+      const { error: memberError } = await supabase.from("membros_familia").insert({
+        user_id: user.id,
+        familia_id: invite.familia_id,
+        papel: invite.papel,
+        cota_mensal: invite.cota_mensal,
+      });
+
       if (memberError) throw memberError;
-      
+
       // Atualizar o convite
       const { error: updateError } = await supabase
-        .from('family_invites')
+        .from("family_invites")
         .update({
-          status: 'accepted',
+          status: "accepted",
           accepted_by_user_id: user.id,
           accepted_at: new Date().toISOString(),
         })
-        .eq('id', inviteId);
-      
+        .eq("id", inviteId);
+
       if (updateError) throw updateError;
-      
+
       return invite;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['family-invites'] });
-      queryClient.invalidateQueries({ queryKey: ['family-members'] });
-      queryClient.invalidateQueries({ queryKey: ['family'] });
-      sonnerToast.success('Você entrou na família com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ["family-invites"] });
+      queryClient.invalidateQueries({ queryKey: ["family-members"] });
+      queryClient.invalidateQueries({ queryKey: ["family"] });
+      sonnerToast.success("Você entrou na família com sucesso!");
     },
     onError: (error: any) => {
-      console.error('Error accepting invite:', error);
-      sonnerToast.error(error.message || 'Erro ao aceitar convite');
-    }
+      console.error("Error accepting invite:", error);
+      sonnerToast.error(error.message || "Erro ao aceitar convite");
+    },
   });
 };
 
 // ==================== BUDGETS ====================
 export const useBudgets = (month?: string) => {
   const { user } = useCurrentUser();
-  const targetMonth = month || new Date().toISOString().slice(0, 7) + '-01';
+  const targetMonth = month || new Date().toISOString().slice(0, 7) + "-01";
 
   return useQuery({
-    queryKey: ['budgets', user?.id, targetMonth],
+    queryKey: ["budgets", user?.id, targetMonth],
     queryFn: async () => {
       if (!user?.id) return [];
 
       const { data, error } = await supabase
-        .from('orcamentos')
-        .select(`
+        .from("orcamentos")
+        .select(
+          `
           *,
           category:categories(id, name, icon_name, tipo)
-        `)
-        .eq('user_id', user.id)
-        .eq('mes_ano', targetMonth)
-        .order('valor_orcado', { ascending: false });
+        `,
+        )
+        .eq("user_id", user.id)
+        .eq("mes_ano", targetMonth)
+        .order("valor_orcado", { ascending: false });
 
       if (error) throw error;
       return data || [];
@@ -1215,15 +1165,11 @@ export const useCreateBudget = () => {
   const { user } = useCurrentUser();
 
   return useMutation({
-    mutationFn: async (budget: {
-      category_id: number;
-      valor_orcado: number;
-      mes_ano: string;
-    }) => {
-      if (!user?.id) throw new Error('User not authenticated');
+    mutationFn: async (budget: { category_id: number; valor_orcado: number; mes_ano: string }) => {
+      if (!user?.id) throw new Error("User not authenticated");
 
       const { data, error } = await supabase
-        .from('orcamentos')
+        .from("orcamentos")
         .insert({
           user_id: user.id,
           ...budget,
@@ -1235,12 +1181,12 @@ export const useCreateBudget = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      toast({ title: 'Orçamento criado com sucesso!' });
+      queryClient.invalidateQueries({ queryKey: ["budgets"] });
+      toast({ title: "Orçamento criado com sucesso!" });
     },
     onError: (error: Error) => {
-      console.error('Error creating budget:', error);
-      toast({ title: 'Erro ao criar orçamento.', variant: 'destructive' });
+      console.error("Error creating budget:", error);
+      toast({ title: "Erro ao criar orçamento.", variant: "destructive" });
     },
   });
 };
@@ -1250,23 +1196,18 @@ export const useUpdateBudget = () => {
 
   return useMutation({
     mutationFn: async ({ id, valor_orcado }: { id: number; valor_orcado: number }) => {
-      const { data, error } = await supabase
-        .from('orcamentos')
-        .update({ valor_orcado })
-        .eq('id', id)
-        .select()
-        .single();
+      const { data, error } = await supabase.from("orcamentos").update({ valor_orcado }).eq("id", id).select().single();
 
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      toast({ title: 'Orçamento atualizado!' });
+      queryClient.invalidateQueries({ queryKey: ["budgets"] });
+      toast({ title: "Orçamento atualizado!" });
     },
     onError: (error: Error) => {
-      console.error('Error updating budget:', error);
-      toast({ title: 'Erro ao atualizar orçamento.', variant: 'destructive' });
+      console.error("Error updating budget:", error);
+      toast({ title: "Erro ao atualizar orçamento.", variant: "destructive" });
     },
   });
 };
@@ -1276,16 +1217,16 @@ export const useDeleteBudget = () => {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      const { error } = await supabase.from('orcamentos').delete().eq('id', id);
+      const { error } = await supabase.from("orcamentos").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      toast({ title: 'Orçamento removido!' });
+      queryClient.invalidateQueries({ queryKey: ["budgets"] });
+      toast({ title: "Orçamento removido!" });
     },
     onError: (error: Error) => {
-      console.error('Error deleting budget:', error);
-      toast({ title: 'Erro ao remover orçamento.', variant: 'destructive' });
+      console.error("Error deleting budget:", error);
+      toast({ title: "Erro ao remover orçamento.", variant: "destructive" });
     },
   });
 };
@@ -1295,33 +1236,33 @@ export const useBudgetVsActual = (month?: string) => {
   const targetMonth = month || new Date().toISOString().slice(0, 7);
 
   return useQuery({
-    queryKey: ['budget-vs-actual', user?.id, targetMonth],
+    queryKey: ["budget-vs-actual", user?.id, targetMonth],
     queryFn: async () => {
       if (!user?.id) return [];
 
       const { data: spending } = await supabase
-        .from('category_spending_by_month')
-        .select('*')
-        .eq('user_id', user.id)
-        .like('month', `${targetMonth}%`);
+        .from("category_spending_by_month")
+        .select("*")
+        .eq("user_id", user.id)
+        .like("month", `${targetMonth}%`);
 
       const { data: budgets } = await supabase
-        .from('orcamentos')
-        .select(`
+        .from("orcamentos")
+        .select(
+          `
           *,
           category:categories(id, name, icon_name)
-        `)
-        .eq('user_id', user.id)
-        .eq('mes_ano', `${targetMonth}-01`);
+        `,
+        )
+        .eq("user_id", user.id)
+        .eq("mes_ano", `${targetMonth}-01`);
 
       const combined = (budgets || []).map((budget) => {
         const spent = spending?.find((s) => s.category_id === budget.category_id);
         return {
           ...budget,
           actual: spent?.total_spent_in_category || 0,
-          percentage: spent
-            ? (Number(spent.total_spent_in_category) / Number(budget.valor_orcado)) * 100
-            : 0,
+          percentage: spent ? (Number(spent.total_spent_in_category) / Number(budget.valor_orcado)) * 100 : 0,
         };
       });
 
@@ -1336,33 +1277,30 @@ export const useDeletePaymentAccount = () => {
 
   return useMutation({
     mutationFn: async (accountId: number) => {
-      const { error } = await supabase
-        .from('contas_pagadoras')
-        .update({ is_active: false })
-        .eq('id', accountId);
-      
+      const { error } = await supabase.from("contas_pagadoras").update({ is_active: false }).eq("id", accountId);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['paymentAccounts'] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["paymentAccounts"] });
+    },
   });
 };
 
 export const useAccountBalance = (accountId: number) => {
   return useQuery({
-    queryKey: ['accountBalance', accountId],
+    queryKey: ["accountBalance", accountId],
     queryFn: async () => {
       const { data: account } = await supabase
-        .from('contas_pagadoras')
-        .select('saldo_inicial')
-        .eq('id', accountId)
+        .from("contas_pagadoras")
+        .select("saldo_inicial")
+        .eq("id", accountId)
         .single();
 
       const { data: transactions } = await supabase
-        .from('transactions')
-        .select('amount')
-        .eq('conta_pagadora_id', accountId);
+        .from("transactions")
+        .select("amount")
+        .eq("conta_pagadora_id", accountId);
 
       const initialBalance = account?.saldo_inicial || 0;
       const transactionsTotal = transactions?.reduce((sum, t) => sum + Number(t.amount), 0) || 0;
@@ -1370,5 +1308,37 @@ export const useAccountBalance = (accountId: number) => {
       return initialBalance + transactionsTotal;
     },
     enabled: !!accountId,
+  });
+};
+
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+export const useMemberCurrentSpending = (memberUserId: string | number | undefined) => {
+  return useQuery({
+    // A chave da query inclui o ID do membro para que cada membro tenha seu próprio cache
+    queryKey: ["memberSpending", memberUserId],
+    queryFn: async () => {
+      // Se não houver ID, não faz a busca
+      if (!memberUserId) return { total_spent: 0 };
+
+      const { data, error } = await supabase
+        .from("monthly_user_summary") // Usando a VIEW que criamos
+        .select("total_spent")
+        .eq("user_id", memberUserId)
+        .limit(1) // Pega o mês mais recente, pois a VIEW está ordenada
+        .single();
+
+      // Ignora o erro "PGRST116" que acontece quando a consulta não retorna nenhuma linha (ex: membro sem gastos)
+      if (error && error.code !== "PGRST116") {
+        console.error("Erro ao buscar gastos do membro:", error);
+        throw new Error(error.message);
+      }
+
+      // Se não houver dados, retorna 0
+      return data || { total_spent: 0 };
+    },
+    // Habilita a query apenas se memberUserId for válido
+    enabled: !!memberUserId,
   });
 };
