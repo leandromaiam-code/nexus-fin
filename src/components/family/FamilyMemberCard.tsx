@@ -17,39 +17,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import QuotaManager from "./QuotaManager";
 
-// ==================================================================
-// NOVO HOOK: useMemberCurrentSpending
-// (Este código deve ficar no seu arquivo de hooks, ex: @/hooks/useSupabaseData.ts)
-// Vou incluí-lo aqui para facilitar, mas o ideal é movê-lo para o arquivo correto.
-// ==================================================================
-/*
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-
-export const useMemberCurrentSpending = (memberUserId: string | number) => {
-  return useQuery({
-    queryKey: ['memberSpending', memberUserId],
-    queryFn: async () => {
-      if (!memberUserId) return { total_spent: 0 };
-
-      const { data, error } = await supabase
-        .from('monthly_user_summary') // Usando a VIEW que criamos
-        .select('total_spent')
-        .eq('user_id', memberUserId)
-        .limit(1) // Pega o mês mais recente, pois a VIEW está ordenada
-        .single();
-
-      if (error && error.code !== 'PGRST116') { // Ignora erro se não encontrar linhas
-        throw new Error(error.message);
-      }
-
-      return data || { total_spent: 0 };
-    },
-  });
-};
-*/
-// ==================================================================
-
 interface FamilyMemberCardProps {
   member: any;
   isResponsavel: boolean;
