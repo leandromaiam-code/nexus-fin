@@ -145,8 +145,8 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
 
         {/* User Info */}
         {user && (
-          <div className="p-1 border-b border-border bg-muted/30">
-            <div className="flex items-center space-x-3">
+          <div className="p-6 border-b border-border bg-muted/30">
+            <div className="flex items-center space-x-1">
               <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                 <User className="w-5 h-5 text-primary" />
               </div>
