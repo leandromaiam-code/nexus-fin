@@ -1339,3 +1339,32 @@ export const useMemberCurrentSpending = (memberUserId: string | number | undefin
     enabled: !!memberUserId,
   });
 };
+
+export const useParentCategories = () => {
+  const { user } = useCurrentUser(); // Reutilizando seu helper que já existe
+
+  return useQuery({
+    // Uma chave de query única para não conflitar com o cache de 'useCategories'
+    queryKey: ["parent-categories", user?.id],
+    queryFn: async () => {
+      const query = supabase
+        .from("categories")
+        .select("*")
+        // AQUI ESTÁ A LÓGICA PRINCIPAL:
+        // Filtra apenas as categorias onde 'parent_category_id' é nulo.
+        .is("parent_category_id", null)
+        // Mantém a lógica de buscar categorias do sistema (user_id is null)
+        // OU categorias do usuário logado.
+        .or(`user_id.is.null${user ? `,user_id.eq.${user.id}` : ""}`)
+        .order("name");
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data || [];
+    },
+    // A query só roda se o 'user' estiver definido (mesmo que seja null para anônimo)
+    // Isso evita uma execução desnecessária na primeira renderização.
+    enabled: !!user,
+  });
+};
