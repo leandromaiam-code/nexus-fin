@@ -1311,9 +1311,6 @@ export const useAccountBalance = (accountId: number) => {
   });
 };
 
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-
 export const useMemberCurrentSpending = (memberUserId: string | number | undefined) => {
   return useQuery({
     // A chave da query inclui o ID do membro para que cada membro tenha seu próprio cache
