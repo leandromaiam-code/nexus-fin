@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { AuthChangeEvent, Session, User as AuthUser } from '@supabase/supabase-js';
-import { isDiagnosticComplete } from '@/lib/diagnosticUtils';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { AuthChangeEvent, Session, User as AuthUser } from "@supabase/supabase-js";
+import { isDiagnosticComplete } from "@/lib/diagnosticUtils";
 
 // Este é o nosso tipo de perfil de usuário da tabela public.users
 interface UserProfile {
@@ -23,12 +23,12 @@ interface AuthContextType {
   user: UserProfile | null;
   isLoading: boolean;
   session: Session | null;
-  login: (credentials: {email: string, password: string}) => Promise<any>;
-  signUp: (credentials: {email: string, password: string, fullName: string, phoneNumber: string}) => Promise<any>;
+  login: (credentials: { email: string; password: string }) => Promise<any>;
+  signUp: (credentials: { email: string; password: string; fullName: string; phoneNumber: string }) => Promise<any>;
   logout: () => void;
   hasCompleteDiagnostic: () => boolean;
   resetPassword: (email: string) => Promise<any>;
-  updateUserProfile: (updates: Partial<UserProfile>) => Promise<{error: any}>;
+  updateUserProfile: (updates: Partial<UserProfile>) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,11 +47,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      const { data: profile, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('auth_id', authUser.id)
-        .single();
+      const { data: profile, error } = await supabase.from("users").select("*").eq("auth_id", authUser.id).single();
 
       if (error) {
         console.error("Erro ao buscar perfil do usuário:", error);
@@ -73,7 +69,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(null);
           setIsLoading(false);
         }
-      }
+      },
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -90,21 +86,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   }, []);
 
-  const login = async ({ email, password }: {email: string, password: string}) => {
+  const login = async ({ email, password }: { email: string; password: string }) => {
     return supabase.auth.signInWithPassword({ email, password });
   };
 
-  const signUp = async ({ email, password, fullName, phoneNumber }: {email: string, password: string, fullName: string, phoneNumber: string}) => {
-    return supabase.auth.signUp({ 
-      email, 
-      password,
+  const signUp = async ({
+    email,
+    password,
+    fullName,
+    phoneNumber,
+  }: {
+    email: string;
+    password: string;
+    fullName: string;
+    phoneNumber: string;
+  }) => {
+    // Versão corrigida que alinha com o trigger e a API do Supabase
+    return supabase.auth.signUp({
+      email: email,
+      password: password,
+      phone: phoneNumber, // <-- CORREÇÃO: Movido para fora e renomeado para 'phone'
       options: {
         emailRedirectTo: `${window.location.origin}/`,
         data: {
+          // 'full_name' continua aqui, pois é um metadado
           full_name: fullName,
-          phone_number: phoneNumber
-        }
-      }
+        },
+      },
     });
   };
 
@@ -119,30 +127,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const resetPassword = async (email: string) => {
     return supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
+      redirectTo: `${window.location.origin}/reset-password`,
     });
   };
 
   const updateUserProfile = async (updates: Partial<UserProfile>) => {
-    if (!user) return { error: { message: 'Usuário não autenticado' } };
-    
+    if (!user) return { error: { message: "Usuário não autenticado" } };
+
     // Remove id from updates to prevent TypeScript error
     const { id, ...updateData } = updates;
-    
-    const { error } = await supabase
-      .from('users')
-      .update(updateData)
-      .eq('id', user.id);
-    
+
+    const { error } = await supabase.from("users").update(updateData).eq("id", user.id);
+
     if (!error) {
       setUser({ ...user, ...updateData });
     }
-    
+
     return { error };
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, login, signUp, logout, hasCompleteDiagnostic, resetPassword, updateUserProfile }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        isLoading,
+        login,
+        signUp,
+        logout,
+        hasCompleteDiagnostic,
+        resetPassword,
+        updateUserProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -151,7 +168,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
