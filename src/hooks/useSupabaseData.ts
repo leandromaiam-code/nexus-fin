@@ -1350,9 +1350,11 @@ export const useParentCategories = () => {
       const query = supabase
         .from("categories")
         .select("*")
-        // AQUI ESTÁ A LÓGICA PRINCIPAL:
         // Filtra apenas as categorias onde 'parent_category_id' é nulo.
         .is("parent_category_id", null)
+        // <-- FILTRO ADICIONADO AQUI
+        // Filtra para que o tipo da categoria NÃO SEJA IGUAL a 'receita'.
+        .neq("tipo", "receita")
         // Mantém a lógica de buscar categorias do sistema (user_id is null)
         // OU categorias do usuário logado.
         .or(`user_id.is.null${user ? `,user_id.eq.${user.id}` : ""}`)
