@@ -101,16 +101,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     fullName: string;
     phoneNumber: string;
   }) => {
-    // Versão corrigida que alinha com o trigger e a API do Supabase
     return supabase.auth.signUp({
-      email: email,
-      password: password,
-      phone: phoneNumber, // <-- CORREÇÃO: Movido para fora e renomeado para 'phone'
+      email,
+      password,
       options: {
         emailRedirectTo: `${window.location.origin}/`,
         data: {
-          // 'full_name' continua aqui, pois é um metadado
           full_name: fullName,
+          phone_number: phoneNumber,
         },
       },
     });
