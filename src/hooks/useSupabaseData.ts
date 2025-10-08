@@ -1354,7 +1354,7 @@ export const useParentCategories = () => {
         .is("parent_category_id", null)
         // <-- FILTRO ADICIONADO AQUI
         // Filtra para que o tipo da categoria NÃO SEJA IGUAL a 'receita'.
-        .neq("tipo", "receita")
+        .neq("tipo", "Entrada")
         // Mantém a lógica de buscar categorias do sistema (user_id is null)
         // OU categorias do usuário logado.
         .or(`user_id.is.null${user ? `,user_id.eq.${user.id}` : ""}`)
