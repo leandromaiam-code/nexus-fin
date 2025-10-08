@@ -1351,9 +1351,7 @@ export const useParentCategories = () => {
         .from("categories")
         .select("*")
         // Filtra apenas as categorias onde 'parent_category_id' é nulo.
-        .is("parent_category_id", null)
-        // <-- FILTRO ADICIONADO AQUI
-        // Filtra para que o tipo da categoria NÃO SEJA IGUAL a 'receita'.
+        .is("parent_category_id", null).
         .neq("tipo", "receita")
         // Mantém a lógica de buscar categorias do sistema (user_id is null)
         // OU categorias do usuário logado.
