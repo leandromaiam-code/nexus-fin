@@ -41,6 +41,13 @@ export type Database = {
             referencedRelation: "goal_templates"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "action_plans_goal_template_id_fkey"
+            columns: ["goal_template_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_goals"
+            referencedColumns: ["goal_template_id"]
+          },
         ]
       }
       agent_prompts: {
@@ -119,6 +126,13 @@ export type Database = {
             foreignKeyName: "categories_parent_category_id_fkey"
             columns: ["parent_category_id"]
             isOneToOne: false
+            referencedRelation: "mv_family_budget_performance"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "categories_parent_category_id_fkey"
+            columns: ["parent_category_id"]
+            isOneToOne: false
             referencedRelation: "spending_trends_monthly"
             referencedColumns: ["category_id"]
           },
@@ -127,6 +141,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "categories_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -185,6 +206,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "contas_pagadoras_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -282,6 +310,13 @@ export type Database = {
             foreignKeyName: "familias_responsavel_user_id_fkey"
             columns: ["responsavel_user_id"]
             isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "familias_responsavel_user_id_fkey"
+            columns: ["responsavel_user_id"]
+            isOneToOne: false
             referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
@@ -346,6 +381,13 @@ export type Database = {
             foreignKeyName: "family_invites_accepted_by_user_id_fkey"
             columns: ["accepted_by_user_id"]
             isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "family_invites_accepted_by_user_id_fkey"
+            columns: ["accepted_by_user_id"]
+            isOneToOne: false
             referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
@@ -364,10 +406,38 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "family_invites_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_budget_performance"
+            referencedColumns: ["familia_id"]
+          },
+          {
+            foreignKeyName: "family_invites_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_dashboard"
+            referencedColumns: ["familia_id"]
+          },
+          {
+            foreignKeyName: "family_invites_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_goals"
+            referencedColumns: ["familia_id"]
+          },
+          {
             foreignKeyName: "family_invites_invited_by_user_id_fkey"
             columns: ["invited_by_user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "family_invites_invited_by_user_id_fkey"
+            columns: ["invited_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -435,10 +505,38 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "membros_familia_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_budget_performance"
+            referencedColumns: ["familia_id"]
+          },
+          {
+            foreignKeyName: "membros_familia_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_dashboard"
+            referencedColumns: ["familia_id"]
+          },
+          {
+            foreignKeyName: "membros_familia_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_goals"
+            referencedColumns: ["familia_id"]
+          },
+          {
             foreignKeyName: "membros_familia_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "membros_familia_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -512,6 +610,13 @@ export type Database = {
             foreignKeyName: "orcamentos_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
+            referencedRelation: "mv_family_budget_performance"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "orcamentos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
             referencedRelation: "spending_trends_monthly"
             referencedColumns: ["category_id"]
           },
@@ -523,10 +628,38 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "orcamentos_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_budget_performance"
+            referencedColumns: ["familia_id"]
+          },
+          {
+            foreignKeyName: "orcamentos_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_dashboard"
+            referencedColumns: ["familia_id"]
+          },
+          {
+            foreignKeyName: "orcamentos_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_goals"
+            referencedColumns: ["familia_id"]
+          },
+          {
             foreignKeyName: "orcamentos_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "orcamentos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -624,6 +757,13 @@ export type Database = {
             foreignKeyName: "progresso_desafios_usuario_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "progresso_desafios_usuario_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
@@ -669,6 +809,27 @@ export type Database = {
             referencedRelation: "familias"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "recompensas_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_budget_performance"
+            referencedColumns: ["familia_id"]
+          },
+          {
+            foreignKeyName: "recompensas_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_dashboard"
+            referencedColumns: ["familia_id"]
+          },
+          {
+            foreignKeyName: "recompensas_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_goals"
+            referencedColumns: ["familia_id"]
+          },
         ]
       }
       recompensas_resgatadas: {
@@ -703,6 +864,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "recompensas_resgatadas_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -776,6 +944,13 @@ export type Database = {
             foreignKeyName: "subscriptions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
@@ -831,6 +1006,13 @@ export type Database = {
             foreignKeyName: "transactions_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
+            referencedRelation: "mv_family_budget_performance"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
             referencedRelation: "spending_trends_monthly"
             referencedColumns: ["category_id"]
           },
@@ -853,6 +1035,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -916,6 +1105,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_action_plans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -1018,10 +1214,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "user_goals_goal_template_id_fkey"
+            columns: ["goal_template_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_goals"
+            referencedColumns: ["goal_template_id"]
+          },
+          {
             foreignKeyName: "user_goals_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_goals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -1074,6 +1284,13 @@ export type Database = {
             foreignKeyName: "user_keyword_mappings_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
+            referencedRelation: "mv_family_budget_performance"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "user_keyword_mappings_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
             referencedRelation: "spending_trends_monthly"
             referencedColumns: ["category_id"]
           },
@@ -1082,6 +1299,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_keyword_mappings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -1210,6 +1434,13 @@ export type Database = {
             foreignKeyName: "contas_pagadoras_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "contas_pagadoras_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
@@ -1247,6 +1478,13 @@ export type Database = {
             foreignKeyName: "orcamentos_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
+            referencedRelation: "mv_family_budget_performance"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "orcamentos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
             referencedRelation: "spending_trends_monthly"
             referencedColumns: ["category_id"]
           },
@@ -1255,6 +1493,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "orcamentos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -1288,6 +1533,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
             referencedColumns: ["user_id"]
           },
           {
@@ -1330,6 +1582,13 @@ export type Database = {
             foreignKeyName: "transactions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
@@ -1348,6 +1607,103 @@ export type Database = {
           month: string | null
           renda_base_amount: number | null
           total_spent: number | null
+          user_id: number | null
+        }
+        Relationships: []
+      }
+      monthly_user_summary: {
+        Row: {
+          month: string | null
+          total_spent: number | null
+          transaction_count: number | null
+          user_id: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "spending_trends_monthly"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mv_family_budget_performance: {
+        Row: {
+          actual_spent: number | null
+          budgeted: number | null
+          category_id: number | null
+          category_name: string | null
+          familia_id: number | null
+          icon_name: string | null
+          id: number | null
+          month: string | null
+          remaining: number | null
+          usage_percentage: number | null
+        }
+        Relationships: []
+      }
+      mv_family_dashboard: {
+        Row: {
+          familia_id: number | null
+          month: string | null
+          nome_familia: string | null
+          total_active_goals: number | null
+          total_income: number | null
+          total_members: number | null
+          total_quota: number | null
+          total_spent: number | null
+          total_transactions: number | null
+        }
+        Relationships: []
+      }
+      mv_family_goals: {
+        Row: {
+          avg_progress_percentage: number | null
+          earliest_target_date: string | null
+          familia_id: number | null
+          goal_name: string | null
+          goal_template_id: number | null
+          id: number | null
+          latest_target_date: string | null
+          members_with_goal: number | null
+          total_current: number | null
+          total_target: number | null
+        }
+        Relationships: []
+      }
+      mv_individual_dashboard: {
+        Row: {
+          active_accounts: number | null
+          active_goals: number | null
+          balance: number | null
+          financial_archetype: string | null
+          full_name: string | null
+          month: string | null
+          renda: number | null
+          total_spent: number | null
+          transaction_count: number | null
           user_id: number | null
         }
         Relationships: []
@@ -1392,6 +1748,10 @@ export type Database = {
       is_family_member: {
         Args: { _familia_id: number; _user_id: number }
         Returns: boolean
+      }
+      refresh_family_views: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
