@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { format, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+// Importing all required icons from lucide-react
 import { Target, TrendingUp, AlertTriangle, CheckCircle2, AlertCircle } from 'lucide-react';
 import BackButton from '@/components/ui/back-button';
 import { Card } from '@/components/ui/card';
