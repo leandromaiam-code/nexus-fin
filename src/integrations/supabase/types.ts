@@ -1493,6 +1493,7 @@ export type Database = {
           id: number | null
           month: string | null
           remaining: number | null
+          status: string | null
           usage_percentage: number | null
         }
         Relationships: []
