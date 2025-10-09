@@ -12,6 +12,7 @@ import { GaugeChart } from '@/components/analytics/GaugeChart';
 import { CategoryIcon } from '@/components/analytics/CategoryIcon';
 import { BudgetComparisonChart } from '@/components/analytics/BudgetComparisonChart';
 import { useBudgetPerformance } from '@/hooks/useAnalyticsData';
+import { ViewModeToggle } from '@/components/ui/view-mode-toggle';
 
 const BudgetAnalysis = () => {
   const [selectedMonth, setSelectedMonth] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
@@ -69,9 +70,12 @@ const BudgetAnalysis = () => {
       <BackButton to="/" />
 
       <div className="max-w-7xl mx-auto mt-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-foreground">Performance do Orçamento</h1>
-          <Target className="h-8 w-8 text-primary" />
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-foreground">Performance do Orçamento</h1>
+            <Target className="h-8 w-8 text-primary" />
+          </div>
+          <ViewModeToggle />
         </div>
 
         <MonthFilter selectedMonth={selectedMonth} onMonthChange={setSelectedMonth} />

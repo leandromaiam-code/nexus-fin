@@ -1320,11 +1320,12 @@ export const useMemberCurrentSpending = (memberUserId: string | number | undefin
       if (!memberUserId) return { total_spent: 0 };
 
       const { data, error } = await supabase
-        .from("monthly_user_summary") // Usando a VIEW que criamos
+        .from("monthly_summaries")
         .select("total_spent")
-        .eq("user_id", memberUserId)
-        .limit(1) // Pega o mês mais recente, pois a VIEW está ordenada
-        .single();
+        .eq("user_id", Number(memberUserId))
+        .order("month", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       // Ignora o erro "PGRST116" que acontece quando a consulta não retorna nenhuma linha (ex: membro sem gastos)
       if (error && error.code !== "PGRST116") {

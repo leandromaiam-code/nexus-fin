@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { useUserData, useMonthlyData, usePrimaryGoal, useRecentTransactions } from '@/hooks/useSupabaseData';
 import { isDiagnosticComplete } from '@/lib/diagnosticUtils';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
+import { ViewModeToggle } from '@/components/ui/view-mode-toggle';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -94,6 +95,10 @@ const Dashboard = () => {
         userName={userData.full_name?.split(' ')[0] || 'Usuário'}
         financialArchetype={userData.financial_archetype || 'Sem arquétipo definido'}
       />
+      
+      <div className="px-4 sm:px-6 mb-4">
+        <ViewModeToggle />
+      </div>
       
       {/* Diagnostic Alert */}
       {showDiagnosticAlert && (

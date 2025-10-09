@@ -9,6 +9,7 @@ import AddBudgetModal from '@/components/budget/AddBudgetModal';
 import BudgetSummary from '@/components/budget/BudgetSummary';
 import { Skeleton } from '@/components/ui/skeleton';
 import BackButton from '@/components/ui/back-button';
+import { ViewModeToggle } from '@/components/ui/view-mode-toggle';
 
 const Budget = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7) + '-01');
@@ -47,15 +48,18 @@ const Budget = () => {
     <div className="min-h-screen bg-background p-6 space-y-6">
       <header className="space-y-4">
         <BackButton to="/" />
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-bold">Orçamentos</h1>
             <p className="text-muted-foreground">Defina e acompanhe seus limites por categoria</p>
           </div>
-          <Button onClick={() => setShowAddModal(true)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Novo Orçamento
-          </Button>
+          <div className="flex items-center gap-4">
+            <ViewModeToggle />
+            <Button onClick={() => setShowAddModal(true)} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Novo Orçamento
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -81,7 +85,6 @@ const Budget = () => {
       <AddBudgetModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        availableCategories={availableCategories}
         month={selectedMonth}
       />
     </div>
