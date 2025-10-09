@@ -1606,6 +1606,7 @@ export type Database = {
           balance: number | null
           month: string | null
           renda_base_amount: number | null
+          total_income: number | null
           total_spent: number | null
           user_id: number | null
         }
@@ -1666,17 +1667,45 @@ export type Database = {
       }
       mv_family_dashboard: {
         Row: {
+          active_goals_count: number | null
+          balance: number | null
           familia_id: number | null
-          month: string | null
           nome_familia: string | null
-          total_active_goals: number | null
+          responsavel_user_id: number | null
           total_income: number | null
           total_members: number | null
-          total_quota: number | null
           total_spent: number | null
-          total_transactions: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "familias_responsavel_user_id_fkey"
+            columns: ["responsavel_user_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "familias_responsavel_user_id_fkey"
+            columns: ["responsavel_user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "familias_responsavel_user_id_fkey"
+            columns: ["responsavel_user_id"]
+            isOneToOne: false
+            referencedRelation: "spending_trends_monthly"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "familias_responsavel_user_id_fkey"
+            columns: ["responsavel_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mv_family_goals: {
         Row: {
@@ -1695,15 +1724,15 @@ export type Database = {
       }
       mv_individual_dashboard: {
         Row: {
-          active_accounts: number | null
-          active_goals: number | null
+          active_goals_count: number | null
           balance: number | null
           financial_archetype: string | null
           full_name: string | null
           month: string | null
+          primary_goal: Json | null
           renda: number | null
+          total_income: number | null
           total_spent: number | null
-          transaction_count: number | null
           user_id: number | null
         }
         Relationships: []

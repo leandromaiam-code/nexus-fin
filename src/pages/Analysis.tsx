@@ -71,9 +71,13 @@ const Analysis = () => {
         value: Number(item.total_spent_in_category || 0),
         color: colors[index % colors.length],
         icon: category?.icon_name || '💳',
-        IconComponent
+        IconComponent,
+        category_type: item.category_type
       };
-    }).filter(item => item.value > 0); // Filtra apenas valores positivos (despesas reais)
+    }).filter(item => 
+      item.value > 0 && 
+      item.category_type !== 'Entrada'
+    );
   }, [categorySpending, categories]);
 
   // Calculate monthly trend from transactions
@@ -82,8 +86,8 @@ const Analysis = () => {
     const monthlyData: { [key: string]: { year: number; month: number; amount: number } } = {};
     
     transactions.forEach(transaction => {
-      // Ignora apenas reembolsos/devoluções (valores negativos)
-      if (transaction.amount < 0) return;
+      // Ignora entradas e valores negativos (estornos/devoluções)
+      if (transaction.categories?.tipo === 'Entrada' || transaction.amount <= 0) return;
       
       // Corrige formato de data inválido (202025-08-25 → 2025-08-25)
       let dateStr = transaction.transaction_date;
@@ -122,8 +126,10 @@ const Analysis = () => {
     return result;
   }, [transactions]);
 
-  // Calculate total from raw data BEFORE filtering (includes refunds/negatives)
-  const totalSpent = categorySpending.reduce((sum: number, item: any) => sum + Number(item.total_spent || item.total_spent_in_category || 0), 0);
+  // Calculate total spent excluding income categories
+  const totalSpent = categorySpending
+    .filter((item: any) => item.category_type !== 'Entrada')
+    .reduce((sum: number, item: any) => sum + Number(item.total_spent || item.total_spent_in_category || 0), 0);
   const isLoading = analyticsLoading || transactionsLoading;
 
   const formatCurrency = (value: number) => {
