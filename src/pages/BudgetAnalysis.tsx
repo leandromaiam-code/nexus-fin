@@ -11,12 +11,18 @@ import { MetricCard } from '@/components/analytics/MetricCard';
 import { GaugeChart } from '@/components/analytics/GaugeChart';
 import { CategoryIcon } from '@/components/analytics/CategoryIcon';
 import { BudgetComparisonChart } from '@/components/analytics/BudgetComparisonChart';
-import { useBudgetPerformance } from '@/hooks/useAnalyticsData';
+import { useBudgetPerformance, useBudgetHistory } from '@/hooks/useAnalyticsData';
+import { useAdaptiveBudget } from '@/hooks/useAdaptiveData';
+import { useViewMode } from '@/contexts/ViewModeContext';
 import { ViewModeToggle } from '@/components/ui/view-mode-toggle';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const BudgetAnalysis = () => {
   const [selectedMonth, setSelectedMonth] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
-  const { data: budgetData, isLoading } = useBudgetPerformance(selectedMonth);
+  const { viewMode } = useViewMode();
+  const { data: budgetResponse, isLoading } = useAdaptiveBudget(selectedMonth);
+  const budgetData = budgetResponse?.data || [];
+  const { data: historyData, isLoading: historyLoading } = useBudgetHistory();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -104,12 +110,86 @@ const BudgetAnalysis = () => {
         {/* Budget Comparison Chart */}
         <BudgetComparisonChart data={comparisonData} />
 
+        {/* Historical Trend Chart */}
+        <Card className="p-6 mb-8">
+          <div className="flex items-center mb-4">
+            <TrendingUp className="text-primary mr-2" size={20} />
+            <h2 className="text-xl font-semibold">Evolução Mensal - {new Date().getFullYear()}</h2>
+          </div>
+          
+          {historyLoading ? (
+            <div className="h-64 flex items-center justify-center text-muted-foreground">Carregando...</div>
+          ) : !historyData || historyData.length === 0 ? (
+            <div className="h-64 flex items-center justify-center text-muted-foreground">Sem dados históricos</div>
+          ) : (
+            <>
+              <div className="mb-4 text-sm text-muted-foreground">
+                Média mensal realizada: <span className="font-semibold text-foreground">
+                  {formatCurrency(historyData.reduce((sum, item) => sum + item.spent, 0) / historyData.length)}
+                </span>
+              </div>
+              
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={historyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="hsl(var(--muted-foreground))"
+                    tickFormatter={(value) => {
+                      const [year, month] = value.split('-');
+                      const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                      return monthNames[parseInt(month) - 1];
+                    }}
+                  />
+                  <YAxis 
+                    stroke="hsl(var(--muted-foreground))"
+                    tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip 
+                    formatter={(value: number) => [formatCurrency(value), '']}
+                    labelFormatter={(label) => {
+                      const [year, month] = label.split('-');
+                      const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                                         'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                      return `${monthNames[parseInt(month) - 1]} ${year}`;
+                    }}
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="budgeted" 
+                    name="Previsto"
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--primary))', r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="spent" 
+                    name="Realizado"
+                    stroke="hsl(var(--chart-2))" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--chart-2))', r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </>
+          )}
+        </Card>
+
         {/* Gauge Charts */}
         {budgetData && budgetData.length > 0 && (
           <Card className="p-6 mb-8">
             <h2 className="text-xl font-semibold mb-6">Status por Categoria</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-              {budgetData.slice(0, 8).map((item) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {budgetData.map((item) => (
                 <GaugeChart
                   key={item.category_id}
                   value={Number(item.actual_spent)}
