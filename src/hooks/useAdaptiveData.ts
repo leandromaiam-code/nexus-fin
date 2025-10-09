@@ -13,24 +13,57 @@ export const useAdaptiveDashboard = (month?: string) => {
     queryFn: async () => {
       if (!user) throw new Error('Usuário não autenticado');
 
+      const selectedMonth = month || new Date().toISOString().slice(0, 10).replace(/(\d{4})-(\d{2})-\d{2}/, '$1-$2-01');
+
       if (viewMode === 'family' && familyId) {
-        const { data, error } = await supabase
-          .from('mv_family_dashboard')
+        // Buscar todos os membros da família
+        const { data: members, error: membersError } = await supabase
+          .from('membros_familia')
+          .select('user_id')
+          .eq('familia_id', familyId);
+
+        if (membersError) throw membersError;
+
+        const userIds = members.map(m => m.user_id);
+
+        // Buscar dados mensais de todos os membros
+        const { data: summaries, error } = await supabase
+          .from('monthly_summaries')
           .select('*')
-          .eq('familia_id', familyId)
-          .single();
+          .in('user_id', userIds)
+          .eq('month', selectedMonth);
 
         if (error) throw error;
-        return { mode: 'family' as const, data };
+
+        // Agregar dados da família
+        const aggregated = summaries.reduce((acc, curr) => ({
+          total_income: (acc.total_income || 0) + (curr.total_income || 0),
+          total_spent: (acc.total_spent || 0) + (curr.total_spent || 0),
+          balance: (acc.balance || 0) + (curr.balance || 0),
+          renda_base_amount: (acc.renda_base_amount || 0) + (curr.renda_base_amount || 0),
+        }), { total_income: 0, total_spent: 0, balance: 0, renda_base_amount: 0 });
+
+        return { mode: 'family' as const, data: aggregated };
       } else {
+        // Buscar dados individuais do mês selecionado
         const { data, error } = await supabase
-          .from('mv_individual_dashboard')
+          .from('monthly_summaries')
           .select('*')
           .eq('user_id', user.id)
-          .single();
+          .eq('month', selectedMonth)
+          .maybeSingle();
 
         if (error) throw error;
-        return { mode: 'individual' as const, data };
+        
+        // Se não houver dados para o mês, retornar zeros
+        const monthlyData = data || {
+          total_income: 0,
+          total_spent: 0,
+          balance: 0,
+          renda_base_amount: 0
+        };
+
+        return { mode: 'individual' as const, data: monthlyData };
       }
     },
     enabled: !!user,
