@@ -10,8 +10,8 @@ import "./index.css";
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
           <ViewModeProvider>
@@ -19,6 +19,6 @@ createRoot(document.getElementById("root")!).render(
           </ViewModeProvider>
         </AuthProvider>
       </ThemeProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
+    </QueryClientProvider>
+  </BrowserRouter>
 );
