@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { format, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Target, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Target, TrendingUp, AlertTriangle, CheckCircle2, AlertCircle } from 'lucide-react';
 import BackButton from '@/components/ui/back-button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -49,6 +49,7 @@ const BudgetAnalysis = () => {
       healthy: { variant: 'default' as const, icon: CheckCircle2, label: 'Saudável' },
       warning: { variant: 'secondary' as const, icon: AlertTriangle, label: 'Atenção' },
       over_budget: { variant: 'destructive' as const, icon: AlertTriangle, label: 'Excedido' },
+      no_budget: { variant: 'outline' as const, icon: AlertCircle, label: 'Sem Orçamento' },
     };
 
     const config = variants[status as keyof typeof variants] || variants.healthy;

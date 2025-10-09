@@ -123,13 +123,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "categories_parent_category_id_fkey"
-            columns: ["parent_category_id"]
-            isOneToOne: false
-            referencedRelation: "mv_family_budget_performance"
-            referencedColumns: ["category_id"]
-          },
-          {
             foreignKeyName: "categories_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -374,13 +367,6 @@ export type Database = {
             foreignKeyName: "family_invites_familia_id_fkey"
             columns: ["familia_id"]
             isOneToOne: false
-            referencedRelation: "mv_family_budget_performance"
-            referencedColumns: ["familia_id"]
-          },
-          {
-            foreignKeyName: "family_invites_familia_id_fkey"
-            columns: ["familia_id"]
-            isOneToOne: false
             referencedRelation: "mv_family_dashboard"
             referencedColumns: ["familia_id"]
           },
@@ -461,13 +447,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "familias"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "membros_familia_familia_id_fkey"
-            columns: ["familia_id"]
-            isOneToOne: false
-            referencedRelation: "mv_family_budget_performance"
-            referencedColumns: ["familia_id"]
           },
           {
             foreignKeyName: "membros_familia_familia_id_fkey"
@@ -558,25 +537,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "orcamentos_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "mv_family_budget_performance"
-            referencedColumns: ["category_id"]
-          },
-          {
             foreignKeyName: "orcamentos_familia_id_fkey"
             columns: ["familia_id"]
             isOneToOne: false
             referencedRelation: "familias"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orcamentos_familia_id_fkey"
-            columns: ["familia_id"]
-            isOneToOne: false
-            referencedRelation: "mv_family_budget_performance"
-            referencedColumns: ["familia_id"]
           },
           {
             foreignKeyName: "orcamentos_familia_id_fkey"
@@ -738,13 +703,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "familias"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "recompensas_familia_id_fkey"
-            columns: ["familia_id"]
-            isOneToOne: false
-            referencedRelation: "mv_family_budget_performance"
-            referencedColumns: ["familia_id"]
           },
           {
             foreignKeyName: "recompensas_familia_id_fkey"
@@ -917,13 +875,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "categories"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "mv_family_budget_performance"
-            referencedColumns: ["category_id"]
           },
           {
             foreignKeyName: "transactions_conta_pagadora_id_fkey"
@@ -1169,13 +1120,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_keyword_mappings_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "mv_family_budget_performance"
-            referencedColumns: ["category_id"]
-          },
-          {
             foreignKeyName: "user_keyword_mappings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -1340,13 +1284,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "categories"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orcamentos_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "mv_family_budget_performance"
-            referencedColumns: ["category_id"]
           },
           {
             foreignKeyName: "orcamentos_user_id_fkey"
@@ -1584,13 +1521,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "categories"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "mv_family_budget_performance"
-            referencedColumns: ["category_id"]
           },
           {
             foreignKeyName: "transactions_user_id_fkey"
