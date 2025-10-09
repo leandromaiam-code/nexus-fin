@@ -50,6 +50,8 @@ const Analysis = () => {
 
   // Process real category data
   const categoryData = useMemo(() => {
+    console.log('📊 Analytics Data:', categorySpending);
+    
     const colors = [
       'hsl(var(--primary))',
       'hsl(var(--success))', 
@@ -68,7 +70,7 @@ const Analysis = () => {
       return {
         id: item.category_id,
         name: item.category_name || 'Sem categoria',
-        value: Number(item.total_spent_in_category || 0),
+        value: Number(item.total_spent || 0),
         color: colors[index % colors.length],
         icon: category?.icon_name || '💳',
         IconComponent,
@@ -129,7 +131,7 @@ const Analysis = () => {
   // Calculate total spent excluding income categories
   const totalSpent = categorySpending
     .filter((item: any) => item.category_type !== 'Entrada')
-    .reduce((sum: number, item: any) => sum + Number(item.total_spent || item.total_spent_in_category || 0), 0);
+    .reduce((sum: number, item: any) => sum + Number(item.total_spent || 0), 0);
   const isLoading = analyticsLoading || transactionsLoading;
 
   const formatCurrency = (value: number) => {
