@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { BarChart3, ChevronLeft, ChevronRight, TrendingDown, Wallet, CreditCard, Utensils, Car, Home, Gamepad2, Coffee, ShoppingBag } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { useCategorySpending, useRecentTransactions, useCategories } from '@/hooks/useSupabaseData';
+import { useCategories } from '@/hooks/useSupabaseData';
+import { useAdaptiveAnalytics, useAdaptiveTransactions } from '@/hooks/useAdaptiveData';
 import BackButton from '@/components/ui/back-button';
+import { ViewModeToggle } from '@/components/ui/view-mode-toggle';
 
 const Analysis = () => {
   const [selectedMonth, setSelectedMonth] = useState(8); // September (0-indexed)
@@ -13,11 +15,14 @@ const Analysis = () => {
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
 
-  // Get real data from Supabase
+  // Get real data from Supabase - usando hooks adaptativos
   const currentMonthStr = `${selectedYear}-${(selectedMonth + 1).toString().padStart(2, '0')}-01`;
-  const { data: categorySpending = [], isLoading: categoryLoading } = useCategorySpending(currentMonthStr);
-  const { data: transactions = [], isLoading: transactionsLoading } = useRecentTransactions(500);
+  const { data: analyticsData, isLoading: analyticsLoading } = useAdaptiveAnalytics(currentMonthStr);
+  const { data: transactionsData, isLoading: transactionsLoading } = useAdaptiveTransactions(500);
   const { data: categories = [] } = useCategories();
+
+  const categorySpending = analyticsData?.data || [];
+  const transactions = transactionsData?.data || [];
 
   // Icon mapping for categories
   const getCategoryIcon = (iconName: string, categoryName: string) => {
@@ -118,8 +123,8 @@ const Analysis = () => {
   }, [transactions]);
 
   // Calculate total from raw data BEFORE filtering (includes refunds/negatives)
-  const totalSpent = categorySpending.reduce((sum, item) => sum + Number(item.total_spent_in_category || 0), 0);
-  const isLoading = categoryLoading || transactionsLoading;
+  const totalSpent = categorySpending.reduce((sum: number, item: any) => sum + Number(item.total_spent || item.total_spent_in_category || 0), 0);
+  const isLoading = analyticsLoading || transactionsLoading;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -169,29 +174,61 @@ const Analysis = () => {
     <div className="min-h-screen bg-background pb-32 sm:pb-40 md:pb-0">
       <header className="p-4 sm:p-6">
         <BackButton to="/" className="mb-3 sm:mb-4" />
-        <div className="flex items-center justify-center mb-3 sm:mb-4">
-          <button 
-            onClick={() => navigateMonth('prev')}
-            className="p-1.5 sm:p-2 rounded-lg hover:bg-muted transition-colors"
-          >
-            <ChevronLeft size={20} className="text-foreground sm:hidden" />
-            <ChevronLeft size={24} className="text-foreground hidden sm:block" />
-          </button>
-          
-          <div className="mx-4 sm:mx-6 text-center min-w-0 flex-1">
-            <h1 className="text-lg sm:text-2xl font-bold text-display">
-              {months[selectedMonth]} {selectedYear}
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">Análise de Gastos</p>
+        
+        {/* Desktop Layout */}
+        <div className="hidden md:flex items-center justify-between mb-3 sm:mb-4">
+          <div className="flex items-center flex-1">
+            <button 
+              onClick={() => navigateMonth('prev')}
+              className="p-2 rounded-lg hover:bg-muted transition-colors"
+            >
+              <ChevronLeft size={24} className="text-foreground" />
+            </button>
+            
+            <div className="mx-6 text-center min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-display">
+                {months[selectedMonth]} {selectedYear}
+              </h1>
+              <p className="text-base text-muted-foreground">Análise de Gastos</p>
+            </div>
+            
+            <button 
+              onClick={() => navigateMonth('next')}
+              className="p-2 rounded-lg hover:bg-muted transition-colors"
+            >
+              <ChevronRight size={24} className="text-foreground" />
+            </button>
           </div>
-          
-          <button 
-            onClick={() => navigateMonth('next')}
-            className="p-1.5 sm:p-2 rounded-lg hover:bg-muted transition-colors"
-          >
-            <ChevronRight size={20} className="text-foreground sm:hidden" />
-            <ChevronRight size={24} className="text-foreground hidden sm:block" />
-          </button>
+          <ViewModeToggle />
+        </div>
+
+        {/* Mobile Layout */}
+        <div className="md:hidden space-y-3">
+          <div className="flex items-center justify-center">
+            <button 
+              onClick={() => navigateMonth('prev')}
+              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+            >
+              <ChevronLeft size={20} className="text-foreground" />
+            </button>
+            
+            <div className="mx-4 text-center min-w-0 flex-1">
+              <h1 className="text-lg font-bold text-display">
+                {months[selectedMonth]} {selectedYear}
+              </h1>
+              <p className="text-sm text-muted-foreground">Análise de Gastos</p>
+            </div>
+            
+            <button 
+              onClick={() => navigateMonth('next')}
+              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+            >
+              <ChevronRight size={20} className="text-foreground" />
+            </button>
+          </div>
+          <div className="flex justify-center">
+            <ViewModeToggle />
+          </div>
         </div>
       </header>
 

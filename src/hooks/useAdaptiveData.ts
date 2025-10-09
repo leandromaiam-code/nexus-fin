@@ -111,6 +111,68 @@ export const useAdaptiveGoals = () => {
   });
 };
 
+// Hook adaptativo para Transações
+export const useAdaptiveTransactions = (limit: number = 100) => {
+  const { user } = useAuth();
+  const { viewMode, familyId } = useViewMode();
+
+  return useQuery({
+    queryKey: ['adaptive-transactions', viewMode, familyId, limit],
+    queryFn: async () => {
+      if (!user) throw new Error('Usuário não autenticado');
+
+      if (viewMode === 'family' && familyId) {
+        // Para família, buscar transações de todos os membros
+        const { data: members, error: membersError } = await supabase
+          .from('membros_familia')
+          .select('user_id')
+          .eq('familia_id', familyId);
+
+        if (membersError) throw membersError;
+
+        const userIds = members.map(m => m.user_id);
+
+        const { data, error } = await supabase
+          .from('transactions')
+          .select(`
+            *,
+            categories (
+              id,
+              name,
+              icon_name,
+              tipo
+            )
+          `)
+          .in('user_id', userIds)
+          .order('transaction_date', { ascending: false })
+          .limit(limit);
+
+        if (error) throw error;
+        return { mode: 'family' as const, data: data || [] };
+      } else {
+        const { data, error } = await supabase
+          .from('transactions')
+          .select(`
+            *,
+            categories (
+              id,
+              name,
+              icon_name,
+              tipo
+            )
+          `)
+          .eq('user_id', user.id)
+          .order('transaction_date', { ascending: false })
+          .limit(limit);
+
+        if (error) throw error;
+        return { mode: 'individual' as const, data: data || [] };
+      }
+    },
+    enabled: !!user,
+  });
+};
+
 // Hook adaptativo para Análise de Gastos
 export const useAdaptiveAnalytics = (month?: string) => {
   const { user } = useAuth();

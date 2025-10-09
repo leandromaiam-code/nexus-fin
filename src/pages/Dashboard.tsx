@@ -10,23 +10,23 @@ import { DashboardSkeleton } from '@/components/ui/skeleton-loader';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { useUserData, useMonthlyData, usePrimaryGoal, useRecentTransactions } from '@/hooks/useSupabaseData';
+import { useUserData, usePrimaryGoal } from '@/hooks/useSupabaseData';
+import { useAdaptiveDashboard, useAdaptiveTransactions } from '@/hooks/useAdaptiveData';
 import { isDiagnosticComplete } from '@/lib/diagnosticUtils';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
-import { ViewModeToggle } from '@/components/ui/view-mode-toggle';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM-01'));
 
-  // Real Supabase data
-  const { data: userData, isLoading: userLoading, error: userError } = useUserData();
-  const { data: monthlyData, isLoading: monthlyLoading } = useMonthlyData(selectedMonth);
+  // Real Supabase data - hooks adaptativos
+  const { data: userData, isLoading: userLoading } = useUserData();
+  const { data: dashboardData, isLoading: dashboardLoading } = useAdaptiveDashboard(selectedMonth);
   const { data: primaryGoal, isLoading: goalLoading } = usePrimaryGoal();
-  const { data: recentTransactions, isLoading: transactionsLoading } = useRecentTransactions(20);
+  const { data: transactionsData, isLoading: transactionsLoading } = useAdaptiveTransactions(20);
 
-  const isLoading = userLoading || monthlyLoading || goalLoading || transactionsLoading;
+  const isLoading = userLoading || dashboardLoading || goalLoading || transactionsLoading;
 
   // Don't redirect - user should already be authenticated via ProtectedRoute
 
@@ -64,9 +64,13 @@ const Dashboard = () => {
 
   // Transform Supabase data to component props
   const balanceData = {
-    balance: monthlyData?.balance || 0,
-    income: monthlyData?.renda_base_amount || 0,
-    expenses: monthlyData?.total_spent || 0
+    balance: dashboardData?.mode === 'family' 
+      ? (dashboardData.data as any)?.total_income - (dashboardData.data as any)?.total_spent || 0
+      : (dashboardData?.data as any)?.balance || 0,
+    income: dashboardData?.mode === 'family'
+      ? (dashboardData.data as any)?.total_income || 0
+      : (dashboardData?.data as any)?.renda_base_amount || 0,
+    expenses: (dashboardData?.data as any)?.total_spent || 0
   };
 
   const goalData = primaryGoal ? {
@@ -77,7 +81,7 @@ const Dashboard = () => {
     targetDate: primaryGoal.target_date
   } : null;
 
-  const transformedTransactions = recentTransactions?.map(transaction => ({
+  const transformedTransactions = transactionsData?.data?.map((transaction: any) => ({
     id: transaction.id.toString(),
     description: transaction.description || 'Sem descrição',
     amount: transaction.amount,
@@ -95,10 +99,6 @@ const Dashboard = () => {
         userName={userData.full_name?.split(' ')[0] || 'Usuário'}
         financialArchetype={userData.financial_archetype || 'Sem arquétipo definido'}
       />
-      
-      <div className="px-4 sm:px-6 mb-4">
-        <ViewModeToggle />
-      </div>
       
       {/* Diagnostic Alert */}
       {showDiagnosticAlert && (
@@ -122,10 +122,11 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Month Filter */}
+      {/* Month Filter com ViewModeToggle integrado */}
       <MonthFilter 
         selectedMonth={selectedMonth}
         onMonthChange={setSelectedMonth}
+        showViewModeToggle={true}
       />
       
       <BalanceCard
