@@ -3,9 +3,9 @@ import { useParams } from 'react-router-dom';
 import { 
   TrendingDown, Receipt, Edit2, Trash2, Calendar, DollarSign,
   ShoppingCart, Home, Car, Utensils, Film, Heart, Briefcase, 
-  GraduationCap, Smartphone, Plane, Gift, Zap, ShoppingBag, Cpu
+  GraduationCap, Smartphone, Plane, Gift, Zap, ShoppingBag, Cpu, PieChart as PieChartIcon
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useCategories, useRecentTransactions, useUpdateTransaction, useDeleteTransaction } from '@/hooks/useSupabaseData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
@@ -94,6 +94,43 @@ const CategoryAnalysis = () => {
       .map(([month, amount]) => ({ month, amount }))
       .slice(-3);
   }, [categoryTransactions]);
+
+  // Subcategory data for donut chart
+  const subcategoryData = useMemo(() => {
+    const subcatMap: { [key: number]: { name: string; total: number; icon: string } } = {};
+    
+    // Buscar subcategorias desta categoria
+    const subcategories = categories?.filter(c => c.parent_category_id === Number(categoryId)) || [];
+    
+    // Agrupar transações por subcategoria
+    categoryTransactions.forEach(transaction => {
+      const subcat = subcategories.find(s => s.id === transaction.category_id);
+      if (subcat) {
+        if (!subcatMap[subcat.id]) {
+          subcatMap[subcat.id] = {
+            name: subcat.name,
+            total: 0,
+            icon: subcat.icon_name || ''
+          };
+        }
+        subcatMap[subcat.id].total += Math.abs(transaction.amount);
+      }
+    });
+
+    const colors = [
+      '#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', 
+      '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#84CC16',
+      '#A855F7', '#FB923C', '#22D3EE', '#F472B6', '#FACC15'
+    ];
+
+    return Object.entries(subcatMap).map(([id, data], index) => ({
+      id: Number(id),
+      name: data.name,
+      value: data.total,
+      color: colors[index % colors.length],
+      icon: data.icon
+    }));
+  }, [categoryTransactions, categories, categoryId]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -234,6 +271,76 @@ const CategoryAnalysis = () => {
             {categoryTransactions.length} transações
           </p>
         </div>
+
+        {/* Subcategories Donut Chart */}
+        {subcategoryData.length > 0 && (
+          <div className="card-nexus">
+            <div className="flex items-center mb-4">
+              <PieChartIcon className="text-primary mr-2" size={18} />
+              <h3 className="font-semibold text-foreground">Gastos por Subcategoria</h3>
+            </div>
+            
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Donut Chart */}
+              <div className="flex-1 relative h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={subcategoryData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      dataKey="value"
+                      label={({ percent }) => (percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : '')}
+                      labelLine={false}
+                    >
+                      {subcategoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" strokeWidth={2} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value) => [formatCurrency(Number(value)), 'Gasto']}
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                
+                {/* Center content */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="text-center">
+                    <p className="text-xs text-muted-foreground mb-1">Subcategorias</p>
+                    <p className="text-lg font-bold text-primary">
+                      {subcategoryData.length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Compact Legend */}
+              <div className="lg:w-64 space-y-0.5">
+                <h4 className="font-semibold text-xs text-muted-foreground mb-2">Subcategorias</h4>
+                {subcategoryData.map((subcat, index) => {
+                  const percentage = ((subcat.value / totalSpent) * 100).toFixed(1);
+                  return (
+                    <div 
+                      key={index} 
+                      className="flex items-center gap-2 py-1 px-2 rounded hover:bg-accent/30 transition-colors"
+                    >
+                      <div className="w-3 h-3 rounded flex-shrink-0" style={{ backgroundColor: subcat.color }} />
+                      <p className="text-xs font-medium truncate flex-1 text-foreground">{subcat.name}</p>
+                      <p className="text-xs font-semibold text-muted-foreground">{percentage}%</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Monthly Comparison */}
         {monthlyComparison.length > 0 && (

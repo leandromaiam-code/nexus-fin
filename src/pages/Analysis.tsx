@@ -321,32 +321,25 @@ const Analysis = () => {
             </div>
 
             {/* Legenda lateral */}
-            <div className="lg:w-80 space-y-2 max-h-96 overflow-y-auto pr-2">
-              <h4 className="font-semibold text-sm text-muted-foreground mb-3">Categorias</h4>
+            <div className="lg:w-64 space-y-0.5">
+              <h4 className="font-semibold text-xs text-muted-foreground mb-2">Categorias</h4>
               {categoryData.map((category, index) => {
                 const percentage = ((category.value / totalSpent) * 100).toFixed(1);
                 return (
                   <div 
                     key={index} 
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
+                    className="flex items-center gap-2 py-1 px-2 rounded hover:bg-accent/30 transition-colors cursor-pointer"
                   >
                     <div 
-                      className="w-4 h-4 rounded flex-shrink-0 group-hover:scale-110 transition-transform" 
+                      className="w-3 h-3 rounded flex-shrink-0" 
                       style={{ backgroundColor: category.color }}
                     />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate text-foreground group-hover:text-primary transition-colors">
-                        {category.name}
-                      </p>
-                      <div className="flex items-center justify-between mt-0.5">
-                        <p className="text-xs font-semibold" style={{ color: category.color }}>
-                          {formatCurrencyNoDecimals(category.value)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {percentage}%
-                        </p>
-                      </div>
-                    </div>
+                    <p className="text-xs font-medium truncate flex-1 text-foreground">
+                      {category.name}
+                    </p>
+                    <p className="text-xs font-semibold text-muted-foreground">
+                      {percentage}%
+                    </p>
                   </div>
                 );
               })}
