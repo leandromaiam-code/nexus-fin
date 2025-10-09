@@ -183,6 +183,11 @@ export const useAdaptiveAnalytics = (month?: string) => {
     queryFn: async () => {
       if (!user) throw new Error('Usuário não autenticado');
 
+      // Convert month string to date range for querying
+      const monthDate = month ? new Date(month) : new Date();
+      const startOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1).toISOString();
+      const endOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1).toISOString();
+
       if (viewMode === 'family' && familyId) {
         // Para família, agregamos os dados de todos os membros
         const { data: members, error: membersError } = await supabase
@@ -198,7 +203,8 @@ export const useAdaptiveAnalytics = (month?: string) => {
           .from('spending_trends_monthly')
           .select('*')
           .in('user_id', userIds)
-          .eq('month', month || new Date().toISOString().slice(0, 7));
+          .gte('month', startOfMonth)
+          .lt('month', endOfMonth);
 
         if (error) throw error;
         
@@ -220,7 +226,8 @@ export const useAdaptiveAnalytics = (month?: string) => {
           .from('spending_trends_monthly')
           .select('*')
           .eq('user_id', user.id)
-          .eq('month', month || new Date().toISOString().slice(0, 7));
+          .gte('month', startOfMonth)
+          .lt('month', endOfMonth);
 
         if (error) throw error;
         return { mode: 'individual' as const, data: data || [] };

@@ -130,13 +130,6 @@ export type Database = {
             referencedColumns: ["category_id"]
           },
           {
-            foreignKeyName: "categories_parent_category_id_fkey"
-            columns: ["parent_category_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["category_id"]
-          },
-          {
             foreignKeyName: "categories_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -148,13 +141,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "mv_individual_dashboard"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "categories_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
           {
@@ -213,13 +199,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "mv_individual_dashboard"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "contas_pagadoras_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
           {
@@ -317,13 +296,6 @@ export type Database = {
             foreignKeyName: "familias_responsavel_user_id_fkey"
             columns: ["responsavel_user_id"]
             isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "familias_responsavel_user_id_fkey"
-            columns: ["responsavel_user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -388,13 +360,6 @@ export type Database = {
             foreignKeyName: "family_invites_accepted_by_user_id_fkey"
             columns: ["accepted_by_user_id"]
             isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "family_invites_accepted_by_user_id_fkey"
-            columns: ["accepted_by_user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -438,13 +403,6 @@ export type Database = {
             columns: ["invited_by_user_id"]
             isOneToOne: false
             referencedRelation: "mv_individual_dashboard"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "family_invites_invited_by_user_id_fkey"
-            columns: ["invited_by_user_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
           {
@@ -543,13 +501,6 @@ export type Database = {
             foreignKeyName: "membros_familia_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "membros_familia_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -614,13 +565,6 @@ export type Database = {
             referencedColumns: ["category_id"]
           },
           {
-            foreignKeyName: "orcamentos_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["category_id"]
-          },
-          {
             foreignKeyName: "orcamentos_familia_id_fkey"
             columns: ["familia_id"]
             isOneToOne: false
@@ -660,13 +604,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "mv_individual_dashboard"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "orcamentos_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
           {
@@ -758,13 +695,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "mv_individual_dashboard"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "progresso_desafios_usuario_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
           {
@@ -877,13 +807,6 @@ export type Database = {
             foreignKeyName: "recompensas_resgatadas_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "recompensas_resgatadas_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -951,13 +874,6 @@ export type Database = {
             foreignKeyName: "subscriptions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1010,13 +926,6 @@ export type Database = {
             referencedColumns: ["category_id"]
           },
           {
-            foreignKeyName: "transactions_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["category_id"]
-          },
-          {
             foreignKeyName: "transactions_conta_pagadora_id_fkey"
             columns: ["conta_pagadora_id"]
             isOneToOne: false
@@ -1042,13 +951,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "mv_individual_dashboard"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "transactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
           {
@@ -1112,13 +1014,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "mv_individual_dashboard"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_action_plans_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
           {
@@ -1238,13 +1133,6 @@ export type Database = {
             foreignKeyName: "user_goals_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_goals_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1288,13 +1176,6 @@ export type Database = {
             referencedColumns: ["category_id"]
           },
           {
-            foreignKeyName: "user_keyword_mappings_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["category_id"]
-          },
-          {
             foreignKeyName: "user_keyword_mappings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -1306,13 +1187,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "mv_individual_dashboard"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_keyword_mappings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
           {
@@ -1441,13 +1315,6 @@ export type Database = {
             foreignKeyName: "contas_pagadoras_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "contas_pagadoras_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1482,13 +1349,6 @@ export type Database = {
             referencedColumns: ["category_id"]
           },
           {
-            foreignKeyName: "orcamentos_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["category_id"]
-          },
-          {
             foreignKeyName: "orcamentos_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -1500,13 +1360,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "mv_individual_dashboard"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "orcamentos_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
           {
@@ -1540,13 +1393,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "mv_individual_dashboard"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "transactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
           {
@@ -1589,13 +1435,6 @@ export type Database = {
             foreignKeyName: "transactions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "transactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1632,13 +1471,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "mv_individual_dashboard"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "transactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
             referencedColumns: ["user_id"]
           },
           {
@@ -1695,13 +1527,6 @@ export type Database = {
             foreignKeyName: "familias_responsavel_user_id_fkey"
             columns: ["responsavel_user_id"]
             isOneToOne: false
-            referencedRelation: "spending_trends_monthly"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "familias_responsavel_user_id_fkey"
-            columns: ["responsavel_user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1742,6 +1567,7 @@ export type Database = {
           avg_transaction: number | null
           category_id: number | null
           category_name: string | null
+          category_type: string | null
           icon_name: string | null
           max_transaction: number | null
           min_transaction: number | null
@@ -1750,7 +1576,43 @@ export type Database = {
           transaction_count: number | null
           user_id: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_budget_performance"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_summaries"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "mv_individual_dashboard"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {

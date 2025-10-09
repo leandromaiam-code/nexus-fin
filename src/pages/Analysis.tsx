@@ -7,8 +7,8 @@ import BackButton from '@/components/ui/back-button';
 import { ViewModeToggle } from '@/components/ui/view-mode-toggle';
 
 const Analysis = () => {
-  const [selectedMonth, setSelectedMonth] = useState(8); // September (0-indexed)
-  const [selectedYear] = useState(2025);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear] = useState(new Date().getFullYear());
 
   const months = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
