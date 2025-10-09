@@ -50,17 +50,25 @@ const Analysis = () => {
 
   // Process real category data
   const categoryData = useMemo(() => {
-    console.log('📊 Analytics Data:', categorySpending);
-    
     const colors = [
-      'hsl(var(--primary))',
-      'hsl(var(--success))', 
-      'hsl(var(--warning))', 
-      'hsl(var(--destructive))',
-      'hsl(var(--accent))',
-      'hsl(var(--secondary))',
-      '#EC4899', 
-      '#10B981'
+      '#6366F1', // Indigo
+      '#10B981', // Verde esmeralda
+      '#F59E0B', // Âmbar
+      '#EF4444', // Vermelho
+      '#8B5CF6', // Roxo
+      '#EC4899', // Rosa
+      '#14B8A6', // Teal
+      '#F97316', // Laranja
+      '#06B6D4', // Ciano
+      '#84CC16', // Lima
+      '#A855F7', // Púrpura
+      '#FB923C', // Laranja claro
+      '#22D3EE', // Ciano claro
+      '#F472B6', // Rosa claro
+      '#FACC15', // Amarelo
+      '#4ADE80', // Verde claro
+      '#60A5FA', // Azul claro
+      '#C084FC', // Violeta claro
     ];
     
     return categorySpending.map((item, index) => {
@@ -138,6 +146,15 @@ const Analysis = () => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
+    }).format(value);
+  };
+
+  const formatCurrencyNoDecimals = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(value);
   };
 
@@ -252,7 +269,7 @@ const Analysis = () => {
               <h3 className="text-base sm:text-lg font-semibold text-foreground">Gasto Total</h3>
             </div>
             <p className="text-3xl sm:text-4xl font-bold text-destructive text-financial mb-2">
-              {formatCurrency(totalSpent)}
+              {formatCurrencyNoDecimals(totalSpent)}
             </p>
             <p className="text-sm text-muted-foreground">
               {months[selectedMonth]} {selectedYear}
@@ -267,81 +284,73 @@ const Analysis = () => {
             <h3 className="font-semibold text-foreground text-sm sm:text-base">Gastos por Categoria</h3>
           </div>
           
-          <div className="relative h-64 sm:h-80 mb-4 sm:mb-6">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={90}
-                  dataKey="value"
-                  startAngle={90}
-                  endAngle={450}
-                  className="sm:hidden"
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" strokeWidth={2} />
-                  ))}
-                </Pie>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={70}
-                  outerRadius={120}
-                  dataKey="value"
-                  startAngle={90}
-                  endAngle={450}
-                  className="hidden sm:block"
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" strokeWidth={3} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-            
-            {/* Center content */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="text-center">
-                <p className="text-xs sm:text-sm text-muted-foreground mb-1">Total Gasto</p>
-                <p className="text-lg sm:text-xl font-bold text-destructive text-financial">
-                  {formatCurrency(totalSpent)}
-                </p>
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Gráfico */}
+            <div className="flex-1 relative h-80 lg:h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    dataKey="value"
+                    startAngle={90}
+                    endAngle={450}
+                    label={({ percent }) => (percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : '')}
+                    labelLine={false}
+                  >
+                    {categoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" strokeWidth={3} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              
+              {/* Center content */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="text-center">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Total Gasto</p>
+                  <p className="text-lg sm:text-xl font-bold text-destructive text-financial">
+                    {formatCurrencyNoDecimals(totalSpent)}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Floating category icons around the chart */}
-            {categoryData.slice(0, 6).map((category, index) => {
-              const angle = (index * 60) - 90; // Distribute icons around circle
-              const radius = 140; // Distance from center
-              const x = 50 + (radius * Math.cos(angle * Math.PI / 180)) / 3; // Convert to percentage
-              const y = 50 + (radius * Math.sin(angle * Math.PI / 180)) / 3;
-              
-              return (
-                <div
-                  key={index}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2 hidden sm:block"
-                  style={{
-                    left: `${x}%`,
-                    top: `${y}%`,
-                  }}
-                >
+            {/* Legenda lateral */}
+            <div className="lg:w-80 space-y-2 max-h-96 overflow-y-auto pr-2">
+              <h4 className="font-semibold text-sm text-muted-foreground mb-3">Categorias</h4>
+              {categoryData.map((category, index) => {
+                const percentage = ((category.value / totalSpent) * 100).toFixed(1);
+                return (
                   <div 
-                    className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-fade-in"
-                    style={{ 
-                      backgroundColor: category.color,
-                      animationDelay: `${index * 100}ms`
-                    }}
+                    key={index} 
+                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
                   >
-                    <category.IconComponent size={20} className="text-white" />
+                    <div 
+                      className="w-4 h-4 rounded flex-shrink-0 group-hover:scale-110 transition-transform" 
+                      style={{ backgroundColor: category.color }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate text-foreground group-hover:text-primary transition-colors">
+                        {category.name}
+                      </p>
+                      <div className="flex items-center justify-between mt-0.5">
+                        <p className="text-xs font-semibold" style={{ color: category.color }}>
+                          {formatCurrencyNoDecimals(category.value)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {percentage}%
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
           {/* Category Cards */}
