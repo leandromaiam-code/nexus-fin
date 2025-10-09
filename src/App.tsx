@@ -1,10 +1,8 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { ThemeProvider } from "./contexts/ThemeContext";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
 
 // Page imports
 import SignUp from "./SignUp";
@@ -37,7 +35,7 @@ import NotFound from "./pages/NotFound";
 import FloatingAddButton from "./components/layout/FloatingAddButton";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-const queryClient = new QueryClient();
+
 
 const AppRoutes = () => {
   const { user, isLoading } = useAuth();
@@ -86,21 +84,13 @@ const AppRoutes = () => {
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AuthProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <div className="min-h-screen bg-background">
-                <AppRoutes />
-              </div>
-            </TooltipProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </BrowserRouter>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <div className="min-h-screen bg-background">
+        <AppRoutes />
+      </div>
+    </TooltipProvider>
   );
 };
 
