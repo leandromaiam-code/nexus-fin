@@ -14,13 +14,13 @@ export const GaugeChart = ({ value, max = 100, size = 'md', showLabel = true, la
   const isOver = value > max;
   
   const color = 
-    percentage <= 80 ? 'text-green-600 dark:text-green-400' :
-    percentage <= 100 ? 'text-yellow-600 dark:text-yellow-400' :
+    percentage < 60 ? 'text-green-600 dark:text-green-400' :
+    percentage < 85 ? 'text-yellow-600 dark:text-yellow-400' :
     'text-red-600 dark:text-red-400';
 
   const strokeColor = 
-    percentage <= 80 ? 'stroke-green-600 dark:stroke-green-400' :
-    percentage <= 100 ? 'stroke-yellow-600 dark:stroke-yellow-400' :
+    percentage < 60 ? 'stroke-green-600 dark:stroke-green-400' :
+    percentage < 85 ? 'stroke-yellow-600 dark:stroke-yellow-400' :
     'stroke-red-600 dark:stroke-red-400';
 
   const sizeMap = {

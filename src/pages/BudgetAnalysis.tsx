@@ -169,15 +169,16 @@ const BudgetAnalysis = () => {
                     dot={{ fill: 'hsl(var(--primary))', r: 4 }}
                     activeDot={{ r: 6 }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="spent" 
-                    name="Realizado"
-                    stroke="hsl(var(--chart-2))" 
-                    strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--chart-2))', r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
+            <Line 
+              type="monotone" 
+              dataKey="spent" 
+              name="Realizado"
+              stroke="hsl(var(--chart-2))" 
+              strokeWidth={2}
+              dot={{ fill: 'hsl(var(--chart-2))', r: 4 }}
+              activeDot={{ r: 6 }}
+              connectNulls={true}
+            />
                 </LineChart>
               </ResponsiveContainer>
             </>
