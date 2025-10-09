@@ -1066,7 +1066,22 @@ export type Database = {
           usage_percentage: number | null
           user_id: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orcamentos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orcamentos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       category_spending_by_month: {
         Row: {
@@ -1134,13 +1149,34 @@ export type Database = {
           category_name: string | null
           familia_id: number | null
           icon_name: string | null
-          id: number | null
           month: string | null
           remaining: number | null
           status: string | null
           usage_percentage: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orcamentos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orcamentos_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "familias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orcamentos_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_goals"
+            referencedColumns: ["familia_id"]
+          },
+        ]
       }
       mv_family_goals: {
         Row: {
