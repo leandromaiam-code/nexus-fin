@@ -5,6 +5,7 @@ import {
   ShoppingCart, Home, Car, Utensils, Film, Heart, Briefcase, 
   GraduationCap, Smartphone, Plane, Gift, Zap, ShoppingBag, Cpu, PieChart as PieChartIcon
 } from 'lucide-react';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useCategories, useRecentTransactions, useUpdateTransaction, useDeleteTransaction } from '@/hooks/useSupabaseData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -16,6 +17,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import BackButton from '@/components/ui/back-button';
+import MonthFilter from '@/components/dashboard/MonthFilter';
 
 const getCategoryIcon = (iconName: string) => {
   const iconMap: { [key: string]: any } = {
@@ -40,6 +42,12 @@ const getCategoryIcon = (iconName: string) => {
 
 const CategoryAnalysis = () => {
   const { categoryId } = useParams();
+  
+  // Get month from URL params or use current month
+  const urlParams = new URLSearchParams(window.location.search);
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    urlParams.get('month') || format(new Date(), 'yyyy-MM-01')
+  );
 
   // Fetch real data
   const { data: categories } = useCategories();
@@ -50,10 +58,17 @@ const CategoryAnalysis = () => {
   const subcategories = categories?.filter(c => c.parent_category_id === Number(categoryId)) || [];
   const subcategoryIds = subcategories.map(s => s.id);
   
-  // Filter transactions from subcategories only (not parent category itself)
-  const categoryTransactions = allTransactions.filter(
-    t => subcategoryIds.includes(t.category_id)
-  );
+  // Filter transactions from subcategories only (not parent category itself) AND by selected month
+  const categoryTransactions = allTransactions.filter(t => {
+    if (!subcategoryIds.includes(t.category_id)) return false;
+    
+    const transactionDate = new Date(t.transaction_date);
+    const selectedDate = new Date(selectedMonth);
+    const monthStart = startOfMonth(selectedDate);
+    const monthEnd = endOfMonth(selectedDate);
+    
+    return transactionDate >= monthStart && transactionDate <= monthEnd;
+  });
   
   const CategoryIcon = category ? getCategoryIcon(category.icon_name || '') : DollarSign;
 
@@ -79,25 +94,34 @@ const CategoryAnalysis = () => {
     return categoryTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
   }, [categoryTransactions]);
 
-  // Monthly comparison (last 3 months)
+  // Monthly comparison (last 3 months from selected month)
   const monthlyComparison = useMemo(() => {
-    const monthlyData: { [key: string]: number } = {};
+    const selectedDate = new Date(selectedMonth);
+    const monthlyData: { month: string; amount: number; date: Date }[] = [];
     
-    categoryTransactions.forEach(transaction => {
-      const date = new Date(transaction.transaction_date);
-      const monthKey = date.toLocaleDateString('pt-BR', { month: 'short' });
+    // Get 3 months back from selected month
+    for (let i = 2; i >= 0; i--) {
+      const targetDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth() - i, 1);
+      const monthStart = startOfMonth(targetDate);
+      const monthEnd = endOfMonth(targetDate);
       
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = 0;
-      }
+      const monthTransactions = allTransactions.filter(t => {
+        if (!subcategoryIds.includes(t.category_id)) return false;
+        const transactionDate = new Date(t.transaction_date);
+        return transactionDate >= monthStart && transactionDate <= monthEnd;
+      });
       
-      monthlyData[monthKey] += Math.abs(transaction.amount);
-    });
+      const total = monthTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+      
+      monthlyData.push({
+        month: targetDate.toLocaleDateString('pt-BR', { month: 'short' }),
+        amount: total,
+        date: targetDate
+      });
+    }
 
-    return Object.entries(monthlyData)
-      .map(([month, amount]) => ({ month, amount }))
-      .slice(-3);
-  }, [categoryTransactions]);
+    return monthlyData.filter(m => m.amount > 0);
+  }, [allTransactions, subcategoryIds, selectedMonth]);
 
   // Subcategory data for donut chart
   const subcategoryData = useMemo(() => {
@@ -257,6 +281,14 @@ const CategoryAnalysis = () => {
           </div>
         </div>
       </header>
+
+      <div className="px-6 mb-4">
+        <MonthFilter 
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          showViewModeToggle={false}
+        />
+      </div>
 
       <div className="px-6 space-y-6">
         {/* Category Total Card */}

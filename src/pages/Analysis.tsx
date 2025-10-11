@@ -351,7 +351,10 @@ const Analysis = () => {
             {categoryData.length > 0 ? categoryData.map((category, index) => (
               <button
                 key={index}
-                onClick={() => window.location.href = `/analysis/category/${category.id}`}
+                onClick={() => {
+                  const monthParam = `${selectedYear}-${(selectedMonth + 1).toString().padStart(2, '0')}-01`;
+                  window.location.href = `/analysis/category/${category.id}?month=${monthParam}`;
+                }}
                 className="group relative overflow-hidden"
               >
                 <div className="card-nexus p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
