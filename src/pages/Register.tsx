@@ -127,14 +127,15 @@ const Register = () => {
     if (!pendingTransaction || !user?.id) return;
 
     try {
-      const { error } = await supabase.from('transactions').insert({
+      const { error } = await supabase.from('transactions').insert([{
         user_id: user.id,
         description: pendingTransaction.description,
         amount: pendingTransaction.amount,
         category_id: pendingTransaction.category_id,
         conta_pagadora_id: pendingTransaction.conta_pagadora_id,
-        transaction_date: pendingTransaction.transaction_date
-      });
+        transaction_date: pendingTransaction.transaction_date,
+        tipo: pendingTransaction.tipo || 'Saída'
+      }]);
 
       if (error) throw error;
 

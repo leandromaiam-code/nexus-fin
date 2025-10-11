@@ -8,6 +8,7 @@ export interface TransactionData {
   category_id?: number;
   conta_pagadora_id?: number;
   transaction_date: string;
+  tipo?: string;
 }
 
 export const useTransactionConfirmation = () => {
