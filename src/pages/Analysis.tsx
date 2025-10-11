@@ -1,23 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { BarChart3, ChevronLeft, ChevronRight, TrendingDown, Wallet, CreditCard, Utensils, Car, Home, Gamepad2, Coffee, ShoppingBag } from 'lucide-react';
+import { BarChart3, TrendingDown, Wallet, CreditCard, Utensils, Car, Home, Gamepad2, Coffee, ShoppingBag } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { format } from 'date-fns';
 import { useCategories } from '@/hooks/useSupabaseData';
 import { useAdaptiveAnalyticsByParent, useAdaptiveTransactions } from '@/hooks/useAdaptiveData';
 import BackButton from '@/components/ui/back-button';
-import { ViewModeToggle } from '@/components/ui/view-mode-toggle';
+import MonthFilter from '@/components/dashboard/MonthFilter';
 
 const Analysis = () => {
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [selectedYear] = useState(new Date().getFullYear());
-
-  const months = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-  ];
+  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM-01'));
 
   // Get real data from Supabase - usando hooks adaptativos (apenas categorias PAI)
-  const currentMonthStr = `${selectedYear}-${(selectedMonth + 1).toString().padStart(2, '0')}-01`;
-  const { data: analyticsData, isLoading: analyticsLoading } = useAdaptiveAnalyticsByParent(currentMonthStr);
+  const { data: analyticsData, isLoading: analyticsLoading } = useAdaptiveAnalyticsByParent(selectedMonth);
   const { data: transactionsData, isLoading: transactionsLoading } = useAdaptiveTransactions(500);
   const { data: categories = [] } = useCategories();
 
@@ -158,14 +152,6 @@ const Analysis = () => {
     }).format(value);
   };
 
-  const navigateMonth = (direction: 'prev' | 'next') => {
-    if (direction === 'prev' && selectedMonth > 0) {
-      setSelectedMonth(selectedMonth - 1);
-    } else if (direction === 'next' && selectedMonth < 11) {
-      setSelectedMonth(selectedMonth + 1);
-    }
-  };
-
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -200,62 +186,16 @@ const Analysis = () => {
       <header className="p-4 sm:p-6">
         <BackButton to="/" className="mb-3 sm:mb-4" />
         
-        {/* Desktop Layout */}
-        <div className="hidden md:flex items-center justify-between mb-3 sm:mb-4">
-          <div className="flex items-center flex-1">
-            <button 
-              onClick={() => navigateMonth('prev')}
-              className="p-2 rounded-lg hover:bg-muted transition-colors"
-            >
-              <ChevronLeft size={24} className="text-foreground" />
-            </button>
-            
-            <div className="mx-6 text-center min-w-0 flex-1">
-              <h1 className="text-2xl font-bold text-display">
-                {months[selectedMonth]} {selectedYear}
-              </h1>
-              <p className="text-base text-muted-foreground">Análise de Gastos</p>
-            </div>
-            
-            <button 
-              onClick={() => navigateMonth('next')}
-              className="p-2 rounded-lg hover:bg-muted transition-colors"
-            >
-              <ChevronRight size={24} className="text-foreground" />
-            </button>
-          </div>
-          <ViewModeToggle />
-        </div>
-
-        {/* Mobile Layout */}
-        <div className="md:hidden space-y-3">
-          <div className="flex items-center justify-center">
-            <button 
-              onClick={() => navigateMonth('prev')}
-              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
-            >
-              <ChevronLeft size={20} className="text-foreground" />
-            </button>
-            
-            <div className="mx-4 text-center min-w-0 flex-1">
-              <h1 className="text-lg font-bold text-display">
-                {months[selectedMonth]} {selectedYear}
-              </h1>
-              <p className="text-sm text-muted-foreground">Análise de Gastos</p>
-            </div>
-            
-            <button 
-              onClick={() => navigateMonth('next')}
-              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
-            >
-              <ChevronRight size={20} className="text-foreground" />
-            </button>
-          </div>
-          <div className="flex justify-center">
-            <ViewModeToggle />
-          </div>
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h1 className="text-2xl font-bold text-display">Análise de Gastos</h1>
         </div>
       </header>
+
+      <MonthFilter 
+        selectedMonth={selectedMonth}
+        onMonthChange={setSelectedMonth}
+        showViewModeToggle={true}
+      />
 
       <div className="px-4 sm:px-6 space-y-4 sm:space-y-6">
         {/* Total Spent Card */}
@@ -272,7 +212,7 @@ const Analysis = () => {
               {formatCurrencyNoDecimals(totalSpent)}
             </p>
             <p className="text-sm text-muted-foreground">
-              {months[selectedMonth]} {selectedYear}
+              {format(new Date(selectedMonth), 'MMMM yyyy', { locale: require('date-fns/locale/pt-BR').ptBR })}
             </p>
           </div>
         </div>
@@ -352,8 +292,7 @@ const Analysis = () => {
               <button
                 key={index}
                 onClick={() => {
-                  const monthParam = `${selectedYear}-${(selectedMonth + 1).toString().padStart(2, '0')}-01`;
-                  window.location.href = `/analysis/category/${category.id}?month=${monthParam}`;
+                  window.location.href = `/analysis/category/${category.id}?month=${selectedMonth}`;
                 }}
                 className="group relative overflow-hidden"
               >

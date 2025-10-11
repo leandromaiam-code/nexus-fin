@@ -1,45 +1,56 @@
 import React, { useState } from 'react';
-import { ChevronDown, Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { format, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ViewModeToggle } from '@/components/ui/view-mode-toggle';
+import MonthRangePicker from './MonthRangePicker';
 
 // Definir tipos das props
 interface MonthFilterProps {
   selectedMonth: string;
   onMonthChange: (month: string) => void;
   showViewModeToggle?: boolean;
+  rangeMode?: boolean;
+  startMonth?: string;
+  endMonth?: string;
+  onRangeChange?: (start: string, end: string) => void;
 }
 
 const MonthFilter: React.FC<MonthFilterProps> = ({ 
   selectedMonth, 
   onMonthChange,
-  showViewModeToggle = false 
+  showViewModeToggle = false,
+  rangeMode = false,
+  startMonth,
+  endMonth,
+  onRangeChange
 }) => {
-  const [date, setDate] = useState<Date>(new Date(selectedMonth));
+  const [showRangePicker, setShowRangePicker] = useState(false);
 
   const currentMonth = format(new Date(), 'yyyy-MM-01');
   const lastMonth = format(subMonths(new Date(), 1), 'yyyy-MM-01');
 
   const isCurrentOrLastMonth = selectedMonth === currentMonth || selectedMonth === lastMonth;
+  const isCustomRange = rangeMode && startMonth && endMonth;
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      setDate(date);
-      const formattedMonth = format(date, 'yyyy-MM-01');
-      onMonthChange(formattedMonth);
+  const getCustomButtonLabel = () => {
+    if (isCustomRange && startMonth && endMonth) {
+      try {
+        const start = format(new Date(startMonth), 'MMM/yy', { locale: ptBR });
+        const end = format(new Date(endMonth), 'MMM/yy', { locale: ptBR });
+        return `${start} - ${end}`;
+      } catch {
+        return 'Personalizado';
+      }
     }
+    return 'Personalizado';
   };
 
-  const getDisplayMonth = () => {
-    try {
-      return format(new Date(selectedMonth), 'MMMM yyyy', { locale: ptBR });
-    } catch {
-      return 'Selecione um mês';
+  const handleRangeApply = (start: string, end: string) => {
+    if (onRangeChange) {
+      onRangeChange(start, end);
     }
   };
 
@@ -64,31 +75,17 @@ const MonthFilter: React.FC<MonthFilterProps> = ({
             >
               Mês Passado
             </Button>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={!isCurrentOrLastMonth ? 'default' : 'outline'}
-                  size="sm"
-                  className={cn(
-                    !isCurrentOrLastMonth && "border-primary"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {!isCurrentOrLastMonth ? getDisplayMonth() : 'Personalizado'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={handleDateSelect}
-                  disabled={(date) =>
-                    date > new Date() || date < new Date("2020-01-01")
-                  }
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <Button
+              variant={isCustomRange ? 'default' : 'outline'}
+              size="sm"
+              className={cn(
+                isCustomRange && "border-primary"
+              )}
+              onClick={() => setShowRangePicker(true)}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {getCustomButtonLabel()}
+            </Button>
           </div>
         </div>
         {showViewModeToggle && <ViewModeToggle />}
@@ -106,40 +103,26 @@ const MonthFilter: React.FC<MonthFilterProps> = ({
           >
             Mês Atual
           </Button>
-          <Button
-            variant={selectedMonth === lastMonth ? 'default' : 'outline'}
-            onClick={() => onMonthChange(lastMonth)}
-            size="sm"
-            className="flex-1"
-          >
-            Mês Passado
-          </Button>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={!isCurrentOrLastMonth ? 'default' : 'outline'}
-                size="sm"
-                className={cn(
-                  "flex-1",
-                  !isCurrentOrLastMonth && "border-primary"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {!isCurrentOrLastMonth ? getDisplayMonth() : 'Personalizado'}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={handleDateSelect}
-                disabled={(date) =>
-                  date > new Date() || date < new Date("2020-01-01")
-                }
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+            <Button
+              variant={selectedMonth === lastMonth ? 'default' : 'outline'}
+              onClick={() => onMonthChange(lastMonth)}
+              size="sm"
+              className="flex-1"
+            >
+              Mês Passado
+            </Button>
+            <Button
+              variant={isCustomRange ? 'default' : 'outline'}
+              size="sm"
+              className={cn(
+                "flex-1",
+                isCustomRange && "border-primary"
+              )}
+              onClick={() => setShowRangePicker(true)}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {getCustomButtonLabel()}
+            </Button>
         </div>
         {showViewModeToggle && (
           <div className="flex justify-center">
@@ -147,6 +130,12 @@ const MonthFilter: React.FC<MonthFilterProps> = ({
           </div>
         )}
       </div>
+
+      <MonthRangePicker 
+        open={showRangePicker}
+        onOpenChange={setShowRangePicker}
+        onApply={handleRangeApply}
+      />
     </div>
   );
 };
