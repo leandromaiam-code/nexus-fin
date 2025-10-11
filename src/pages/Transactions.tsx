@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Filter, Search, Pencil, Trash2, Plus, Minus, Calendar, CalendarIcon } from 'lucide-react';
 import BackButton from '@/components/ui/back-button';
 import { useRecentTransactions, useCategories, useUpdateTransaction, useDeleteTransaction } from '@/hooks/useSupabaseData';
+import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -131,6 +132,20 @@ const Transactions = () => {
     return category?.icon_name || '📦';
   };
 
+  const getCategoriesHierarchy = useMemo(() => {
+    // Separar categorias pai (sem parent_category_id)
+    const parentCategories = categories.filter(cat => !cat.parent_category_id);
+    
+    // Separar categorias filhas
+    const childCategories = categories.filter(cat => cat.parent_category_id);
+    
+    // Agrupar filhas por pai
+    return parentCategories.map(parent => ({
+      parent,
+      children: childCategories.filter(child => child.parent_category_id === parent.id)
+    }));
+  }, [categories]);
+
   const handleEditClick = (transaction: any) => {
     setEditTransaction(transaction);
     setEditForm({
@@ -164,8 +179,21 @@ const Transactions = () => {
   const handleDeleteConfirm = async () => {
     if (!deleteTransactionId) return;
     
-    await deleteTransactionMutation.mutateAsync(deleteTransactionId);
-    setDeleteTransactionId(null);
+    try {
+      await deleteTransactionMutation.mutateAsync(deleteTransactionId);
+      toast({
+        title: "Sucesso",
+        description: "Transação excluída com sucesso!",
+      });
+      setDeleteTransactionId(null);
+    } catch (error) {
+      console.error('❌ Erro ao deletar transação:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir a transação. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {
@@ -415,12 +443,49 @@ const Transactions = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.icon_name} {category.name}
-                    </SelectItem>
+                <SelectContent className="max-h-[400px]">
+                  {getCategoriesHierarchy.map(({ parent, children }) => (
+                    <React.Fragment key={parent.id}>
+                      {/* CATEGORIA PAI - Apenas visual (não selecionável) */}
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0 z-10 border-b">
+                        {parent.icon_name} {parent.name}
+                      </div>
+                      
+                      {/* CATEGORIAS FILHAS - Selecionáveis */}
+                      {children.length > 0 ? (
+                        children.map((child) => (
+                          <SelectItem 
+                            key={child.id} 
+                            value={child.id.toString()}
+                            className="pl-8 py-2"
+                          >
+                            <span className="flex items-center gap-2">
+                              <span>{child.icon_name}</span>
+                              <span>{child.name}</span>
+                            </span>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-8 py-2 text-xs text-muted-foreground italic">
+                          Nenhuma subcategoria
+                        </div>
+                      )}
+                      
+                      {/* Separador entre grupos */}
+                      <div className="h-px bg-border my-1" />
+                    </React.Fragment>
                   ))}
+                  
+                  {/* CATEGORIAS SEM PAI (caso existam) */}
+                  {categories
+                    .filter(cat => !cat.parent_category_id && 
+                      !getCategoriesHierarchy.some(group => group.parent.id === cat.id))
+                    .map((category) => (
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        {category.icon_name} {category.name}
+                      </SelectItem>
+                    ))
+                  }
                 </SelectContent>
               </Select>
             </div>
@@ -470,7 +535,7 @@ const Transactions = () => {
               disabled={deleteTransactionMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Excluir
+              {deleteTransactionMutation.isPending ? "Excluindo..." : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
