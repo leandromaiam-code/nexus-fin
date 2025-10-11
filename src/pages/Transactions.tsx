@@ -131,6 +131,16 @@ const Transactions = () => {
     return category?.icon_name || '📦';
   };
 
+  const getCategoriesHierarchy = useMemo(() => {
+    const parentCategories = categories.filter(cat => !cat.parent_category_id);
+    const childCategories = categories.filter(cat => cat.parent_category_id);
+    
+    return parentCategories.map(parent => ({
+      parent,
+      children: childCategories.filter(child => child.parent_category_id === parent.id)
+    }));
+  }, [categories]);
+
   const handleEditClick = (transaction: any) => {
     setEditTransaction(transaction);
     setEditForm({
@@ -164,8 +174,15 @@ const Transactions = () => {
   const handleDeleteConfirm = async () => {
     if (!deleteTransactionId) return;
     
-    await deleteTransactionMutation.mutateAsync(deleteTransactionId);
-    setDeleteTransactionId(null);
+    console.log('🗑️ Deletando transação ID:', deleteTransactionId);
+    
+    try {
+      await deleteTransactionMutation.mutateAsync(deleteTransactionId);
+      console.log('✅ Transação deletada com sucesso');
+      setDeleteTransactionId(null);
+    } catch (error) {
+      console.error('❌ Erro ao deletar:', error);
+    }
   };
 
   if (isLoading) {
@@ -415,12 +432,40 @@ const Transactions = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.icon_name} {category.name}
-                    </SelectItem>
+                <SelectContent className="max-h-[300px]">
+                  {getCategoriesHierarchy.map(({ parent, children }) => (
+                    <React.Fragment key={parent.id}>
+                      {children.length > 0 && (
+                        <>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0 z-10">
+                            {parent.icon_name} {parent.name}
+                          </div>
+                          
+                          {children.map((child) => (
+                            <SelectItem 
+                              key={child.id} 
+                              value={child.id.toString()}
+                              className="pl-6"
+                            >
+                              {child.icon_name} {child.name}
+                            </SelectItem>
+                          ))}
+                          
+                          <div className="h-px bg-border my-1" />
+                        </>
+                      )}
+                    </React.Fragment>
                   ))}
+                  
+                  {categories
+                    .filter(cat => !cat.parent_category_id && 
+                      !getCategoriesHierarchy.some(group => group.parent.id === cat.id))
+                    .map((category) => (
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        {category.icon_name} {category.name}
+                      </SelectItem>
+                    ))
+                  }
                 </SelectContent>
               </Select>
             </div>
