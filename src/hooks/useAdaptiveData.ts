@@ -269,3 +269,67 @@ export const useAdaptiveAnalytics = (month?: string) => {
     enabled: !!user,
   });
 };
+
+// Hook adaptativo para Análise de Gastos por Categoria PAI
+export const useAdaptiveAnalyticsByParent = (month?: string) => {
+  const { user } = useAuth();
+  const { viewMode, familyId } = useViewMode();
+
+  return useQuery({
+    queryKey: ['adaptive-analytics-parent', viewMode, familyId, month],
+    queryFn: async () => {
+      if (!user) throw new Error('Usuário não autenticado');
+
+      // Convert month string to date range for querying
+      const monthDate = month ? new Date(month) : new Date();
+      const startOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1).toISOString();
+      const endOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1).toISOString();
+
+      if (viewMode === 'family' && familyId) {
+        // Para família, agregamos os dados de todos os membros
+        const { data: members, error: membersError } = await supabase
+          .from('membros_familia')
+          .select('user_id')
+          .eq('familia_id', familyId);
+
+        if (membersError) throw membersError;
+
+        const userIds = members.map(m => m.user_id);
+
+        const { data, error } = await supabase
+          .from('spending_trends_by_parent_category')
+          .select('*')
+          .in('user_id', userIds)
+          .gte('month', startOfMonth)
+          .lt('month', endOfMonth);
+
+        if (error) throw error;
+        
+        // Agregar por categoria PAI
+        const aggregated = data.reduce((acc: any[], item) => {
+          const existing = acc.find(a => a.category_id === item.category_id);
+          if (existing) {
+            existing.total_spent += item.total_spent || 0;
+            existing.transaction_count += item.transaction_count || 0;
+          } else {
+            acc.push({ ...item });
+          }
+          return acc;
+        }, []);
+
+        return { mode: 'family' as const, data: aggregated };
+      } else {
+        const { data, error } = await supabase
+          .from('spending_trends_by_parent_category')
+          .select('*')
+          .eq('user_id', user.id)
+          .gte('month', startOfMonth)
+          .lt('month', endOfMonth);
+
+        if (error) throw error;
+        return { mode: 'individual' as const, data: data || [] };
+      }
+    },
+    enabled: !!user,
+  });
+};

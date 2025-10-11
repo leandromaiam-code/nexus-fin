@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { BarChart3, ChevronLeft, ChevronRight, TrendingDown, Wallet, CreditCard, Utensils, Car, Home, Gamepad2, Coffee, ShoppingBag } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { useCategories } from '@/hooks/useSupabaseData';
-import { useAdaptiveAnalytics, useAdaptiveTransactions } from '@/hooks/useAdaptiveData';
+import { useAdaptiveAnalyticsByParent, useAdaptiveTransactions } from '@/hooks/useAdaptiveData';
 import BackButton from '@/components/ui/back-button';
 import { ViewModeToggle } from '@/components/ui/view-mode-toggle';
 
@@ -15,9 +15,9 @@ const Analysis = () => {
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
 
-  // Get real data from Supabase - usando hooks adaptativos
+  // Get real data from Supabase - usando hooks adaptativos (apenas categorias PAI)
   const currentMonthStr = `${selectedYear}-${(selectedMonth + 1).toString().padStart(2, '0')}-01`;
-  const { data: analyticsData, isLoading: analyticsLoading } = useAdaptiveAnalytics(currentMonthStr);
+  const { data: analyticsData, isLoading: analyticsLoading } = useAdaptiveAnalyticsByParent(currentMonthStr);
   const { data: transactionsData, isLoading: transactionsLoading } = useAdaptiveTransactions(500);
   const { data: categories = [] } = useCategories();
 

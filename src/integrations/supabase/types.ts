@@ -430,7 +430,15 @@ export type Database = {
           total_spent?: number | null
           user_id?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "monthly_summaries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orcamentos: {
         Row: {
@@ -704,6 +712,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: number
+          tipo: string
           transaction_date: string
           user_id: number
         }
@@ -714,6 +723,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: never
+          tipo: string
           transaction_date?: string
           user_id: number
         }
@@ -724,6 +734,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: never
+          tipo?: string
           transaction_date?: string
           user_id?: number
         }
@@ -1124,6 +1135,36 @@ export type Database = {
           },
         ]
       }
+      family_budget_performance: {
+        Row: {
+          actual_spent: number | null
+          budgeted: number | null
+          category_id: number | null
+          category_name: string | null
+          familia_id: number | null
+          icon_name: string | null
+          month: string | null
+          remaining: number | null
+          status: string | null
+          usage_percentage: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membros_familia_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "familias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "membros_familia_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "mv_family_goals"
+            referencedColumns: ["familia_id"]
+          },
+        ]
+      }
       monthly_user_summary: {
         Row: {
           month: string | null
@@ -1154,29 +1195,7 @@ export type Database = {
           status: string | null
           usage_percentage: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "orcamentos_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orcamentos_familia_id_fkey"
-            columns: ["familia_id"]
-            isOneToOne: false
-            referencedRelation: "familias"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orcamentos_familia_id_fkey"
-            columns: ["familia_id"]
-            isOneToOne: false
-            referencedRelation: "mv_family_goals"
-            referencedColumns: ["familia_id"]
-          },
-        ]
+        Relationships: []
       }
       mv_family_goals: {
         Row: {
@@ -1192,6 +1211,30 @@ export type Database = {
           total_target: number | null
         }
         Relationships: []
+      }
+      spending_trends_by_parent_category: {
+        Row: {
+          avg_transaction: number | null
+          category_id: number | null
+          category_name: string | null
+          category_type: string | null
+          icon_name: string | null
+          max_transaction: number | null
+          min_transaction: number | null
+          month: string | null
+          total_spent: number | null
+          transaction_count: number | null
+          user_id: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       spending_trends_monthly: {
         Row: {
@@ -1230,6 +1273,21 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_budget_performance: {
+        Args: { p_family_id?: number; p_month: string; p_user_id: string }
+        Returns: {
+          actual_spent: number
+          budgeted: number
+          category_id: number
+          category_name: string
+          familia_id: number
+          icon_name: string
+          month: string
+          remaining: number
+          status: string
+          usage_percentage: number
+        }[]
+      }
       get_current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -1250,8 +1308,8 @@ export type Database = {
         Args: { _familia_id: number; _user_id: number }
         Returns: boolean
       }
-      refresh_family_views: {
-        Args: Record<PropertyKey, never>
+      refresh_monthly_summaries_for_month: {
+        Args: { p_month: string; p_user_id: number }
         Returns: undefined
       }
     }
