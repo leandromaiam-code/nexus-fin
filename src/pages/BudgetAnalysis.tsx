@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { format, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 // Importing all required icons from lucide-react
@@ -19,11 +20,16 @@ import { ViewModeToggle } from '@/components/ui/view-mode-toggle';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const BudgetAnalysis = () => {
+  const navigate = useNavigate();
   const [selectedMonth, setSelectedMonth] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
   const { viewMode } = useViewMode();
   const { data: budgetResponse, isLoading } = useAdaptiveBudget(selectedMonth);
   const budgetData = budgetResponse?.data || [];
   const { data: historyData, isLoading: historyLoading } = useBudgetHistory();
+
+  const handleCategoryClick = (categoryId: number) => {
+    navigate(`/analysis/category/${categoryId}`);
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -210,7 +216,11 @@ const BudgetAnalysis = () => {
           <h2 className="text-xl font-semibold mb-6">Detalhes por Categoria</h2>
           <div className="space-y-4">
             {budgetData?.map((item) => (
-              <div key={item.category_id} className="border-b border-border pb-4 last:border-0">
+              <div 
+                key={item.category_id} 
+                onClick={() => handleCategoryClick(item.category_id)}
+                className="border-b border-border pb-4 last:border-0 cursor-pointer hover:bg-accent/50 rounded-lg p-3 -mx-3 transition-colors"
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <CategoryIcon iconName={item.icon_name} size={24} className="text-primary" />

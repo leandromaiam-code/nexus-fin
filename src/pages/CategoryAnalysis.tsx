@@ -45,10 +45,14 @@ const CategoryAnalysis = () => {
   const { data: categories } = useCategories();
   const { data: allTransactions = [], isLoading } = useRecentTransactions(1000);
   
-  // Filter by category
+  // Filter by category - include subcategories
   const category = categories?.find(c => c.id === Number(categoryId));
+  const subcategories = categories?.filter(c => c.parent_category_id === Number(categoryId)) || [];
+  const subcategoryIds = subcategories.map(s => s.id);
+  
+  // Filter transactions from subcategories only (not parent category itself)
   const categoryTransactions = allTransactions.filter(
-    t => t.category_id === Number(categoryId)
+    t => subcategoryIds.includes(t.category_id)
   );
   
   const CategoryIcon = category ? getCategoryIcon(category.icon_name || '') : DollarSign;
@@ -98,9 +102,6 @@ const CategoryAnalysis = () => {
   // Subcategory data for donut chart
   const subcategoryData = useMemo(() => {
     const subcatMap: { [key: number]: { name: string; total: number; icon: string } } = {};
-    
-    // Buscar subcategorias desta categoria
-    const subcategories = categories?.filter(c => c.parent_category_id === Number(categoryId)) || [];
     
     // Agrupar transações por subcategoria
     categoryTransactions.forEach(transaction => {
