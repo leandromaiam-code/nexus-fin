@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { BarChart3, TrendingDown, Wallet, CreditCard, Utensils, Car, Home, Gamepad2, Coffee, ShoppingBag } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale/pt-BR';
 import { useCategories } from '@/hooks/useSupabaseData';
 import { useAdaptiveAnalyticsByParent, useAdaptiveTransactions } from '@/hooks/useAdaptiveData';
 import BackButton from '@/components/ui/back-button';
@@ -212,7 +213,7 @@ const Analysis = () => {
               {formatCurrencyNoDecimals(totalSpent)}
             </p>
             <p className="text-sm text-muted-foreground">
-              {format(new Date(selectedMonth), 'MMMM yyyy', { locale: require('date-fns/locale/pt-BR').ptBR })}
+              {format(new Date(selectedMonth), 'MMMM yyyy', { locale: ptBR })}
             </p>
           </div>
         </div>
