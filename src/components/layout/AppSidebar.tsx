@@ -45,30 +45,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
       path: "/",
     },
     {
-      id: "family",
-      label: "Família",
-      icon: Users,
-      path: "/family",
-    },
-    {
-      id: "accounts",
-      label: "Contas",
-      icon: Wallet,
-      path: "/payment-accounts",
-    },
-    {
-      id: "budget",
-      label: "Orçamento",
-      icon: PiggyBank,
-      path: "/budget",
-    },
-    {
-      id: "plan",
-      label: "Plano",
-      icon: Target,
-      path: "/plan",
-    },
-    {
       id: "register",
       label: "Registrar",
       icon: Plus,
@@ -91,6 +67,30 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
       label: "Insights de Gastos",
       icon: Lightbulb,
       path: "/spending-insights",
+    },
+    {
+      id: "budget",
+      label: "Configurar Orçamento",
+      icon: PiggyBank,
+      path: "/budget",
+    },
+    {
+      id: "plan",
+      label: "Metas",
+      icon: Target,
+      path: "/plan",
+    },
+    {
+      id: "family",
+      label: "Configurar Família",
+      icon: Users,
+      path: "/family",
+    },
+    {
+      id: "accounts",
+      label: "Configurar Contas",
+      icon: Wallet,
+      path: "/payment-accounts",
     },
     {
       id: "diagnostic",
