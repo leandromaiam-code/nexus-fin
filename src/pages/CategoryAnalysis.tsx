@@ -6,6 +6,7 @@ import {
   GraduationCap, Smartphone, Plane, Gift, Zap, ShoppingBag, Cpu, PieChart as PieChartIcon
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useCategories, useRecentTransactions, useUpdateTransaction, useDeleteTransaction } from '@/hooks/useSupabaseData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -48,6 +49,9 @@ const CategoryAnalysis = () => {
   const [selectedMonth, setSelectedMonth] = useState<string>(
     urlParams.get('month') || format(new Date(), 'yyyy-MM-01')
   );
+  const [filterMode, setFilterMode] = useState<'single' | 'range'>('single');
+  const [startMonth, setStartMonth] = useState<string | null>(null);
+  const [endMonth, setEndMonth] = useState<string | null>(null);
 
   // Fetch real data
   const { data: categories } = useCategories();
@@ -63,6 +67,14 @@ const CategoryAnalysis = () => {
     if (!subcategoryIds.includes(t.category_id)) return false;
     
     const transactionDate = new Date(t.transaction_date);
+    
+    if (filterMode === 'range' && startMonth && endMonth) {
+      const rangeStart = startOfMonth(parseISO(startMonth));
+      const rangeEnd = endOfMonth(parseISO(endMonth));
+      return transactionDate >= rangeStart && transactionDate <= rangeEnd;
+    }
+    
+    // Modo single month
     const selectedDate = parseISO(selectedMonth);
     const monthStart = startOfMonth(selectedDate);
     const monthEnd = endOfMonth(selectedDate);
@@ -96,32 +108,34 @@ const CategoryAnalysis = () => {
 
   // Monthly comparison (last 3 months from selected month)
   const monthlyComparison = useMemo(() => {
-    const selectedDate = parseISO(selectedMonth);
+    const referenceDate = filterMode === 'range' && endMonth 
+      ? parseISO(endMonth) 
+      : parseISO(selectedMonth);
+    
     const monthlyData: { month: string; amount: number; date: Date }[] = [];
     
     // Get 3 months back from selected month
     for (let i = 2; i >= 0; i--) {
-      const targetDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth() - i, 1);
+      const targetDate = new Date(referenceDate.getFullYear(), referenceDate.getMonth() - i, 1);
       const monthStart = startOfMonth(targetDate);
       const monthEnd = endOfMonth(targetDate);
       
       const monthTransactions = allTransactions.filter(t => {
         if (!subcategoryIds.includes(t.category_id)) return false;
-        const transactionDate = new Date(t.transaction_date);
-        return transactionDate >= monthStart && transactionDate <= monthEnd;
+        const tDate = new Date(t.transaction_date);
+        return tDate >= monthStart && tDate <= monthEnd && t.amount < 0;
       });
       
       const total = monthTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
-      
       monthlyData.push({
-        month: targetDate.toLocaleDateString('pt-BR', { month: 'short' }),
+        month: format(targetDate, 'MMM', { locale: ptBR }),
         amount: total,
         date: targetDate
       });
     }
-
+    
     return monthlyData.filter(m => m.amount > 0);
-  }, [allTransactions, subcategoryIds, selectedMonth]);
+  }, [allTransactions, subcategoryIds, selectedMonth, filterMode, endMonth]);
 
   // Subcategory data for donut chart
   const subcategoryData = useMemo(() => {
@@ -283,12 +297,48 @@ const CategoryAnalysis = () => {
       </header>
 
       <div className="px-6 mb-4">
-        <MonthFilter 
-          selectedMonth={selectedMonth}
-          onMonthChange={setSelectedMonth}
-          showViewModeToggle={false}
-        />
+          <MonthFilter 
+            selectedMonth={selectedMonth}
+            onMonthChange={(month) => {
+              setFilterMode('single');
+              setSelectedMonth(month);
+            }}
+            showViewModeToggle={false}
+            rangeMode={filterMode === 'range'}
+            startMonth={startMonth || undefined}
+            endMonth={endMonth || undefined}
+            onRangeChange={(start, end) => {
+              setFilterMode('range');
+              setStartMonth(start);
+              setEndMonth(end);
+            }}
+          />
       </div>
+
+      {/* Indicador de Range Ativo */}
+      {filterMode === 'range' && startMonth && endMonth && (
+        <div className="px-6 mb-4">
+          <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar className="text-primary" size={18} />
+              <p className="text-sm font-medium">
+                Período: {format(parseISO(startMonth), 'MMM/yyyy', { locale: ptBR })} - {format(parseISO(endMonth), 'MMM/yyyy', { locale: ptBR })}
+              </p>
+            </div>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={() => {
+                setFilterMode('single');
+                setStartMonth(null);
+                setEndMonth(null);
+              }}
+            >
+              Limpar
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="px-6 space-y-6">
         {/* Category Total Card */}
@@ -594,12 +644,13 @@ const CategoryAnalysis = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Excluir
-            </AlertDialogAction>
+              <AlertDialogAction 
+                onClick={handleDeleteConfirm}
+                disabled={deleteTransactionMutation.isPending}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleteTransactionMutation.isPending ? 'Excluindo...' : 'Excluir'}
+              </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

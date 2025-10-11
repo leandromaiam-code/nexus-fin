@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,6 +23,10 @@ const MonthRangePicker: React.FC<MonthRangePickerProps> = ({ open, onOpenChange,
   const [endYear, setEndYear] = useState<number>(currentYear);
   const [error, setError] = useState<string>('');
 
+  useEffect(() => {
+    validateRange();
+  }, [startMonth, startYear, endMonth, endYear]);
+
   const months = [
     { value: 0, label: 'Janeiro' },
     { value: 1, label: 'Fevereiro' },
@@ -45,6 +49,9 @@ const MonthRangePicker: React.FC<MonthRangePickerProps> = ({ open, onOpenChange,
     const end = new Date(endYear, endMonth, 1);
     const now = new Date(currentYear, currentMonth, 1);
 
+    // Limpar erro primeiro
+    setError('');
+
     if (start > now) {
       setError('Data inicial não pode ser futura');
       return false;
@@ -66,7 +73,6 @@ const MonthRangePicker: React.FC<MonthRangePickerProps> = ({ open, onOpenChange,
       return false;
     }
 
-    setError('');
     return true;
   };
 
