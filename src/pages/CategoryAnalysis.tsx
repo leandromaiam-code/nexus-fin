@@ -5,7 +5,7 @@ import {
   ShoppingCart, Home, Car, Utensils, Film, Heart, Briefcase, 
   GraduationCap, Smartphone, Plane, Gift, Zap, ShoppingBag, Cpu, PieChart as PieChartIcon
 } from 'lucide-react';
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { format, startOfMonth, endOfMonth, parseISO } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useCategories, useRecentTransactions, useUpdateTransaction, useDeleteTransaction } from '@/hooks/useSupabaseData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -63,7 +63,7 @@ const CategoryAnalysis = () => {
     if (!subcategoryIds.includes(t.category_id)) return false;
     
     const transactionDate = new Date(t.transaction_date);
-    const selectedDate = new Date(selectedMonth);
+    const selectedDate = parseISO(selectedMonth);
     const monthStart = startOfMonth(selectedDate);
     const monthEnd = endOfMonth(selectedDate);
     
@@ -96,7 +96,7 @@ const CategoryAnalysis = () => {
 
   // Monthly comparison (last 3 months from selected month)
   const monthlyComparison = useMemo(() => {
-    const selectedDate = new Date(selectedMonth);
+    const selectedDate = parseISO(selectedMonth);
     const monthlyData: { month: string; amount: number; date: Date }[] = [];
     
     // Get 3 months back from selected month
